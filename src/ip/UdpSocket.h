@@ -1,3 +1,5 @@
+#pragma once
+
 #include <asio.hpp>
 #include <cstdint>
 #include <functional>
@@ -11,16 +13,17 @@ using asio::ip::tcp;
 using HandlerFunction = std::function<void(std::vector<std::uint8_t>& data)>;
 using std::chrono::steady_clock;
 
-class AsioHttpServer {
+class UdpSocket {
 public:
-  AsioHttpServer(std::string bindHost, int port);
+  UdpSocket(std::string bindHost, unsigned short port);
   void setHandler(HandlerFunction function);
   void start();
 
 private:
   std::string bindHost;
-  int port;
+  unsigned short port;
   std::unique_ptr<HandlerFunction> handlerFunction;
+  void receiveSome(const std::error_code& error, std::size_t size);
 
   awaitable<void> listen(tcp::acceptor &acceptor);
   awaitable<void> transfer(tcp::socket &socket,
