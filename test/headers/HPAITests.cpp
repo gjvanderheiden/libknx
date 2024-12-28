@@ -1,22 +1,9 @@
 #include "HPAI.h"
 #include <asio/detached.hpp>
 #include <asio/read.hpp>
-#include <cstddef>
 #include <gtest/gtest.h>
+#include "mock/BufferStream.h"
 
-class BufferStream {
-public:
-  BufferStream(ByteSpan bytes) :bytes{bytes}{}
-  
- asio::awaitable<void> asyncReadSome(ByteSpan b){
-    std::copy(bytes.begin() + index, bytes.begin() + b.size() + index, b.data());
-    this->index += b.size();
-    co_return;
-  }
-private:
-  ByteSpan bytes;
-  std::size_t index{0};
-};
 
 struct Konijn {
   HPAI hpai;

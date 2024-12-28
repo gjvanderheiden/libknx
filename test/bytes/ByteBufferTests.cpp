@@ -1,33 +1,21 @@
-
+#include "mock/BufferStream.h"
 #include "bytes/ByteBuffer.h"
 #include <gtest/gtest.h>
-
-class BufferStreamPje {
-public:
-  BufferStreamPje(ByteSpan bytes) :bytes{bytes}{}
-  
- asio::awaitable<void> asyncReadSome(ByteSpan b){
-    std::copy(bytes.begin(), bytes.end(), b.data());
-    co_return;
-  }
-private:
-  ByteSpan bytes;
-};
 
 struct KonijnTje {
   int answer;
 };
 
 asio::awaitable<void> readFromStream(ByteSpan bytes, KonijnTje& answer) {
-  BufferStreamPje bufferReader{bytes};
-  StreamReader<BufferStreamPje> sr{bufferReader};
+  BufferStream bufferReader{bytes};
+  StreamReader<BufferStream> sr{bufferReader};
   answer.answer = co_await sr.readUint8();
   co_return;
 }
 
 asio::awaitable<void> readFromStream16(ByteSpan bytes, KonijnTje& answer) {
-  BufferStreamPje bufferReader{bytes};
-  StreamReader<BufferStreamPje> sr{bufferReader};
+  BufferStream bufferReader{bytes};
+  StreamReader<BufferStream> sr{bufferReader};
   answer.answer = co_await sr.readUint16();
   co_return;
 }
