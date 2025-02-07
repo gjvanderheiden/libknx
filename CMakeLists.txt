@@ -17,8 +17,8 @@ file(GLOB_RECURSE TEST_SOURCES  test/**/*.cpp)
 add_executable(knx-ip src/main.cpp ${SOURCES})
 add_executable(knx-ip_tests ${SOURCES} ${TEST_SOURCES})
 
-target_include_directories(knx-ip PUBLIC src src/ip src/headers src/requests)
-target_include_directories(knx-ip_tests PRIVATE src src/ip src/headers src/requests test)
+target_include_directories(knx-ip PUBLIC src src/ip src/headers src/requests src/connection)
+target_include_directories(knx-ip_tests PRIVATE src src/ip src/headers src/requests src/connection test)
 
 target_link_libraries(knx-ip)
 target_link_libraries(knx-ip_tests PRIVATE GTest::gtest_main)

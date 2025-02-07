@@ -7,7 +7,7 @@
 #include <chrono>
 #include <iostream>
 
-namespace http_server {
+namespace udp {
 
 using asio::awaitable;
 using asio::buffer;

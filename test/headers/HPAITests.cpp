@@ -5,11 +5,11 @@
 #include "mock/BufferStream.h"
 
 
-struct Konijn {
+struct HPAITests {
   HPAI hpai;
 };
 
-asio::awaitable<void> readFromStream(ByteSpan bytes, Konijn& answer) {
+asio::awaitable<void> readFromStream(ByteSpan bytes, HPAITests& answer) {
   BufferStream bufferReader{bytes};
   StreamReader<BufferStream> sr{bufferReader};
   answer.hpai = co_await HPAI::readFromStream(sr);
@@ -18,7 +18,7 @@ asio::awaitable<void> readFromStream(ByteSpan bytes, Konijn& answer) {
 
 HPAI readFromStream(ByteSpan bytes) {
   asio::io_context io_context;
-  Konijn answer;
+  HPAITests answer;
   asio::co_spawn(io_context, readFromStream(bytes,answer), asio::detached);
   io_context.run();
   return answer.hpai;

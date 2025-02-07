@@ -1,0 +1,6 @@
+namespace connection {
+
+class IpKnxConnection {
+};
+
+}
