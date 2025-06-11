@@ -8,7 +8,6 @@ SearchRequest::SearchRequest(HPAI hpaiLocal) : hpaiLocal(hpaiLocal) {}
 
 std::vector<std::uint8_t> SearchRequest::toBytes() {
   std::vector<std::uint8_t> bytes;
-  bytes.resize(14);
   // knx ip header
   bytes.push_back(0x06);
   bytes.push_back(0x10);
@@ -24,5 +23,7 @@ std::vector<std::uint8_t> SearchRequest::toBytes() {
 }
 
 SearchRequest SearchRequest::newDefault() {
+  IpAddress multicast{};
+  multicast.address = {244, 0, 23, 12};
   return SearchRequest(HPAI(IpAddress{}, 5371, HPAI::UDP));
 }

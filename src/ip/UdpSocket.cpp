@@ -3,9 +3,12 @@
 #include <asio.hpp>
 #include <asio/as_tuple.hpp>
 #include <asio/experimental/awaitable_operators.hpp>
+#include <asio/ip/address.hpp>
+#include <asio/ip/multicast.hpp>
 #include <asio/placeholders.hpp>
+#include <asio/use_awaitable.hpp>
+#include <asio/write.hpp>
 #include <chrono>
-#include <iostream>
 
 namespace udp {
 
@@ -22,30 +25,41 @@ using namespace std::literals::chrono_literals;
 constexpr auto use_nothrow_awaitable = asio::as_tuple(asio::use_awaitable);
 
 awaitable<void> watchdog(steady_clock::time_point &deadline);
-UdpSocket::UdpSocket(std::string bindHost, unsigned short port)
-    : bindHost(std::move(bindHost)), port(port) {}
+
+UdpSocket::UdpSocket(asio::io_context &ctx, std::string bindHost, unsigned short port)
+    : 
+     bindHost(std::move(bindHost)), 
+     port(port),
+     endpoint(udp::v4(), port) ,
+     socket{ctx} {}
 
 void UdpSocket::setHandler(HandlerFunction function) {
   this->handlerFunction.reset(&function);
 }
 
-void UdpSocket::receiveSome(const std::error_code &error, std::size_t size) {}
+void UdpSocket::receiveSome(const std::error_code &error, std::size_t size) {
+ if(this->handlerFunction) {
+    std::vector<std::uint8_t> bullshit;
+    (*(this->handlerFunction))(bullshit);
+  }
+}
 
-void UdpSocket::start() {
-  try {
-    asio::io_context ctx;
-    udp::socket socket(ctx, udp::endpoint{udp::v4(), port});
+void UdpSocket::start(asio::io_context &ctx) {
+    socket.open(endpoint.protocol());
+    socket.set_option(asio::ip::udp::socket::reuse_address(true));
+    socket.bind(endpoint);
+    socket.set_option(asio::ip::multicast::join_group(asio::ip::make_address("224.0.23.12")));
+
     std::array<std::uint8_t, 512> buffer;
     udp::endpoint remoteEndpoint;
     socket.async_receive_from(asio::buffer(buffer), remoteEndpoint,
                               std::bind_front(&UdpSocket::receiveSome, this));
 
-    ctx.run();
-  } catch (std::exception &e) {
-    std::cerr << "Exception: " << e.what() << "\n";
-  }
 }
 
+awaitable<void> UdpSocket::write(std::span<std::uint8_t> data) {
+  co_await socket.async_send(asio::buffer(data), asio::use_awaitable);
+}
 awaitable<void> UdpSocket::listen(tcp::acceptor &acceptor) {
   for (;;) {
     auto [e, client] = co_await acceptor.async_accept(use_nothrow_awaitable);

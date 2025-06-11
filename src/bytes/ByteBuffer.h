@@ -4,9 +4,8 @@
 #include <bit>
 #include <concepts>
 #include <cstdint>
-#include <span>
 #include <string_view>
-#include <vector>
+#include <span>
 
 using byte = std::uint8_t;
 using ByteSpan = std::span<byte>;
@@ -14,22 +13,42 @@ using asio::awaitable;
 
 class ByteBuffer {
 public:
-  ByteBuffer(std::vector<byte> &data);
-  int takeUInt32BigEndian();
+  ByteBuffer(std::span<byte> data);
+  std::uint32_t takeUInt32BigEndian();
   void skip(int numberOfBytes);
-  std::string_view takeString(int numberOfBytes);
+  std::string takeString(int numberOfBytes);
   ByteSpan takeByteSpan(int numberOfBytes);
+  void takeCopyToSpan(std::span<byte> destination);
   bool takeBoolFromByte();
-  byte getByte();
-  int byteAsInt();
+  std::uint8_t readUint8();
   std::uint16_t readUint16();
 
-  static consteval bool isNativeLittleEndian() {
+  static constexpr bool isNativeLittleEndian() {
     return std::endian::native == std::endian::little;
   }
 
 private:
+  std::span<byte> data;
   int index{0};
+};
+
+template <typename S>
+concept WriteStream = requires(S s, ByteSpan &b) {
+  { s.asyncWriteSome(b) } -> std::same_as<asio::awaitable<void>>;
+};
+
+template <typename S>
+  requires WriteStream<S>
+class StreamWriter {
+public:
+  StreamWriter(S &stream);
+
+  awaitable<void> writeInt32BigEndian(std::uint32_t data);
+  awaitable<void> writeToSpan(ByteSpan byteSpan);
+  awaitable<void> writeBoolAsByte(bool data);
+  awaitable<void> writeByte(byte byte);
+  awaitable<void> writeIntAsByte(int data);
+  awaitable<void> writeUint16(std::uint16_t data);
 };
 
 template <typename S>

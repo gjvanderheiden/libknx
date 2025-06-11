@@ -16,6 +16,14 @@ std::array<std::uint8_t, 8> HPAI::bodyAsByteArray() {
   return body;
 }
 
+HPAI HPAI::parse(ByteBuffer& byteBuffer) {
+  uint8_t size = byteBuffer.readUint8();
+  uint8_t protocolCode = byteBuffer.readUint8();
+  IpAddress ipAddress = IpAddress::parse(byteBuffer);
+  uint16_t port = byteBuffer.readUint16();
+  return HPAI{ipAddress, port, protocolCode};
+}
+
 IpAddress HPAI::getAddress() const { return this->address; }
 
 std::uint16_t HPAI::getPort() const { return this->port; }

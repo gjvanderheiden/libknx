@@ -13,8 +13,7 @@ public:
 
   std::array<std::uint8_t, 8> bodyAsByteArray();
 
-  template <typename S>
-  static asio::awaitable<HPAI> readFromStream(StreamReader<S>& byteBuffer);
+  static HPAI parse(ByteBuffer& byteBuffer);
 
 
   IpAddress getAddress() const;
@@ -32,12 +31,4 @@ private:
   std::uint8_t protocolCode = UDP;
 };
 
-template <typename S>
-asio::awaitable<HPAI> HPAI::readFromStream(StreamReader<S>& byteBuffer) {
-  uint8_t size = co_await byteBuffer.readUint8();
-  uint8_t protocolCode = co_await byteBuffer.readUint8();
-  IpAddress ipAddress = co_await IpAddress::parse(byteBuffer);
-  uint16_t port = co_await byteBuffer.readUint16();
-  co_return HPAI{ipAddress, port, protocolCode};
-}
 

@@ -2,16 +2,28 @@
 
 #include <string>
 #include <vector>
+#include <asio.hpp>
+
 namespace connection {
 
-struct KnxIp{
+struct KnxIp {
   std::string name;
   std::string ip;
 };
 
 class Discovery {
 public:
-  static std::vector<KnxIp> lookAround();
+  explicit Discovery(asio::io_context& io_context);
+  void lookAround(int maxResults = 0);
+  std::vector<KnxIp>& result();
+private:
+  void do_receive();
+  asio::ip::udp::socket socket_read;
+  asio::ip::udp::endpoint sender_endpoint;
+  std::array<std::uint8_t, 1024> data;
+  asio::ip::address multicast_address;
+  std::vector<KnxIp> foundKnxIps{};
+  int maxResults{0};
 };
 
 }

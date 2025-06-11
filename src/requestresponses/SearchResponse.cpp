@@ -1,19 +1,26 @@
 
 #include "requestresponses/SearchResponse.h"
-#include <cmath>
+#include "DeviceDib.h"
 
-namespace knx::reqeuestresponse {
+namespace knx::requestresponse {
 
-SearchResponse::SearchResponse(HPAI&& controlEndPoint) 
-  : controlEndPoint{std::move(controlEndPoint)} {
+SearchResponse::SearchResponse(HPAI &&controlEndPoint, DeviceDib && deviceDib)
+    : controlEndPoint{std::move(controlEndPoint)}, deviceDib{std::move(deviceDib)} {}
+
+HPAI SearchResponse::getContronEndPoint() {
+  return this->controlEndPoint;
 }
 
-template <typename T>
-SearchResponse SearchResponse::parse(StreamReader<T>& stream) {
-  auto type = stream.readUint16();
-  auto length = stream.readUint16();
-  HPAI controlEndPoint = HPAI::readFromStream(stream);
-  return {std::move(controlEndPoint)};
+DeviceDib& SearchResponse::getDeviceDib() {
+  return this->deviceDib;
+}
+SearchResponse SearchResponse::parse(ByteBuffer &buffer) {
+  buffer.skip(2);
+  auto type = buffer.readUint16();
+  auto length = buffer.readUint16();
+  HPAI controlEndPoint = HPAI::parse(buffer);
+
+  return {std::move(controlEndPoint), DeviceDib::parse(buffer)};
 }
 
-} // namespace knx::reqeuestrespons
+} // namespace knx::requestresponse
