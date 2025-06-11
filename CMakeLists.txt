@@ -5,6 +5,7 @@ project(KnxIP
     LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
+set(THREADS_PREFER_PTHREAD_FLAG true)
 include(FindThreads)
 find_package(PkgConfig REQUIRED)
 find_package(GTest REQUIRED)
@@ -20,8 +21,8 @@ add_executable(knx-ip_tests ${SOURCES} ${TEST_SOURCES})
 target_include_directories(knx-ip PUBLIC src src/ip src/headers src/requests src/connection ${ASIO_INCLUDE_DIRS})
 target_include_directories(knx-ip_tests PRIVATE src src/ip src/headers src/requests src/connection test)
 
-target_link_libraries(knx-ip)
-target_link_libraries(knx-ip_tests PRIVATE GTest::gtest_main)
+target_link_libraries(knx-ip PRIVATE Threads::Threads)
+target_link_libraries(knx-ip_tests PRIVATE GTest::gtest_main Threads::Threads)
 
 include(GoogleTest)
 gtest_discover_tests(knx-ip_tests)

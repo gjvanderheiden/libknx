@@ -5,6 +5,7 @@
 #include <functional>
 #include <vector>
 #include <string>
+#include <span>
 
 namespace udp {
 
