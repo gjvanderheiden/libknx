@@ -54,7 +54,7 @@ void Discovery::do_receive() {
 
             foundKnxIps.emplace_back(
                 std::string{sr.getDeviceDib().getDeviceName()},
-                sr.getContronEndPoint().getAddress().asString());
+                sr.getControlEndPoint().getAddress().asString());
             if (maxResults == 0 || foundKnxIps.size() < maxResults) {
               do_receive();
             }

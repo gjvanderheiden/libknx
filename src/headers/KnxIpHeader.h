@@ -4,7 +4,7 @@
 #include <cstdint>
 
 class KnxIpHeader {
-  static KnxIpHeader parse(ByteBuffer& bytebuffer);
+  static KnxIpHeader createAndParse(ByteBuffer& bytebuffer);
   std::uint16_t getServiceType();
   std::uint16_t getLengthInBytes();
 private:

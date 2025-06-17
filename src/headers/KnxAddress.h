@@ -4,7 +4,7 @@
 #include <cstdint>
 class IndividualAddress {
 public:
-  static IndividualAddress parse(ByteBuffer& bytebuffer);
+  static IndividualAddress createAndParse(ByteBuffer& bytebuffer);
   std::uint8_t getArea();
   std::uint8_t getLine();
   std::uint8_t getDevice();

@@ -2,16 +2,20 @@
 
 #include "IpAddress.h"
 #include "KnxAddress.h"
+#include "KnxStructure.h"
 #include "bytes/ByteBuffer.h"
 #include <array>
 #include <cstdint>
 #include <string>
 
-class DeviceDib {
+class DeviceDib : public KnxStructure {
 public:
-  static DeviceDib parse(ByteBuffer &byteBuffer);
+  static DeviceDib createAndParse(ByteBuffer &byteBuffer);
   std::string_view getDeviceName();
   std::span<std::uint8_t> getSerialNumber();
+
+protected:
+  void parseBody(ByteBuffer& byteBuffer, std::uint16_t length) override;
 
 private:
   IndividualAddress individualAddress;
@@ -21,5 +25,5 @@ private:
   std::uint8_t deviceStatus;
   std::uint16_t projectInstallationIdentifier;
   IpAddress multicastAddress;
-  std::array<std::uint8_t, 8> macAddress;
+  std::array<std::uint8_t, 6> macAddress;
 };

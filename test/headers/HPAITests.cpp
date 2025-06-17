@@ -19,7 +19,7 @@ TEST(HPAI, toByteArray) {
   EXPECT_EQ(0xCD, answer[7]);
 
   ByteBuffer byteBuffer{answer};
-  HPAI fromArray = HPAI::parse(byteBuffer);
+  HPAI fromArray = HPAI::createAndParse(byteBuffer);
   EXPECT_TRUE(fromArray.isUdp());
   EXPECT_EQ(0xABCD, fromArray.getPort());
 }

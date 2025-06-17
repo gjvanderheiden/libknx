@@ -1,6 +1,6 @@
 #include "KnxAddress.h"
 
-IndividualAddress IndividualAddress::parse(ByteBuffer &bytebuffer) {
+IndividualAddress IndividualAddress::createAndParse(ByteBuffer &bytebuffer) {
   IndividualAddress result{};
   bytebuffer.takeCopyToSpan(result.address);
   return result;
