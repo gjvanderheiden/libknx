@@ -8,7 +8,5 @@ public:
   static IpAddress parse(ByteBuffer& byteBuffer);
   std::array<uint8_t,4> address{};
   std::string asString();
-
-
 };
 
