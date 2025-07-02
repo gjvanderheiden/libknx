@@ -1,17 +1,33 @@
 #include "KnxAddress.h"
 
+KnxAddress::KnxAddress(std::uint8_t high, std::uint8_t middle, std::uint8_t low)
+    : high{high}, middle{middle}, low{low} {}
+
+std::uint8_t KnxAddress::getHigh() { return high; }
+std::uint8_t KnxAddress::getMiddle() { return middle; }
+std::uint8_t KnxAddress::getLow() { return low; }
+IndividualAddress::IndividualAddress(std::uint8_t high, std::uint8_t middle,
+                                     std::uint8_t low)
+    : KnxAddress{high, middle, low} {}
+
 IndividualAddress IndividualAddress::createAndParse(ByteBuffer &bytebuffer) {
-  IndividualAddress result{};
-  bytebuffer.takeCopyToSpan(result.address);
-  return result;
+  ByteSpan address = bytebuffer.takeByteSpan(2);
+  std::uint8_t area = (address[0] >> 4) & 0x0F;
+  std::uint8_t line = address[0] & 0x0F;
+  return {area, line, address[1]};
 }
 
-std::uint8_t IndividualAddress::getArea() {
-  return (address[0] >> 4) & 0xF0;
-}
-std::uint8_t IndividualAddress::getLine() {
-  return address[0] & 0xF0;
-}
-std::uint8_t IndividualAddress::getDevice() {
-  return address[1];
+std::uint8_t IndividualAddress::getArea() { return getHigh(); }
+std::uint8_t IndividualAddress::getLine() { return getMiddle(); }
+std::uint8_t IndividualAddress::getDevice() { return getLow(); }
+
+GroupAddress::GroupAddress(std::uint8_t high, std::uint8_t middle,
+                           std::uint8_t low)
+    : KnxAddress{high, middle, low} {}
+
+GroupAddress GroupAddress::createAndParse(ByteBuffer &bytebuffer) {
+  ByteSpan address = bytebuffer.takeByteSpan(2);
+  std::uint8_t area = (address[0] >> 3) & 0x1F;
+  std::uint8_t line = (address[0] >> 4) & 0x03;
+  return {area, line, address[1]};
 }
