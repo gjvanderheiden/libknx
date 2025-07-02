@@ -4,9 +4,9 @@
 #include "HPAI.h"
 #include <cstdint>
 
-class ConnectionRequest {
+class ConnectRequest {
 public:
-  explicit ConnectionRequest(HPAI&& controlEndPoint, HPAI&& dataEndPoint, ConnectionRequestInformation&& cri);
+  explicit ConnectRequest(HPAI&& controlEndPoint, HPAI&& dataEndPoint, ConnectionRequestInformation&& cri);
 
   static constexpr std::array<std::uint8_t, 2> SERVICE_ID = {0x02, 0x05};
 

@@ -3,7 +3,7 @@
 #include "IpAddress.h"
 #include "SearchRequest.h"
 #include "bytes/ByteBuffer.h"
-#include "requestresponses/SearchResponse.h"
+#include "responses/SearchResponse.h"
 #include <asio.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>

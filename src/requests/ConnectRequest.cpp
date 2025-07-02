@@ -1,6 +1,6 @@
-#include "ConnectionRequest.h"
+#include "ConnectRequest.h"
 
-ConnectionRequest::ConnectionRequest(HPAI &&controlEndPoint,
+ConnectRequest::ConnectRequest(HPAI &&controlEndPoint,
                                      HPAI &&dataEndPoint,
                                      ConnectionRequestInformation &&cri)
     : controlEndPoint{std::move(controlEndPoint)},
