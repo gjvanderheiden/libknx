@@ -5,6 +5,7 @@
 #include <functional>
 #include <vector>
 #include <string>
+#include <bytes/ByteDef.h>
 
 namespace udp {
 
@@ -18,7 +19,7 @@ public:
   UdpSocket(asio::io_context &ctx, std::string bindHost, unsigned short port);
   void setHandler(HandlerFunction function);
   void start(asio::io_context &ctx);
-  awaitable<void> write(std::span<std::uint8_t> data);
+  awaitable<void> write(ByteSpan data);
 
 private:
   std::string bindHost;
