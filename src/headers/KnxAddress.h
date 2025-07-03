@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bytes/ByteBuffer.h"
+#include "bytes/ByteBufferReader.h"
 #include <cstdint>
 
 class KnxAddress {
@@ -20,7 +20,7 @@ public:
   IndividualAddress() = default;
   IndividualAddress(std::uint8_t high, std::uint8_t middle, std::uint8_t low);
   ~IndividualAddress() override = default;
-  static IndividualAddress createAndParse(ByteBuffer& bytebuffer);
+  static IndividualAddress createAndParse(ByteBufferReader& bytebuffer);
   std::uint8_t getArea();
   std::uint8_t getLine();
   std::uint8_t getDevice();
@@ -31,5 +31,5 @@ public:
   GroupAddress() = default;
   GroupAddress(std::uint8_t high, std::uint8_t middle, std::uint8_t low);
   ~GroupAddress() override = default;
-  static GroupAddress createAndParse(ByteBuffer& bytebuffer);
+  static GroupAddress createAndParse(ByteBufferReader& bytebuffer);
 };

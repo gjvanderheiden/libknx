@@ -2,7 +2,7 @@
 #include "HPAI.h"
 #include "IpAddress.h"
 #include "SearchRequest.h"
-#include "bytes/ByteBuffer.h"
+#include "bytes/ByteBufferReader.h"
 #include "responses/SearchResponse.h"
 #include <asio.hpp>
 #include <asio/io_context.hpp>
@@ -48,7 +48,7 @@ void Discovery::do_receive() {
         if (!ec) {
           if (data[2] == knx::requestresponse::SearchResponse::SERVICE_ID[0] &&
               data[3] == knx::requestresponse::SearchResponse::SERVICE_ID[1]) {
-            ByteBuffer bytebuffer{this->data};
+            ByteBufferReader bytebuffer{this->data};
             knx::requestresponse::SearchResponse sr =
                 knx::requestresponse::SearchResponse::parse(bytebuffer);
 

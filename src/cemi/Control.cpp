@@ -1,6 +1,6 @@
 #include "Control.h"
 
-Control Control::parse(ByteBuffer& byteBuffer) {
+Control Control::parse(ByteBufferReader& byteBuffer) {
   Control control;
   auto byte1 = byteBuffer.readUint8();
   auto byte2 = byteBuffer.readUint8();

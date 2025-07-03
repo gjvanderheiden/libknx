@@ -9,3 +9,10 @@ ConnectRequest::ConnectRequest(HPAI &&controlEndPoint,
 }
 
 
+std::vector<std::uint8_t> ConnectRequest::toBytes() {
+  std::vector<std::uint8_t> bytes;
+  controlEndPoint.appendToByteArray(bytes);
+  dataEndPoint.appendToByteArray(bytes);
+  cri.appendToByteArray(bytes);
+  return bytes;
+}

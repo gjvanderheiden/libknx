@@ -5,7 +5,7 @@ TCPI::TCPI(bool isControl, bool hasSequence, std::uint8_t sequence)
 }
 
 
-TCPI TCPI::parseAndCreate(ByteBuffer &byteBuffer) {
+TCPI TCPI::parseAndCreate(ByteBufferReader &byteBuffer) {
   std::uint8_t byte = byteBuffer.readUint8();
   bool isControl = byte & (1 << 8);
   bool hasSequence = byte & (1 << 7);

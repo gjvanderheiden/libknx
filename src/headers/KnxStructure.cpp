@@ -1,6 +1,6 @@
 #include "KnxStructure.h"
 
-void KnxStructure::parse(ByteBuffer& byteBuffer) {
+void KnxStructure::parse(ByteBufferReader& byteBuffer) {
   std::uint16_t length = byteBuffer.readUint8();
   if (length == 0xFF) {
     length = byteBuffer.readUint16();

@@ -1,5 +1,5 @@
 #include "HPAI.h"
-#include "bytes/ByteBuffer.h"
+#include "bytes/ByteBufferReader.h"
 #include <gtest/gtest.h>
 
 
@@ -18,7 +18,7 @@ TEST(HPAI, toByteArray) {
   EXPECT_EQ(0xAB, answer[6]); // port
   EXPECT_EQ(0xCD, answer[7]);
 
-  ByteBuffer byteBuffer{answer};
+  ByteBufferReader byteBuffer{answer};
   HPAI fromArray = HPAI::createAndParse(byteBuffer);
   EXPECT_TRUE(fromArray.isUdp());
   EXPECT_EQ(0xABCD, fromArray.getPort());

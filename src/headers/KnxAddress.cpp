@@ -10,8 +10,8 @@ IndividualAddress::IndividualAddress(std::uint8_t high, std::uint8_t middle,
                                      std::uint8_t low)
     : KnxAddress{high, middle, low} {}
 
-IndividualAddress IndividualAddress::createAndParse(ByteBuffer &bytebuffer) {
-  ByteSpan address = bytebuffer.takeByteSpan(2);
+IndividualAddress IndividualAddress::createAndParse(ByteBufferReader &bytebuffer) {
+  ByteSpan address = bytebuffer.readByteSpan(2);
   std::uint8_t area = (address[0] >> 4) & 0x0F;
   std::uint8_t line = address[0] & 0x0F;
   return {area, line, address[1]};
@@ -25,8 +25,8 @@ GroupAddress::GroupAddress(std::uint8_t high, std::uint8_t middle,
                            std::uint8_t low)
     : KnxAddress{high, middle, low} {}
 
-GroupAddress GroupAddress::createAndParse(ByteBuffer &bytebuffer) {
-  ByteSpan address = bytebuffer.takeByteSpan(2);
+GroupAddress GroupAddress::createAndParse(ByteBufferReader &bytebuffer) {
+  ByteSpan address = bytebuffer.readByteSpan(2);
   std::uint8_t area = (address[0] >> 3) & 0x1F;
   std::uint8_t line = (address[0] >> 4) & 0x03;
   return {area, line, address[1]};

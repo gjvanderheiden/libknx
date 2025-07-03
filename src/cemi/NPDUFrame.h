@@ -1,12 +1,12 @@
 #pragma once
 
 
-#include "bytes/ByteBuffer.h"
+#include "bytes/ByteBufferReader.h"
 #include "cemi/TCPI.h"
 
 class NPDUFrame {
 public:
-  static NPDUFrame createAndParse(ByteBuffer& bytebuffer);
+  static NPDUFrame createAndParse(ByteBufferReader& bytebuffer);
 private:
   TCPI tcpi;
   //acpi

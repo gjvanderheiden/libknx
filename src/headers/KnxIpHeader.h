@@ -1,10 +1,10 @@
 #pragma once
 
-#include "bytes/ByteBuffer.h"
+#include "bytes/ByteBufferReader.h"
 #include <cstdint>
 
 class KnxIpHeader {
-  static KnxIpHeader createAndParse(ByteBuffer& bytebuffer);
+  static KnxIpHeader createAndParse(ByteBufferReader& bytebuffer);
   std::uint16_t getServiceType();
   std::uint16_t getLengthInBytes();
 private:

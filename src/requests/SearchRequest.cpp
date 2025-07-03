@@ -17,8 +17,7 @@ std::vector<std::uint8_t> SearchRequest::toBytes() {
   bytes.push_back(0);
   bytes.push_back(14); //  6 + body size
   // ip header: body
-  auto bytesHpai = hpaiLocal.bodyAsByteArray();
-  std::copy(bytesHpai.begin(), bytesHpai.end(), std::back_inserter(bytes));
+  hpaiLocal.appendToByteArray(bytes);
   return bytes;
 }
 

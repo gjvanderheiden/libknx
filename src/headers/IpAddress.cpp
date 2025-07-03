@@ -1,9 +1,15 @@
 #include "IpAddress.h"
+#include <format>
+#include <iterator>
 
-IpAddress IpAddress::parse(ByteBuffer &byteBuffer) {
+IpAddress IpAddress::parse(ByteBufferReader &byteBuffer) {
   IpAddress ipAddress{};
-  byteBuffer.takeCopyToSpan(ipAddress.address);
+  byteBuffer.copyToSpan(ipAddress.address);
   return ipAddress;
+}
+
+void IpAddress::addToByteArray(std::vector<std::uint8_t>& data) {
+  std::copy(address.begin(), address.end(), std::back_inserter(data));
 }
 
 std::string IpAddress::asString() {

@@ -2,7 +2,7 @@
 
 
 
-NPDUFrame NPDUFrame::createAndParse(ByteBuffer& bytebuffer) {
+NPDUFrame NPDUFrame::createAndParse(ByteBufferReader& bytebuffer) {
   auto tcpi = TCPI::parseAndCreate(bytebuffer);
   return {};
 }

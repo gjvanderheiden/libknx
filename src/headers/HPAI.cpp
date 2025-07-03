@@ -18,13 +18,21 @@ std::array<std::uint8_t, 8> HPAI::bodyAsByteArray() {
   return body;
 }
 
-HPAI HPAI::createAndParse(ByteBuffer& byteBuffer) {
+void HPAI::appendToByteArray(std::vector<std::uint8_t>& data) {
+  data.push_back(8);
+  data.push_back(this->getProtocol());
+  address.addToByteArray(data);
+  data.push_back((getPort() >> 8) & 0xFF);
+  data.push_back(getPort() & 0xFF);
+}
+
+HPAI HPAI::createAndParse(ByteBufferReader& byteBuffer) {
   HPAI hpai;
   hpai.parse(byteBuffer);
   return hpai;
 }
 
-void HPAI::parseBody(ByteBuffer& byteBuffer, std::uint16_t size) {
+void HPAI::parseBody(ByteBufferReader& byteBuffer, std::uint16_t size) {
   address = IpAddress::parse(byteBuffer);
   port = byteBuffer.readUint16();
 }

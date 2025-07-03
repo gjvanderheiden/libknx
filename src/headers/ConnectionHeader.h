@@ -1,6 +1,6 @@
 
 #include "KnxStructure.h"
-#include "bytes/ByteBuffer.h"
+#include "bytes/ByteBufferReader.h"
 #include <array>
 
 class ConnectionHeader : public KnxStructure {
@@ -8,7 +8,7 @@ public:
 
   std::array<std::uint8_t, 8> bodyAsByteArray();
 protected:
-  void parseBody(ByteBuffer& byteBuffer, std::uint16_t length) override;
+  void parseBody(ByteBufferReader& byteBuffer, std::uint16_t length) override;
 
 
 private:

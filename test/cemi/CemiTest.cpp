@@ -1,5 +1,5 @@
 #include "cemi/Cemi.h"
-#include "bytes/ByteBuffer.h"
+#include "bytes/ByteBufferReader.h"
 #include <gtest/gtest.h>
 
 static std::array<byte, 12> test_frame1 = {
@@ -7,7 +7,7 @@ static std::array<byte, 12> test_frame1 = {
 
 
 TEST(Cemi, createAndParse1) {
-  ByteBuffer byteBuffer{test_frame1};
+  ByteBufferReader byteBuffer{test_frame1};
   Cemi cemi = Cemi::parse(byteBuffer);
   ASSERT_EQ(1, cemi.getSource().getArea());
   ASSERT_EQ(1, cemi.getSource().getLine());

@@ -1,5 +1,5 @@
 #include "DeviceDib.h"
-#include "bytes/ByteBuffer.h"
+#include "bytes/ByteBufferReader.h"
 #include <gtest/gtest.h>
 
 static std::array<byte, 0x36> test_frame1 = {
@@ -17,14 +17,14 @@ static std::array<byte, 0x36> test_frame2 = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 TEST(DeviceDibTest, parse1) {
-  ByteBuffer byteBuffer{test_frame1};
+  ByteBufferReader byteBuffer{test_frame1};
   DeviceDib deviceDib = DeviceDib::createAndParse(byteBuffer);
 
   EXPECT_EQ("calimero-core knx test-server", deviceDib.getDeviceName());
 }
 
 TEST(DeviceDibTest, parse2) {
-  ByteBuffer byteBuffer{test_frame2};
+  ByteBufferReader byteBuffer{test_frame2};
   DeviceDib deviceDib = DeviceDib::createAndParse(byteBuffer);
 
   EXPECT_EQ("KNX IP-Router", deviceDib.getDeviceName());

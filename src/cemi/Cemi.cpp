@@ -10,7 +10,7 @@ Cemi::Cemi(std::uint8_t messageCode, Control&& control, IndividualAddress&& sour
   destination{std::move(destination)},
   npdu{std::move(frame)} {
 }
-Cemi Cemi::parse(ByteBuffer& byteBuffer) {
+Cemi Cemi::parse(ByteBufferReader& byteBuffer) {
   std::uint8_t messageCode = byteBuffer.readUint8();
   std::uint8_t additionalInfoLength = byteBuffer.readUint8();
   byteBuffer.skip(additionalInfoLength);

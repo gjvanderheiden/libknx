@@ -10,7 +10,7 @@ public:
 
   static constexpr std::array<std::uint8_t, 2> SERVICE_ID = {0x02, 0x05};
 
-  void sendTo() const;
+  std::vector<std::uint8_t> toBytes();
 
 private:
   HPAI controlEndPoint;

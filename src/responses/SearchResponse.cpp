@@ -14,7 +14,7 @@ HPAI SearchResponse::getControlEndPoint() {
 DeviceDib& SearchResponse::getDeviceDib() {
   return this->deviceDib;
 }
-SearchResponse SearchResponse::parse(ByteBuffer &buffer) {
+SearchResponse SearchResponse::parse(ByteBufferReader &buffer) {
   buffer.skip(2);
   auto type = buffer.readUint16();
   auto length = buffer.readUint16();

@@ -15,7 +15,7 @@ using namespace knx::requestresponse;
 
 
 TEST(SearchResponse, parse) {
-  ByteBuffer byteBuffer{test_frame};
+  ByteBufferReader byteBuffer{test_frame};
   SearchResponse searchReaponse = SearchResponse::parse(byteBuffer);
   ASSERT_EQ(192, (int)(searchReaponse.getControlEndPoint().getAddress().address[0]));
 }  

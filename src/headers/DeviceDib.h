@@ -3,19 +3,19 @@
 #include "IpAddress.h"
 #include "KnxAddress.h"
 #include "KnxStructure.h"
-#include "bytes/ByteBuffer.h"
+#include "bytes/ByteBufferReader.h"
 #include <array>
 #include <cstdint>
 #include <string>
 
 class DeviceDib : public KnxStructure {
 public:
-  static DeviceDib createAndParse(ByteBuffer &byteBuffer);
+  static DeviceDib createAndParse(ByteBufferReader &byteBuffer);
   std::string_view getDeviceName();
   std::span<std::uint8_t> getSerialNumber();
 
 protected:
-  void parseBody(ByteBuffer& byteBuffer, std::uint16_t length) override;
+  void parseBody(ByteBufferReader& byteBuffer, std::uint16_t length) override;
 
 private:
   IndividualAddress individualAddress;

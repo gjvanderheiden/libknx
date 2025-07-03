@@ -2,13 +2,13 @@
 
 #include "DeviceDib.h"
 #include "HPAI.h"
-#include "bytes/ByteBuffer.h"
+#include "bytes/ByteBufferReader.h"
 
 namespace knx::requestresponse {
 
 class SearchResponse {
 public:
-  static SearchResponse parse(ByteBuffer& buffer);
+  static SearchResponse parse(ByteBufferReader& buffer);
   HPAI getControlEndPoint();
   DeviceDib& getDeviceDib();
 
