@@ -21,7 +21,7 @@ target_include_directories(knx-ip PUBLIC src src/ip src/headers src/requests src
 target_include_directories(knx-ip_tests PRIVATE src src/ip src/headers src/requests src/connection test)
 
 target_link_libraries(knx-ip PUBLIC Threads::Threads)
-target_link_libraries(knx-ip_tests PRIVATE GTest::gtest_main)
+target_link_libraries(knx-ip_tests PRIVATE GTest::gtest_main Threads::Threads)
 
 include(GoogleTest)
 gtest_discover_tests(knx-ip_tests)
