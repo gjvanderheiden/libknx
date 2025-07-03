@@ -27,14 +27,13 @@ std::string ByteBufferReader::readString(int numberOfBytes) {
 
 std::string ByteBufferReader::readKnxString(int maxLength) {
   std::string knxString;
-  int max = 30;
 
-  std::span<std::uint8_t> knxText = readByteSpan(max);
+  std::span<std::uint8_t> knxText = readByteSpan(maxLength);
   int i = 0;
-  for (i = 0; knxText[i] != 0x00 && i < max; i++) {
+  for (; i < maxLength && knxText[i] != 0x00; i++) {
     knxString.push_back(knxText[i]);
   }
-  skip(max - i);
+  skip(maxLength - i);
   return knxString;
 }
 
