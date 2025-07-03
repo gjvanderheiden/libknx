@@ -1,27 +1,42 @@
 #include "ByteBufferReader.h"
+#include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <gtest/gtest.h>
-
+#include <iterator>
 
 ByteBufferReader::ByteBufferReader(std::span<byte> data) : data{data} {}
 
-std::uint32_t ByteBufferReader::readUInt32BigEndian() { 
+std::uint32_t ByteBufferReader::readUint32() {
+  std::uint32_t value{0};
+  memcpy(&value, data.data() + index, sizeof(std::uint32_t));
+  index += sizeof(std::uint32_t);
   if constexpr (ByteBufferReader::isNativeLittleEndian()) {
-    std::uint16_t value = data[index++] << 16;
-    value |= data[index++] << 8;
-    value |= data[index++];
-    return value;
-  }  else {
-    std::uint16_t value = data[index++];
-    value |= data[index++] << 8;
-    value |= data[index++] << 16;
-    return value;
+    value = std::byteswap(value);
   }
+  return value;
 }
 
 void ByteBufferReader::skip(int numberOfBytes) { index += numberOfBytes; }
 
-std::string ByteBufferReader::readString(int numberOfBytes) { return "aap"; }
+std::string ByteBufferReader::readString(int numberOfBytes) { 
+  std::string aString;
+  std::copy(data.data() + index, data.data() +index +numberOfBytes, std::back_inserter(aString));
+  return aString;
+}
+
+std::string ByteBufferReader::readKnxString(int maxLength) {
+  std::string knxString;
+  int max = 30;
+
+  std::span<std::uint8_t> knxText = readByteSpan(max);
+  int i = 0;
+  for (i = 0; knxText[i] != 0x00 && i < max; i++) {
+    knxString.push_back(knxText[i]);
+  }
+  skip(max - i);
+  return knxString;
+}
 
 ByteSpan ByteBufferReader::readByteSpan(int numberOfBytes) {
   ByteSpan span = data.subspan(index, numberOfBytes);
@@ -34,21 +49,16 @@ void ByteBufferReader::copyToSpan(std::span<byte> destination) {
   index += destination.size();
 }
 
-bool ByteBufferReader::readBoolFromByte() {
-  return data[index++] != 0;
-}
+bool ByteBufferReader::readBoolFromByte() { return data[index++] != 0; }
 
-std::uint8_t ByteBufferReader::readUint8() {
-  return data[index++];
-}
-
+std::uint8_t ByteBufferReader::readUint8() { return data[index++]; }
 
 std::uint16_t ByteBufferReader::readUint16() {
   if constexpr (ByteBufferReader::isNativeLittleEndian()) {
     std::uint16_t value = data[index++] << 8;
     value |= data[index++];
     return value;
-  }  else {
+  } else {
     std::uint16_t value = data[index++];
     value |= data[index++] << 8;
     return value;

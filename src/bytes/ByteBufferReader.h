@@ -16,14 +16,9 @@
  *
  */
 class ByteBufferReader {
+
 public:
   ByteBufferReader(ByteSpan data);
-
-  
-  /**
-   * I read 4 bytes of data into a native uint32.
-   */
-  std::uint32_t readUInt32BigEndian();
 
   /**
    * Just skip numberOfBytes, call this when bytes are reserved / unknown or
@@ -32,6 +27,8 @@ public:
   void skip(int numberOfBytes);
 
   std::string readString(int numberOfBytes);
+
+  std::string readKnxString(int maxLength);
 
   /**
    * Read numberOfBytes and creates a _reference_ to the buffer data.
@@ -59,6 +56,11 @@ public:
    * read two bytes to a uint16
    */
   std::uint16_t readUint16();
+
+  /**
+   * I read 4 bytes of data into a native uint32.
+   */
+  std::uint32_t readUint32();
 
   static constexpr bool isNativeLittleEndian() {
     return std::endian::native == std::endian::little;

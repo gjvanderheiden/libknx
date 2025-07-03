@@ -14,7 +14,8 @@ struct KnxIp {
 class Discovery {
 public:
   explicit Discovery(asio::io_context& io_context);
-  void lookAround(int maxResults = 0);
+  // no time out implemented
+  void lookAround(int maxResults = 1);
   std::vector<KnxIp>& result();
 private:
   void do_receive();

@@ -11,14 +11,7 @@ void DeviceDib::parseBody(ByteBufferReader& byteBuffer, std::uint16_t length) {
   byteBuffer.copyToSpan(serialNumber);
   multicastAddress = IpAddress::parse(byteBuffer);
   byteBuffer.copyToSpan(macAddress);
-  int max = 30;
-
-  std::span<std::uint8_t> knxText = byteBuffer.readByteSpan(max);
-  int i = 0;
-  for (i = 0; knxText[i] != 0x00 && i < max; i++) {
-    deviceName.push_back(knxText[i]);
-  }
-  byteBuffer.skip(max - i);
+  deviceName = byteBuffer.readKnxString(30);
 }
 
 DeviceDib DeviceDib::createAndParse(ByteBufferReader& byteBuffer) {
@@ -26,7 +19,6 @@ DeviceDib DeviceDib::createAndParse(ByteBufferReader& byteBuffer) {
   deviceDib.parse(byteBuffer);
   return deviceDib;
 }
-
 
 std::string_view DeviceDib::getDeviceName() {
   return deviceName;
