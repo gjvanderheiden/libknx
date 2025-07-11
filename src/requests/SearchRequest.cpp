@@ -1,24 +1,17 @@
 #include "SearchRequest.h"
 #include "HPAI.h"
 #include "IpAddress.h"
-#include <algorithm>
-#include <iterator>
+#include "bytes/ByteBufferWriter.h"
 
 SearchRequest::SearchRequest(HPAI hpaiLocal) : hpaiLocal(hpaiLocal) {}
 
-std::vector<std::uint8_t> SearchRequest::toBytes() {
-  std::vector<std::uint8_t> bytes;
-  // knx ip header
-  bytes.push_back(0x06);
-  bytes.push_back(0x10);
-  // ip header: service id
-  std::copy(SERVICE_ID.begin(), SERVICE_ID.end(), std::back_inserter(bytes));
-  // ip header: total header size
-  bytes.push_back(0);
-  bytes.push_back(14); //  6 + body size
-  // ip header: body
-  hpaiLocal.appendToByteArray(bytes);
-  return bytes;
+void SearchRequest::appendToByteWriter(ByteBufferWriter& writer) {
+  writer.writeUint8(0x06);
+  writer.writeUint8(0x10);
+  writer.writeUint16(SERVICE_ID);
+  writer.writeUint8(0x00);
+  writer.writeUint8(14);
+  hpaiLocal.appendToByteArray(writer);
 }
 
 SearchRequest SearchRequest::newDefault() {

@@ -33,6 +33,7 @@ UdpSocket::UdpSocket(asio::io_context &ctx, std::string bindHost, unsigned short
      endpoint(udp::v4(), port) ,
      socket{ctx} {}
 
+using HandlerFunction = std::function<auto (std::vector<std::uint8_t>& data) -> void>;
 void UdpSocket::setHandler(HandlerFunction function) {
   this->handlerFunction.reset(&function);
 }

@@ -43,16 +43,16 @@ TEST(ByteBufferReader, readString) {
   ASSERT_EQ("konijn", byteBuffer.readString(6));
 }
 
-TEST(ByteBufferReader, readKnxString1) {
+TEST(ByteBufferReader, readTerminatedString1) {
   std::array<byte, 6> testData = { 107, 111, 110, 105, 106, 110};
   ByteBufferReader byteBuffer{testData};
-  ASSERT_EQ("konijn", byteBuffer.readKnxString(6));
+  ASSERT_EQ("konijn", byteBuffer.readTerminatedString(6));
 }
 
-TEST(ByteBufferReader, readKnxString2) {
+TEST(ByteBufferReader, readTerminatedString2) {
   std::array<byte, 8> testData = { 107, 111, 110, 105, 106, 110, 0x00, 0x00};
   ByteBufferReader byteBuffer{testData};
-  ASSERT_EQ("konijn", byteBuffer.readKnxString(8));
+  ASSERT_EQ("konijn", byteBuffer.readTerminatedString(8));
 }
 
 TEST(ByteBufferReader, readByteSpan) {

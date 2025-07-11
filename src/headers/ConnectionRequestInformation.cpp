@@ -4,7 +4,6 @@ void ConnectionRequestInformation::parseBody(ByteBufferReader& byteBuffer, std::
   byteBuffer.skip(length);
 }
 
-
-void ConnectionRequestInformation::appendToByteArray(std::vector<std::uint8_t>& data) {
-  data.push_back(0x00);
+void ConnectionRequestInformation::appendToByteArray(ByteBufferWriter& data) {
 }
+

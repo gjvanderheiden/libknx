@@ -1,17 +1,16 @@
 #pragma once
 
+#include "AbstractRequest.h"
 #include "HPAI.h"
-#include <cstdint>
 #include <vector>
 
-class DisconnectRequest {
+class DisconnectRequest final : AbstractRequest {
 public:
-
-  static constexpr std::array<std::uint8_t, 2> SERVICE_ID = {0x02, 0x09};
+  static constexpr std::uint16_t SERVICE_ID = 0x0209;
 
   std::vector<std::uint8_t> toBytes();
 
 private:
-  std::uint8_t channelId;
+  std::uint8_t channelId{0};
   HPAI controlEndpoint;
 };

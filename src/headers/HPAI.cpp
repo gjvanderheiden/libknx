@@ -8,22 +8,11 @@ HPAI::HPAI(IpAddress address, int port, std::uint8_t protocolCode)
   this->setType(protocolCode);
 }
 
-std::array<std::uint8_t, 8> HPAI::bodyAsByteArray() {
-  std::array<std::uint8_t, 8> body;
-  body[0] = 8;
-  body[1] = this->getProtocol();
-  std::copy(address.address.begin(), address.address.end(), body.begin() + 2);
-  body[6] = (getPort() >> 8) & 0xFF;
-  body[7] = getPort() & 0xFF;
-  return body;
-}
-
-void HPAI::appendToByteArray(std::vector<std::uint8_t>& data) {
-  data.push_back(8);
-  data.push_back(this->getProtocol());
-  address.addToByteArray(data);
-  data.push_back((getPort() >> 8) & 0xFF);
-  data.push_back(getPort() & 0xFF);
+void HPAI::appendToByteArray(ByteBufferWriter& data) {
+  data.writeUint8(8);
+  data.writeUint8(getProtocol());
+  address.appendToByteArray(data);
+  data.writeUint16(getPort());
 }
 
 HPAI HPAI::createAndParse(ByteBufferReader& byteBuffer) {

@@ -1,6 +1,7 @@
 #include "Discovery.h"
 #include "HPAI.h"
 #include "IpAddress.h"
+#include "KnxIpHeader.h"
 #include "SearchRequest.h"
 #include "bytes/ByteBufferReader.h"
 #include "responses/SearchResponse.h"
@@ -33,7 +34,9 @@ void Discovery::lookAround(int maxResults) {
   ipAddress.address = {224, 0, 23, 12};
   HPAI local{ipAddress, 3671, HPAI::UDP};
   SearchRequest searchRequest{local};
-  auto srBytes = searchRequest.toBytes();
+  std::vector<byte> srBytes;
+  ByteBufferWriter writer(srBytes);
+  searchRequest.appendToByteWriter(writer);
   do_receive();
 
   asio::ip::udp::endpoint endpoint{multicast_address, multicast_port};
@@ -46,11 +49,12 @@ void Discovery::do_receive() {
       asio::buffer(data), sender_endpoint,
       [this](std::error_code ec, std::size_t length) {
         if (!ec) {
-          if (data[2] == knx::requestresponse::SearchResponse::SERVICE_ID[0] &&
-              data[3] == knx::requestresponse::SearchResponse::SERVICE_ID[1]) {
+        ByteBufferReader reader{data};
+          KnxIpHeader knxIpHeader = KnxIpHeader::createAndParse(reader);
+          if (knxIpHeader.getServiceType() == knx::requestresponse::SearchResponse::SERVICE_ID) {
             ByteBufferReader bytebuffer{this->data};
             knx::requestresponse::SearchResponse sr =
-                knx::requestresponse::SearchResponse::parse(bytebuffer);
+                knx::requestresponse::SearchResponse::parse(reader);
 
             foundKnxIps.emplace_back(
                 std::string{sr.getDeviceDib().getDeviceName()},

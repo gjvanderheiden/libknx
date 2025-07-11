@@ -25,7 +25,7 @@ std::string ByteBufferReader::readString(int numberOfBytes) {
   return aString;
 }
 
-std::string ByteBufferReader::readKnxString(int maxLength) {
+std::string ByteBufferReader::readTerminatedString(int maxLength) {
   std::string knxString;
 
   std::span<std::uint8_t> knxText = readByteSpan(maxLength);

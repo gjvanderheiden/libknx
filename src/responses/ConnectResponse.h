@@ -2,15 +2,15 @@
 
 #include "ConnectionRequestData.h"
 #include "HPAI.h"
-#include "bytes/ByteBuffer.h"
+#include "bytes/ByteBufferReader.h"
 
 namespace knx::requestresponse {
 
 class ConnectResponse {
 public:
-  static ConnectResponse parse(ByteBuffer &buffer);
+  static ConnectResponse parse(ByteBufferReader &buffer);
 
-  static constexpr std::array<std::uint8_t, 2> SERVICE_ID = {0x02, 0x06};
+  static constexpr std::uint16_t SERVICE_ID = 0x0206;
 
 private:
   std::uint8_t status;

@@ -11,7 +11,7 @@ namespace udp {
 
 using asio::awaitable;
 using asio::ip::tcp;
-using HandlerFunction = std::function<void(std::vector<std::uint8_t>& data)>;
+using HandlerFunction = std::function<auto (std::vector<std::uint8_t>& data) -> void>;
 using std::chrono::steady_clock;
 
 class UdpSocket {

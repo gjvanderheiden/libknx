@@ -1,17 +1,21 @@
 #pragma once
 
 #include "HPAI.h"
-#include <cstdint>
 #include <vector>
 
-class SearchRequest {
+#include "AbstractRequest.h"
+
+class SearchRequest final : AbstractRequest {
+public:
+  static constexpr std::uint16_t SERVICE_ID = 0x0201;
+
 public:
   explicit SearchRequest(HPAI hpaiLocal);
   static SearchRequest newDefault();
 
-  static constexpr std::array<std::uint8_t, 2> SERVICE_ID = {0x02, 0x01};
 
-  std::vector<std::uint8_t> toBytes();
+  void appendToByteWriter(ByteBufferWriter& writer); 
+  void toBytes(std::vector<std::uint8_t>& byteBufferReader);
 
 private:
   HPAI hpaiLocal;

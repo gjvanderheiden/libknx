@@ -3,18 +3,16 @@
 #include "IpAddress.h"
 #include "KnxStructure.h"
 #include "bytes/ByteBufferReader.h"
-#include <array>
 #include <asio/awaitable.hpp>
 #include <cstdint>
 
-class HPAI : KnxStructure {
+class HPAI final: KnxStructure {
 public:
   HPAI(){};
   HPAI(IpAddress address, int port, std::uint8_t protocolCode);
 
-  std::array<std::uint8_t, 8> bodyAsByteArray();
-  void appendToByteArray(std::vector<std::uint8_t>& data);
 
+  void appendToByteArray(ByteBufferWriter& data) override;
   static HPAI createAndParse(ByteBufferReader& byteBuffer);
 
 

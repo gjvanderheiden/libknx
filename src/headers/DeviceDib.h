@@ -8,12 +8,13 @@
 #include <cstdint>
 #include <string>
 
-class DeviceDib : public KnxStructure {
+class DeviceDib final : public KnxStructure {
 public:
   static DeviceDib createAndParse(ByteBufferReader &byteBuffer);
   std::string_view getDeviceName();
   std::span<std::uint8_t> getSerialNumber();
 
+  void appendToByteArray(ByteBufferWriter& data) override;
 protected:
   void parseBody(ByteBufferReader& byteBuffer, std::uint16_t length) override;
 

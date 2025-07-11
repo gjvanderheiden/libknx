@@ -1,16 +1,14 @@
 #pragma once
 
-#include "DeviceDib.h"
-#include "HPAI.h"
-#include "bytes/ByteBuffer.h"
+#include "bytes/ByteBufferReader.h"
 
 namespace knx::requestresponse {
 
 class DisconnectResponse {
 public:
-  static DisconnectResponse parse(ByteBuffer& buffer);
+  static DisconnectResponse parse(ByteBufferReader& buffer);
 
-  static constexpr std::array<std::uint8_t, 2> SERVICE_ID = {0x02, 0x0A};
+  static constexpr std::uint16_t SERVICE_ID = 0x020A;
 
 private:
   std::uint8_t channelId;

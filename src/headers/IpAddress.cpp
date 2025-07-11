@@ -1,6 +1,5 @@
 #include "IpAddress.h"
 #include <format>
-#include <iterator>
 
 IpAddress IpAddress::parse(ByteBufferReader &byteBuffer) {
   IpAddress ipAddress{};
@@ -8,8 +7,8 @@ IpAddress IpAddress::parse(ByteBufferReader &byteBuffer) {
   return ipAddress;
 }
 
-void IpAddress::addToByteArray(std::vector<std::uint8_t>& data) {
-  std::copy(address.begin(), address.end(), std::back_inserter(data));
+void IpAddress::appendToByteArray(ByteBufferWriter& data) {
+  data.writeByteSpan(address);
 }
 
 std::string IpAddress::asString() {

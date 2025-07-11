@@ -1,18 +1,18 @@
+#pragma once
 
 #include "KnxStructure.h"
 #include "bytes/ByteBufferReader.h"
-#include <array>
 
-class ConnectionHeader : public KnxStructure {
+class ConnectionHeader final : public KnxStructure {
 public:
-
-  std::array<std::uint8_t, 8> bodyAsByteArray();
+  ConnectionHeader();
+  
+  void appendToByteArray(ByteBufferWriter& data) override;
 protected:
   void parseBody(ByteBufferReader& byteBuffer, std::uint16_t length) override;
 
-
 private:
-  std::uint8_t sequence;
-  std::uint8_t status;
+  std::uint8_t sequence{0};
+  std::uint8_t status{0};
 };
 

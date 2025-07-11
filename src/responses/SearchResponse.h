@@ -12,7 +12,7 @@ public:
   HPAI getControlEndPoint();
   DeviceDib& getDeviceDib();
 
-  static constexpr std::array<std::uint8_t, 2> SERVICE_ID = {0x02, 0x02};
+  static constexpr std::uint16_t SERVICE_ID = 0x0202;
 
 private:
   SearchResponse(HPAI &&controlEndPoint, DeviceDib && deviceDib);

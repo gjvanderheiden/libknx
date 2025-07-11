@@ -1,11 +1,14 @@
 #include "HPAI.h"
 #include "bytes/ByteBufferReader.h"
+#include "bytes/ByteBufferWriter.h"
 #include <gtest/gtest.h>
 
 
 TEST(HPAI, toByteArray) {
   HPAI hpai(IpAddress{}, 0xABCD, HPAI::UDP);
-  auto answer = hpai.bodyAsByteArray();
+  std::vector<byte> answer;
+  ByteBufferWriter writer{answer};
+  hpai.appendToByteArray(writer);
   
   EXPECT_EQ(8, answer.size());
 

@@ -1,14 +1,14 @@
 #pragma once
 
+#include "AbstractRequest.h"
 #include "ConnectionRequestInformation.h"
 #include "HPAI.h"
-#include <cstdint>
 
-class ConnectRequest {
+class ConnectRequest final : AbstractRequest {
 public:
-  explicit ConnectRequest(HPAI&& controlEndPoint, HPAI&& dataEndPoint, ConnectionRequestInformation&& cri);
+  static constexpr std::uint16_t SERVICE_ID = 0x0205;
 
-  static constexpr std::array<std::uint8_t, 2> SERVICE_ID = {0x02, 0x05};
+  explicit ConnectRequest(HPAI&& controlEndPoint, HPAI&& dataEndPoint, ConnectionRequestInformation&& cri);
 
   std::vector<std::uint8_t> toBytes();
 

@@ -1,15 +1,15 @@
 #pragma once
 
 #include "HPAI.h"
-#include <cstdint>
 
-class ConnectStateRequest {
+#include "AbstractRequest.h"
+
+class ConnectStateRequest final : AbstractRequest {
 public:
-
-  static constexpr std::array<std::uint8_t, 2> SERVICE_ID = {0x02, 0x09};
+  static constexpr std::uint16_t SERVICE_ID = 0x0209;
 
 
 private:
-  std::uint8_t channelId;
+  std::uint8_t channelId{};
   HPAI controlEndPoint;
 };
