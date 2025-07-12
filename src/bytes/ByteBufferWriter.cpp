@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <bit>
 #include <cstdint>
-#include <gtest/gtest.h>
 #include <iterator>
 
 ByteBufferWriter::ByteBufferWriter(std::vector<byte> &data) : data{data} {}

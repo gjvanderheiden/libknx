@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <bit>
 #include <cstdint>
-#include <gtest/gtest.h>
 #include <iterator>
 
 ByteBufferReader::ByteBufferReader(std::span<byte> data) : data{data} {}

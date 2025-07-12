@@ -1,7 +1,6 @@
 #include "HPAI.h"
 #include "IpAddress.h"
 #include <cstdint>
-#include <gtest/gtest.h>
 
 HPAI::HPAI(IpAddress address, int port, std::uint8_t protocolCode)
     : address(std::move(address)), port(port) {
