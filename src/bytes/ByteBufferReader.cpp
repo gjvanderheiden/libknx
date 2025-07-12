@@ -3,7 +3,7 @@
 #include <bit>
 #include <cstdint>
 #include <iterator>
-
+#include <cstring>
 ByteBufferReader::ByteBufferReader(std::span<byte> data) : data{data} {}
 
 std::uint32_t ByteBufferReader::readUint32() {
