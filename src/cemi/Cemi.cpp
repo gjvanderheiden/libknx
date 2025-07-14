@@ -10,6 +10,7 @@ Cemi::Cemi(std::uint8_t messageCode, Control&& control, IndividualAddress&& sour
   destination{std::move(destination)},
   npdu{std::move(frame)} {
 }
+
 Cemi Cemi::parse(ByteBufferReader& byteBuffer) {
   std::uint8_t messageCode = byteBuffer.readUint8();
   std::uint8_t additionalInfoLength = byteBuffer.readUint8();
@@ -30,17 +31,18 @@ Cemi Cemi::parse(ByteBufferReader& byteBuffer) {
 std::uint8_t Cemi::getMessageCode() const {
   return messageCode;
 }
-Control& Cemi::getControl()  {
+
+const Control& Cemi::getControl() const {
   return control;
 }
 
-IndividualAddress& Cemi::getSource() {
+const IndividualAddress& Cemi::getSource() const {
   return source;
 }
 std::variant<IndividualAddress, GroupAddress>& Cemi::getDestination() {
   return destination;
 }
 
-NPDUFrame& Cemi::getNPDU() {
+const NPDUFrame& Cemi::getNPDU() const {
   return npdu;
 }

@@ -3,9 +3,9 @@
 KnxAddress::KnxAddress(std::uint8_t high, std::uint8_t middle, std::uint8_t low)
     : high{high}, middle{middle}, low{low} {}
 
-std::uint8_t KnxAddress::getHigh() { return high; }
-std::uint8_t KnxAddress::getMiddle() { return middle; }
-std::uint8_t KnxAddress::getLow() { return low; }
+std::uint8_t KnxAddress::getHigh() const { return high; }
+std::uint8_t KnxAddress::getMiddle() const { return middle; }
+std::uint8_t KnxAddress::getLow() const { return low; }
 IndividualAddress::IndividualAddress(std::uint8_t high, std::uint8_t middle,
                                      std::uint8_t low)
     : KnxAddress{high, middle, low} {}
@@ -17,9 +17,9 @@ IndividualAddress IndividualAddress::createAndParse(ByteBufferReader &bytebuffer
   return {area, line, address[1]};
 }
 
-std::uint8_t IndividualAddress::getArea() { return getHigh(); }
-std::uint8_t IndividualAddress::getLine() { return getMiddle(); }
-std::uint8_t IndividualAddress::getDevice() { return getLow(); }
+std::uint8_t IndividualAddress::getArea() const { return getHigh(); }
+std::uint8_t IndividualAddress::getLine() const { return getMiddle(); }
+std::uint8_t IndividualAddress::getDevice() const  { return getLow(); }
 
 GroupAddress::GroupAddress(std::uint8_t high, std::uint8_t middle,
                            std::uint8_t low)

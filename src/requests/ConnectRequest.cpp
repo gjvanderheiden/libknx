@@ -12,6 +12,10 @@ ConnectRequest::ConnectRequest(HPAI &&controlEndPoint,
 std::vector<std::uint8_t> ConnectRequest::toBytes() {
   std::vector<std::uint8_t> bytes;
   ByteBufferWriter writer{bytes};
+  writer.writeUint8(0x06);
+  writer.writeUint8(0x10);
+  writer.writeUint16(SERVICE_ID);
+  writer.writeUint16(26);
   controlEndPoint.appendToByteArray(writer);
   dataEndPoint.appendToByteArray(writer);
   cri.appendToByteArray(writer);

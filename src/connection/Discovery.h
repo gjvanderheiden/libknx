@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <asio.hpp>
@@ -9,6 +10,7 @@ namespace connection {
 struct KnxIp {
   std::string name;
   std::string ip;
+  std::uint16_t port;
 };
 
 class Discovery {

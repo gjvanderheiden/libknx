@@ -58,9 +58,12 @@ void Discovery::do_receive() {
 
             foundKnxIps.emplace_back(
                 std::string{sr.getDeviceDib().getDeviceName()},
-                sr.getControlEndPoint().getAddress().asString());
+                sr.getControlEndPoint().getAddress().asString(),
+                sr.getControlEndPoint().getPort());
             if (maxResults == 0 || foundKnxIps.size() < maxResults) {
               do_receive();
+            } else {
+               socket_read.close();
             }
 
           } else {

@@ -6,16 +6,19 @@
 
 #include "AbstractRequest.h"
 
-class TunnelingRequest final : AbstractRequest {
+class TunnelRequest final : public AbstractRequest {
 public:
+  TunnelRequest(ConnectionHeader&& connectionHeader,  Cemi&& cemi );
+
   static constexpr std::uint16_t SERVICE_ID = 0x0420;
 
-public:
-  explicit TunnelingRequest(Cemi&& cemi, ConnectionHeader&& connectionHeader);
+  static TunnelRequest parse(ByteBufferReader& buffer);
+  const ConnectionHeader& getConnectionHeader() const;
+  const Cemi& getCemi() const;
 
   std::vector<std::uint8_t> toBytes();
 
 private:
-  Cemi cemi;
-  ConnectionHeader connectionHeader;
+  const ConnectionHeader connectionHeader;
+  const Cemi cemi;
 };

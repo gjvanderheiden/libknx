@@ -8,13 +8,14 @@
 
 class Cemi {
 public:
+  Cemi() = default;
   Cemi(std::uint8_t messageCode, Control&& control, IndividualAddress&& source, std::variant<IndividualAddress, GroupAddress>&& destination, NPDUFrame&& frame);
   static Cemi parse(ByteBufferReader &byteBuffer);
   std::uint8_t getMessageCode() const;
-  Control& getControl();
-  IndividualAddress& getSource();
+  const Control& getControl() const;
+  const IndividualAddress& getSource() const;
   std::variant<IndividualAddress, GroupAddress>& getDestination();
-  NPDUFrame& getNPDU();
+  const NPDUFrame& getNPDU() const;
 
 private:
   std::uint8_t messageCode;

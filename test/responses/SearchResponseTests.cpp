@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include "KnxIpHeader.h"
 #include "responses/SearchResponse.h"
 #include <array>
 
@@ -15,7 +16,8 @@ using namespace knx::requestresponse;
 
 
 TEST(SearchResponse, parse) {
-  ByteBufferReader byteBuffer{test_frame};
-  SearchResponse searchReaponse = SearchResponse::parse(byteBuffer);
+  ByteBufferReader reader{test_frame};
+  KnxIpHeader header = KnxIpHeader::createAndParse(reader);
+  SearchResponse searchReaponse = SearchResponse::parse(reader);
   ASSERT_EQ(192, (int)(searchReaponse.getControlEndPoint().getAddress().address[0]));
 }  

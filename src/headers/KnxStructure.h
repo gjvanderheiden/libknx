@@ -3,17 +3,16 @@
 #include "bytes/ByteBufferReader.h"
 #include "bytes/ByteBufferWriter.h"
 #include <asio/awaitable.hpp>
-#include <cstdint>
 
 class KnxStructure {
 public:
   virtual ~KnxStructure() = default;
 
-  KnxStructure() {};
-  KnxStructure(std::uint16_t type);
+  KnxStructure() = default;
+  explicit KnxStructure(std::uint16_t type);
   void parse(ByteBufferReader &byteBuffer);
   virtual void appendToByteArray(ByteBufferWriter &data) = 0;
-  std::uint8_t getType() const;
+  [[nodiscard]] std::uint8_t getType() const;
 
 protected:
   void setType(std::uint8_t type);
@@ -21,5 +20,5 @@ protected:
                          std::uint16_t length) = 0;
 
 private:
-  std::uint16_t type;
+  std::uint16_t type{0};
 };

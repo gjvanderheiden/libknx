@@ -16,17 +16,20 @@ using std::chrono::steady_clock;
 
 class UdpSocket {
 public:
-  UdpSocket(asio::io_context &ctx, std::string bindHost, unsigned short port);
-  void setHandler(HandlerFunction function);
-  void start(asio::io_context &ctx);
-  awaitable<void> write(ByteSpan data);
-
+  UdpSocket(asio::io_context &ctx, std::string_view bindHost, unsigned short port);
+  void setHandler(HandlerFunction&& function);
+  void start();
+  void startMulticast(std::string_view multicastAddress);
+  void writeToSync(asio::ip::udp::endpoint address, ByteSpan data);
+  awaitable<void> writeTo(asio::ip::udp::endpoint address, ByteSpan data);
 private:
+  std::array<std::uint8_t, 512> buffer{0};
   std::string bindHost;
   unsigned short port;
   asio::ip::udp::endpoint endpoint;
   asio::ip::udp::socket socket;
-  std::unique_ptr<HandlerFunction> handlerFunction;
+  asio::ip::udp::endpoint remoteEndpoint;
+  HandlerFunction handlerFunction{nullptr};
   void receiveSome(const std::error_code& error, std::size_t size);
 
   awaitable<void> listen(tcp::acceptor &acceptor);
