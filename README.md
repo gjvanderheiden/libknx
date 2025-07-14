@@ -1,26 +1,25 @@
 
 # libknx
-
-Doc ToDo:
-- What is it
-- What can and can't it do
-- Intended use
-- Programming language
-- How to build
-- How does it work
-- What is the design / idea
-
-
 Libknx is an open source C++ library to interact with a KNX network. Becasue this project is very much work in progress (as is this Readme...), the first focus is client side KNX over IP. In other words to connect to a KNX IP router. A client still can send and receive group messages like any other KNX device, but it act as an IP router itself.
 
 A knx ip client needs to open an UDP socket and send messages to UDP sockets. Libknx uses asio with coroutines for that.
 
 ## Design principles
+
 Libknx is an object oriented library. Every object has it's specific responsiblilty, in order to keeps stuff tidy, testable and reusable as much as possible. It is a build up of groups of objects (packages).
 
+### Modern C++
+It doesn't use ancient C++ version compat.
+
+### Memory safety
+Modern C++ can be mem safe in the sence that you don't reference to unallocated objects. You can still cause memory leaks, just like in a language with a garbage collector at runtime. Libknx doesn't use the new keyword and only references objects as a getter (not owner). If shared ownership is needed, shared pointers  should be used.
+
 ## Requirements
+### Operating System
+- FreeBSD
+- Linux
 ### Build
-- C++ compiler that can do C++ 23 (recent gcc or clang)
+- gcc or clang
 - CMake
 - Ninja
 - GoogleTest
@@ -56,7 +55,24 @@ Contains objects that are send between libknx and a KNX IP router. Theses object
 
 
 ## ToDo list
+### Code
+- Make parse and asBytes consistent throughout all marshallable objects
+- Deal with KnxIpHeader consistenly
+- KnxIpHeader refactor, it's just a bowl of soup now
 ### Functional
-- Mechanism that keeps track of the requests send:
-  - Match incomming responses to requests
-  - Time-out requests without a response
+First focus points:
+- APCI parsing
+  - Group Value Read
+  - Group Value Response 
+  - Group Value Write 
+- Gracefull close
+- ctrl-c nice shutdown of connection
+- Time-out on (ConnectState)Request without a reponse
+### Documentation
+- What is it
+- What can and can't it do
+- Intended use
+- Programming language
+- How to build
+- How does it work
+- What is the design / idea
