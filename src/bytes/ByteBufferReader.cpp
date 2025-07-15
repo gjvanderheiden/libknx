@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <iterator>
 #include <cstring>
-ByteBufferReader::ByteBufferReader(std::span<byte> data) : data{data} {}
+ByteBufferReader::ByteBufferReader(const std::span<byte> data) : data{data} {}
 
 std::uint32_t ByteBufferReader::readUint32() {
   std::uint32_t value{0};
@@ -16,18 +16,20 @@ std::uint32_t ByteBufferReader::readUint32() {
   return value;
 }
 
-void ByteBufferReader::skip(int numberOfBytes) { index += numberOfBytes; }
+std::size_t ByteBufferReader::bytesLeft() {
+  return data.size() - index - 1;
+}
+void ByteBufferReader::skip(const int numberOfBytes) { index += numberOfBytes; }
 
-std::string ByteBufferReader::readString(int numberOfBytes) { 
+std::string ByteBufferReader::readString(const int numberOfBytes) {
   std::string aString;
   std::copy(data.data() + index, data.data() +index +numberOfBytes, std::back_inserter(aString));
   return aString;
 }
 
-std::string ByteBufferReader::readTerminatedString(int maxLength) {
+std::string ByteBufferReader::readTerminatedString(const int maxLength) {
   std::string knxString;
-
-  std::span<std::uint8_t> knxText = readByteSpan(maxLength);
+  const std::span<std::uint8_t> knxText = readByteSpan(maxLength);
   int i = 0;
   for (; i < maxLength && knxText[i] != 0x00; i++) {
     knxString.push_back(knxText[i]);
@@ -36,7 +38,7 @@ std::string ByteBufferReader::readTerminatedString(int maxLength) {
   return knxString;
 }
 
-ByteSpan ByteBufferReader::readByteSpan(int numberOfBytes) {
+ByteSpan ByteBufferReader::readByteSpan(const int numberOfBytes) {
   ByteSpan span = data.subspan(index, numberOfBytes);
   index += numberOfBytes;
   return span;

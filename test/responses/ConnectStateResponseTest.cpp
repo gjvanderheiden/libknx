@@ -8,7 +8,7 @@ static std::array<byte,8> test_frame = {0x6, 0x10, 0x2, 0x8, 0x0, 0x8, 0x1, 0x0}
 using namespace knx::requestresponse;
 
 
-TEST(SearchResponse, parse) {
+TEST(ConnectStateResponse, parse) {
   ByteBufferReader reader{test_frame};
   KnxIpHeader header = KnxIpHeader::createAndParse(reader);
   ConnectStateResponse response = ConnectStateResponse::parse(reader);

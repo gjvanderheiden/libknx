@@ -4,8 +4,9 @@
 
 class Control {
 public:
+  explicit Control(bool destinationAddressIsGroup);
   static Control parse(ByteBufferReader &byteBuffer);
-  bool isDestinationGroupAddress() const;
+  [[nodiscard]] bool isDestinationGroupAddress() const;
 
 private:
   // frameType
@@ -14,7 +15,7 @@ private:
   // priority
   // acknowledgeWanted
   // confirm
-  bool destinationAdresIsGroup;
+  bool destinationAddressIsGroup;
   // hopCount
   // eff;
 };

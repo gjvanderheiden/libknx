@@ -18,7 +18,7 @@
 class ByteBufferReader {
 
 public:
-  ByteBufferReader(ByteSpan data);
+  explicit ByteBufferReader(ByteSpan data);
 
   /**
    * Just skip numberOfBytes, call this when bytes are reserved / unknown or
@@ -72,6 +72,8 @@ public:
   static constexpr bool isNativeLittleEndian() {
     return std::endian::native == std::endian::little;
   }
+
+  std::size_t bytesLeft();
 
 private:
   ByteSpan data;

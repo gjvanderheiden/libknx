@@ -69,8 +69,8 @@ private:
 
   auto onReceiveData(std::vector<std::uint8_t> &data) -> void;
 
-  auto onReceiveTunnelRequest(KnxIpHeader& knxIpHeader, ByteBufferReader& reader) -> void;
-  auto onReceiveDisconnectRequest(KnxIpHeader& knxIpHeader, ByteBufferReader& reader) -> void;
+  auto onReceiveTunnelRequest(KnxIpHeader& knxIpHeader, ByteBufferReader& reader) -> bool;
+  auto onReceiveDisconnectRequest(KnxIpHeader& knxIpHeader, ByteBufferReader& reader) -> bool;
 
   ConnectionRequestInformation createConnectRequestInformation();
   HPAI createDataHPAI();

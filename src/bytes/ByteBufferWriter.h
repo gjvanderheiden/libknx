@@ -19,7 +19,7 @@
 class ByteBufferWriter {
 
 public:
-  ByteBufferWriter(std::vector<byte>& data);
+  explicit ByteBufferWriter(std::vector<byte>& data);
 
   /**
    * Just skip numberOfBytes, call this when bytes are reserved / unknown or

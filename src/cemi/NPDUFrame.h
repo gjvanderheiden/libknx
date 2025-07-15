@@ -3,11 +3,16 @@
 
 #include "bytes/ByteBufferReader.h"
 #include "cemi/TCPI.h"
+#include "cemi/ACPI.h"
+
 
 class NPDUFrame {
 public:
+  NPDUFrame(TCPI&& tcpi, DataACPI&& acpi);
   static NPDUFrame createAndParse(ByteBufferReader& bytebuffer);
+  [[nodiscard]] const TCPI& getTCPI() const;
+  [[nodiscard]] const DataACPI& getACPI() const;
 private:
   TCPI tcpi;
-  //acpi
+  DataACPI acpi;
 };
