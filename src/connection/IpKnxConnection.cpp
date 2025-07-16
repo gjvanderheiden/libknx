@@ -3,6 +3,7 @@
 #include "ByteBufferReader.h"
 #include "ConnectRequest.h"
 #include "ConnectionRequestInformation.h"
+#include "KnxAddress.h"
 #include "KnxIpHeader.h"
 #include "TunnelingRequest.h"
 #include "requests/ConnectStateRequest.h"
@@ -48,6 +49,11 @@ IpKnxConnection::sendRequest(std::vector<std::uint8_t> &request,
   co_await controlSocket.writeTo(remoteControlEndPoint, request);
 }
 
+void IpKnxConnection::addListener(
+    std::weak_ptr<KnxConnectionListener> listener) {
+  connectionListeners.push_back(listener);
+}
+
 asio::awaitable<void> IpKnxConnection::start() {
   controlSocket.start();
   dataSocket.start();
@@ -68,9 +74,9 @@ asio::awaitable<void> IpKnxConnection::start() {
                        [this](KnxIpHeader &, ByteBufferReader &data) {
                          const ConnectResponse connectResponse =
                              ConnectResponse::parse(data);
-                         std::cout << "connected\n";
                          channelId = connectResponse.getChannelId();
                          asio::co_spawn(ctx, checkConnection(), asio::detached);
+                         forEveryListener([](KnxConnectionListener* listener){listener->onConnect();});
                          return false;
                        });
 }
@@ -108,24 +114,36 @@ auto IpKnxConnection::onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
   TunnelAckResponse response{std::move(header)};
   auto tunnelResponseBytes = response.toBytes();
   controlSocket.writeToSync(remoteControlEndPoint, tunnelResponseBytes);
-  switch(request.getCemi().getNPDU().getACPI().getType()) {
-    case DataACPI::GROUP_VALUE_READ:
-      std::cout << "Group value read\n";
-      break;
-    case DataACPI::GROUP_VALUE_RESPONSE:
-      std::cout << "Group value response\n";
-      break;
-    case DataACPI::GROUP_VALUE_WRITE:
-      std::cout << "Group value write\n";
-      break;
-    case DataACPI::INDIVIDUAL_ADDRESS_READ:
-      std::cout << "Individual address read\n";
-      break;
-    case DataACPI::INDIVIDUAL_ADDRESS_WRITE:
-      std::cout << "Group value write\n";
-      break;
-    default:
-      break;
+  const Cemi &cemi = request.getCemi();
+  switch (request.getCemi().getNPDU().getACPI().getType()) {
+  case DataACPI::GROUP_VALUE_READ:
+
+    forEveryListener([cemi](KnxConnectionListener *listener) {
+      listener->onGroupRead(cemi.getSource(),
+                            std::get<GroupAddress>(cemi.getDestination()));
+    });
+    ;
+    break;
+  case DataACPI::GROUP_VALUE_RESPONSE:
+    forEveryListener([cemi](KnxConnectionListener *listener) {
+      listener->onGroupReadResponse(cemi.getSource(),
+                            std::get<GroupAddress>(cemi.getDestination()),cemi.getNPDU().getACPI().getData());
+    });
+    ;
+    break;
+  case DataACPI::GROUP_VALUE_WRITE:
+    forEveryListener([cemi](KnxConnectionListener *listener) {
+      listener->onGroupWrite(cemi.getSource(),
+                            std::get<GroupAddress>(cemi.getDestination()),cemi.getNPDU().getACPI().getData());
+    });
+    ;
+    break;
+  case DataACPI::INDIVIDUAL_ADDRESS_READ:
+    break;
+  case DataACPI::INDIVIDUAL_ADDRESS_WRITE:
+    break;
+  default:
+    break;
   }
   return true;
 }
@@ -173,9 +191,19 @@ HPAI IpKnxConnection::createControlHPAI() {
           HPAI::UDP};
 };
 
+void IpKnxConnection::forEveryListener(
+    std::function<auto(KnxConnectionListener *)->void> doThis) {
+  for (auto listenerRef : connectionListeners) {
+    if (auto listener = listenerRef.lock()) {
+      doThis(listener.get());
+    }
+  }
+}
 void IpKnxConnection::close() {
   // not nice, but it works for now
   ctx.stop();
+  forEveryListener(
+      [](KnxConnectionListener *listener) { listener->onDisconnect(); });
   // send DisconnectRequest if possible
   // close udp's
 }

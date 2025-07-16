@@ -39,7 +39,7 @@ const Control& Cemi::getControl() const {
 const IndividualAddress& Cemi::getSource() const {
   return source;
 }
-std::variant<IndividualAddress, GroupAddress>& Cemi::getDestination() {
+const std::variant<IndividualAddress, GroupAddress>& Cemi::getDestination() const{
   return destination;
 }
 

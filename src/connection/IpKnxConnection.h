@@ -1,10 +1,13 @@
 #include "ConnectionRequestInformation.h"
+#include "KnxConnectionListener.h"
 #include "HPAI.h"
 #include "KnxAddress.h"
 #include "UdpSocket.h"
 #include <asio/awaitable.hpp>
 #include <asio/io_context.hpp>
 #include <cstdint>
+#include <memory>
+#include <vector>
 #include <string_view>
 #include "ByteBufferReader.h"
 #include "KnxIpHeader.h"
@@ -36,9 +39,11 @@ public:
 
   /**
    * I will start up everything that is needed to maintain a connection with a
-   * KNx IP Router.
+   * KNX IP Router.
    */
   asio::awaitable<void>  start();
+
+  void addListener(std::weak_ptr<KnxConnectionListener> listener);
 
   /**
    * Just like the getter: A test method to get started: Bool value instead of a
@@ -76,6 +81,8 @@ private:
   HPAI createDataHPAI();
   HPAI createControlHPAI();
 
+  void forEveryListener(std::function<auto(KnxConnectionListener*)->void> doThis);
+
 private:
   asio::io_context &ctx;
   asio::ip::udp::endpoint remoteControlEndPoint;
@@ -86,6 +93,7 @@ private:
   udp::UdpSocket controlSocket;
   std::unordered_map<std::uint16_t, CallBackFunction> listeners{};
   std::uint8_t channelId{0};
+  std::vector<std::weak_ptr<KnxConnectionListener>> connectionListeners{};
 };
 
 } // namespace connection
