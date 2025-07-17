@@ -7,6 +7,7 @@
 #include <asio/ip/address_v4.hpp>
 #include <asio/ip/multicast.hpp>
 #include <asio/placeholders.hpp>
+#include <asio/socket_base.hpp>
 #include <asio/use_awaitable.hpp>
 #include <asio/write.hpp>
 #include <chrono>
@@ -65,17 +66,29 @@ void UdpSocket::start() {
                             std::bind_front(&UdpSocket::receiveSome, this));
 }
 
+void UdpSocket::stop() {
+  try {
+    socket.close();
+  } catch(std::exception& e) {
+    std::cout << "Error closing socket: " << e.what() << "\n";
+  }
+}
+
 void UdpSocket::writeToSync(asio::ip::udp::endpoint address, ByteSpan data) {
   socket.send_to(asio::buffer(data), address);
 }
+
 awaitable<void> UdpSocket::writeTo(asio::ip::udp::endpoint address, ByteSpan data) {
   co_await socket.async_send_to(asio::buffer(data), address, asio::use_awaitable);
 }
+
 awaitable<void> UdpSocket::listen(tcp::acceptor &acceptor) {
   for (;;) {
     auto [e, client] = co_await acceptor.async_accept(use_nothrow_awaitable);
-    if (e)
+    if (e) {
+      std::cout << "stopped listening" << std::endl;
       break;
+    }
 
     co_spawn(acceptor.get_executor(),
              this->transferWithTimeOut(std::move(client)), detached);

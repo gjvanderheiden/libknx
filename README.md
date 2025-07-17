@@ -58,7 +58,11 @@ Contains objects that are send between libknx and a KNX IP router. Theses object
 ### Code
 - Make parse and asBytes consistent throughout all marshallable objects
 - Deal with KnxIpHeader consistenly
-- KnxIpHeader refactor, it's just a bowl of soup now
+- KnxIpConnection refactor, it's just a bowl of soup now
+- KnxIpConnection as an fascade to an implementation to:
+  - destruct current connection on close and close all references in asio async context
+  - allow a different config / implementation, being allow nat and routing
+- KnxIpConnection construction with a builder or Config object.
 ### Functional
 First focus points:
 - APCI parsing

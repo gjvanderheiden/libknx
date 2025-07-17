@@ -19,6 +19,7 @@ public:
   UdpSocket(asio::io_context &ctx, std::string_view bindHost, unsigned short port);
   void setHandler(HandlerFunction&& function);
   void start();
+  void stop();
   void startMulticast(std::string_view multicastAddress);
   void writeToSync(asio::ip::udp::endpoint address, ByteSpan data);
   awaitable<void> writeTo(asio::ip::udp::endpoint address, ByteSpan data);

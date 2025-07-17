@@ -1,19 +1,18 @@
+#include "ByteBufferReader.h"
 #include "ConnectionRequestInformation.h"
-#include "KnxConnectionListener.h"
 #include "HPAI.h"
 #include "KnxAddress.h"
+#include "KnxConnectionListener.h"
+#include "KnxIpHeader.h"
 #include "UdpSocket.h"
 #include <asio/awaitable.hpp>
 #include <asio/io_context.hpp>
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include <string_view>
-#include "ByteBufferReader.h"
-#include "KnxIpHeader.h"
+#include <vector>
 
 namespace connection {
-
 
 /**
  * I'm responsible for keeping a connection to a KNX IP Router.
@@ -32,16 +31,17 @@ class IpKnxConnection {
 
 public:
   IpKnxConnection(asio::io_context &ctx, std::string_view remoteIp,
-                  std::uint16_t remotePort,
-                  std::string_view localBindIp,
+                  std::uint16_t remotePort, std::string_view localBindIp,
                   std::uint16_t localDataPort = 2001,
                   std::uint16_t localControlPort = 2002);
+
+  ~IpKnxConnection();
 
   /**
    * I will start up everything that is needed to maintain a connection with a
    * KNX IP Router.
    */
-  asio::awaitable<void>  start();
+  asio::awaitable<void> start();
 
   void addListener(std::weak_ptr<KnxConnectionListener> listener);
 
@@ -60,12 +60,14 @@ public:
    * Does not comply to RAII, but need to figure this one out a bit. Get the
    * project going.
    */
-  void close();
-  
+  asio::awaitable<void> close();
 
 private:
-  using CallBackFunction = std::function<auto (KnxIpHeader& knxIpHeader, ByteBufferReader& reader) -> bool>;
-  asio::awaitable<void> sendRequest(std::vector<std::uint8_t>& request, std::uint16_t responseServiceId, CallBackFunction&& callBackFunction);
+  using CallBackFunction = std::function<
+      auto(KnxIpHeader &knxIpHeader, ByteBufferReader &reader)->bool>;
+  asio::awaitable<void> sendRequest(std::vector<std::uint8_t> &request,
+                                    std::uint16_t responseServiceId,
+                                    CallBackFunction &&callBackFunction);
   /**
    * periodically, the connection needs to be checked according to KNX IP
    * protocol. The server closes the connection if it get this sort of ping.
@@ -74,17 +76,21 @@ private:
 
   auto onReceiveData(std::vector<std::uint8_t> &data) -> void;
 
-  auto onReceiveTunnelRequest(KnxIpHeader& knxIpHeader, ByteBufferReader& reader) -> bool;
-  auto onReceiveDisconnectRequest(KnxIpHeader& knxIpHeader, ByteBufferReader& reader) -> bool;
+  auto onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
+                              ByteBufferReader &reader) -> bool;
+  auto onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
+                                  ByteBufferReader &reader) -> bool;
 
   ConnectionRequestInformation createConnectRequestInformation();
   HPAI createDataHPAI();
   HPAI createControlHPAI();
 
-  void forEveryListener(std::function<auto(KnxConnectionListener*)->void> doThis);
+  void
+  forEveryListener(std::function<auto(KnxConnectionListener *)->void> doThis);
 
 private:
   asio::io_context &ctx;
+  asio::steady_timer checkConnectionTimer;
   asio::ip::udp::endpoint remoteControlEndPoint;
   asio::ip::address_v4 localBindIp;
   const std::uint16_t dataPort;
@@ -94,6 +100,7 @@ private:
   std::unordered_map<std::uint16_t, CallBackFunction> listeners{};
   std::uint8_t channelId{0};
   std::vector<std::weak_ptr<KnxConnectionListener>> connectionListeners{};
+  bool closingDown{false};
 };
 
 } // namespace connection
