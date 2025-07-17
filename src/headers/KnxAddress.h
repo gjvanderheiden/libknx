@@ -2,6 +2,7 @@
 
 #include "bytes/ByteBufferReader.h"
 #include <cstdint>
+#include <iostream>
 
 class KnxAddress {
 public:
@@ -33,3 +34,7 @@ public:
   ~GroupAddress() override = default;
   static GroupAddress createAndParse(ByteBufferReader& bytebuffer);
 };
+
+
+std::ostream& operator<<(std::ostream &stream, const GroupAddress& address);
+std::ostream& operator<<(std::ostream &stream, const IndividualAddress& address);

@@ -31,3 +31,14 @@ GroupAddress GroupAddress::createAndParse(ByteBufferReader &bytebuffer) {
   std::uint8_t line = (address[0] >> 4) & 0x03;
   return {area, line, address[1]};
 }
+
+
+std::ostream& operator<<(std::ostream &stream, const GroupAddress& address) {
+  return stream << (int)address.getHigh() << "/" << (int)address.getMiddle() << "/"
+         << (int)address.getLow();
+}
+
+std::ostream& operator<<(std::ostream &stream, const IndividualAddress& address) {
+  return stream << (int)address.getHigh() << "." << (int)address.getMiddle() << "."
+         << (int)address.getLow();
+}

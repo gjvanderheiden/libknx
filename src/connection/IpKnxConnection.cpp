@@ -1,4 +1,3 @@
-
 #include "IpKnxConnection.h"
 #include "ByteBufferReader.h"
 #include "ConnectRequest.h"
@@ -15,7 +14,6 @@
 #include <asio/as_tuple.hpp>
 #include <asio/awaitable.hpp>
 #include <asio/detached.hpp>
-#include <asio/experimental/awaitable_operators.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>
 #include <asio/use_awaitable.hpp>
@@ -24,7 +22,6 @@
 #include <functional>
 #include <iostream>
 
-using namespace asio::experimental::awaitable_operators;
 
 namespace connection {
 
@@ -57,7 +54,6 @@ IpKnxConnection::sendRequest(std::vector<std::uint8_t> &request,
                              const std::uint16_t responseServiceId,
                              CallBackFunction &&callBackFunction) {
   listeners[responseServiceId] = std::move(callBackFunction);
-
   co_await controlSocket.writeTo(remoteControlEndPoint, request);
 }
 
@@ -70,18 +66,20 @@ asio::awaitable<void> IpKnxConnection::start() {
   controlSocket.start();
   dataSocket.start();
 
-  auto controlHpai = createControlHPAI();
-  auto dataHpai = createDataHPAI();
-  auto cri = ConnectionRequestInformation::defaultTunnelingCRI();
-  ConnectRequest connectRequest{std::move(controlHpai), std::move(dataHpai),
-                                std::move(cri)};
-  auto bytes = connectRequest.toBytes();
   listeners.emplace(
       TunnelRequest::SERVICE_ID,
       std::bind_front(&IpKnxConnection::onReceiveTunnelRequest, this));
   listeners.emplace(
       DisconnectRequest::SERVICE_ID,
       std::bind_front(&IpKnxConnection::onReceiveDisconnectRequest, this));
+
+  // send connect request
+  auto controlHpai = createControlHPAI();
+  auto dataHpai = createDataHPAI();
+  auto cri = ConnectionRequestInformation::defaultTunnelingCRI();
+  ConnectRequest connectRequest{std::move(controlHpai), std::move(dataHpai),
+                                std::move(cri)};
+  auto bytes = connectRequest.toBytes();
   co_await sendRequest(bytes, knx::requestresponse::ConnectResponse::SERVICE_ID,
                        [this](KnxIpHeader &, ByteBufferReader &data) {
                          const ConnectResponse connectResponse =
@@ -100,10 +98,12 @@ asio::awaitable<void> IpKnxConnection::checkConnection() {
   while (keepGoing) {
     checkConnectionTimer.expires_after(std::chrono::seconds(60));
     auto [errorcode] = co_await checkConnectionTimer.async_wait(asio::as_tuple);
+    // if canceled, stop
     if(errorcode) {
       keepGoing = false;
       break;
     }
+    // send a connect state request
     ConnectStateRequest request{createControlHPAI(), channelId};
     auto bytes = request.toBytes();
     co_await sendRequest(
@@ -123,11 +123,14 @@ asio::awaitable<void> IpKnxConnection::checkConnection() {
 
 auto IpKnxConnection::onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
                                              ByteBufferReader &reader) -> bool {
+  // send a acknowlegde
   const TunnelRequest request = TunnelRequest::parse(reader);
   ConnectionHeader header{request.getConnectionHeader()};
   TunnelAckResponse response{std::move(header)};
   auto tunnelResponseBytes = response.toBytes();
   controlSocket.writeToSync(remoteControlEndPoint, tunnelResponseBytes);
+
+  // send event to listeners
   const Cemi &cemi = request.getCemi();
   switch (request.getCemi().getNPDU().getACPI().getType()) {
   case DataACPI::GROUP_VALUE_READ:

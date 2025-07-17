@@ -9,36 +9,21 @@
 #include <memory>
 #include <string_view>
 
-std::ostream &operator<<(std::ostream &stream, const GroupAddress &address) {
-  stream << (int)address.getHigh() << "/" << (int)address.getMiddle() << "/"
-         << (int)address.getLow();
-  return stream;
-}
-std::ostream &operator<<(std::ostream &stream,
-                         const IndividualAddress &address) {
-  stream << (int)address.getHigh() << "." << (int)address.getMiddle() << "."
-         << (int)address.getLow();
-  return stream;
-}
-
 class StopContextOnDisconnect final : public connection::KnxConnectionListener {
 public:
   StopContextOnDisconnect(asio::io_context &ctx) : ctx{ctx} {};
   ~StopContextOnDisconnect() override = default;
 
-  void onConnect() override {}
   void onDisconnect() override {
-    ;
     ctx.stop();
   }
 
+  void onConnect() override {}
   void onGroupRead(const IndividualAddress &source,
                    const GroupAddress &ga) override {}
-
   void onGroupReadResponse(const IndividualAddress &source,
                            const GroupAddress &ga,
                            const std::array<byte, 2> data) override {}
-
   void onGroupWrite(const IndividualAddress &source, const GroupAddress &ga,
                     const std::array<byte, 2> data) override {}
 
@@ -85,14 +70,20 @@ void logEvents(std::string_view routerIP, std::uint16_t routerPort,
   asio::io_context io_context;
   connection::IpKnxConnection connection{io_context, routerIP, routerPort,
                                          bindIp};
+  // Log to the standard out
   std::shared_ptr logger = std::make_shared<Logger>();
   connection.addListener(logger);
+  // Stop the asio context on disconnect
+  // I want to see if this can be ommited, by refactoring IpKnxConnection.
+  // Right now, something keeps the asio context running, might be unavoidable though.
   std::shared_ptr stopCtxOnDisconnect =
       std::make_shared<StopContextOnDisconnect>(io_context);
   connection.addListener(stopCtxOnDisconnect);
   asio::co_spawn(io_context, connection.start(), asio::detached);
+  // stop after 2 minutes
   asio::co_spawn(io_context, stopConnection(io_context, connection),
                  asio::detached);
+  // on ctrl-c gracefully close connection
   asio::signal_set signals(io_context, SIGINT, SIGTERM);
   signals.async_wait([&](auto, auto) { co_spawn(io_context, connection.close(), asio::detached);
   });
