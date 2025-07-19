@@ -1,11 +1,13 @@
 #pragma once
 
+#include "ByteBufferWriter.h"
 #include "bytes/ByteBufferReader.h"
 
 class Control {
 public:
   explicit Control(bool destinationAddressIsGroup);
   static Control parse(ByteBufferReader &byteBuffer);
+  void toBytes(ByteBufferWriter &writer);
   [[nodiscard]] bool isDestinationGroupAddress() const;
 
 private:

@@ -27,6 +27,18 @@ Cemi Cemi::parse(ByteBufferReader& byteBuffer) {
   return {std::move(messageCode), std::move(control), std::move(source), std::move(destination), std::move(npdu)};
 }
 
+void Cemi::toBytes(ByteBufferWriter &writer) {
+  writer.writeUint8(messageCode);
+  control.toBytes(writer);
+  source.toBytes(writer);
+  control.toBytes(writer);
+  if(std::holds_alternative<IndividualAddress>(destination)) {
+    std::get<IndividualAddress>(destination).toBytes(writer);
+  } else {
+    std::get<GroupAddress>(destination).toBytes(writer);
+  }
+  npdu.toBytes(writer);
+}
 
 std::uint8_t Cemi::getMessageCode() const {
   return messageCode;

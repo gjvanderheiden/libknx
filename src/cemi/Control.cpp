@@ -11,6 +11,9 @@ Control Control::parse(ByteBufferReader& byteBuffer) {
   return Control{isGroup};
 }
 
+void Control::toBytes(ByteBufferWriter &writer) {
+}
+
 bool Control::isDestinationGroupAddress() const {
   return destinationAddressIsGroup;
 }

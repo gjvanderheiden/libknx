@@ -1,4 +1,5 @@
 #include "ACPI.h"
+#include <cstdint>
 
 DataACPI::DataACPI(const std::uint8_t type, const std::array<std::uint8_t, 2> data) :type{type}, data{data} {
 }
@@ -16,6 +17,21 @@ DataACPI DataACPI::parseAndCreate(const byte firstByte, const byte length, ByteB
     data[1] = reader.readUint8();
   }
   return DataACPI{type, data};
+}
+
+void DataACPI::toBytes(byte firstByte, ByteBufferWriter &writer) {
+  bool oneByteData = data[0] == 0 && (data[1] & 0x11000000) == 0;
+  writer.writeUint8(oneByteData?1:2);
+  firstByte |= (type & 0x05) >> 2; 
+  byte secondByte = (type & 0x03) << 6 ; 
+  if(oneByteData) {
+    secondByte |= data[1] & 0x0011111111;
+    writer.writeUint8(secondByte);
+  } else {
+    secondByte |= data[0] & 0x0011111111;
+    writer.writeUint8(secondByte);
+    writer.writeUint8(data[1]);
+  }
 }
 
 std::uint8_t DataACPI::getType() const {

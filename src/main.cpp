@@ -65,6 +65,15 @@ asio::awaitable<void> stopConnection(asio::io_context &ctx,
   co_await connection.close();
 }
 
+asio::awaitable<void> writeGroup(asio::io_context &ctx,
+                                     connection::IpKnxConnection &connection) {
+  asio::steady_timer timer(ctx);
+  timer.expires_after(std::chrono::seconds(20));
+  co_await timer.async_wait();
+  GroupAddress ga{4,0,8};
+  connection.setGroupData(ga, true);
+}
+
 void logEvents(std::string_view routerIP, std::uint16_t routerPort,
                std::string_view bindIp) {
   asio::io_context io_context;

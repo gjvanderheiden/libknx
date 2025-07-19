@@ -5,6 +5,7 @@
 #include "KnxAddress.h"
 #include "KnxIpHeader.h"
 #include "TunnelingRequest.h"
+#include "cemi/ACPI.h"
 #include "requests/ConnectStateRequest.h"
 #include "requests/DisconnectRequest.h"
 #include "responses/ConnectResponse.h"
@@ -192,7 +193,26 @@ void IpKnxConnection::onReceiveData(std::vector<std::uint8_t> &data) {
   }
 }
 
-void IpKnxConnection::setGroupData(GroupAddress &ga, bool value) {}
+void IpKnxConnection::setGroupData(GroupAddress &ga, bool value) {
+  // Contruct Cemi should be connection independend
+  IndividualAddress source(1,0,3); // my address
+  Control control{true};
+  GroupAddress gaMove{ga};
+  std::array<byte, 2> data{0x00};
+  data[1] = value & 0x00000001;
+  DataACPI dataAcpi{DataACPI::GROUP_VALUE_READ, data};
+  TCPI tcpi{false, false, 0x00};
+  NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
+  Cemi cemi{0x24, std::move(control), std::move(source), std::variant<IndividualAddress, GroupAddress>(gaMove), std::move(npduFrame)};
+
+  // tunneling specific
+  ConnectionHeader connectionHeader{channelId, 0x00, 0x00};
+  TunnelRequest tunnelRequest{std::move(connectionHeader), std::move(cemi)};
+  auto bytes = tunnelRequest.toBytes();
+
+  co_spawn(ctx, controlSocket.writeTo(remoteControlEndPoint, bytes), asio::detached);
+  // do something with response
+}
 
 bool IpKnxConnection::getGroupData(GroupAddress &ga) { return false; }
 

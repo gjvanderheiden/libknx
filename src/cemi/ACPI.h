@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ByteBufferWriter.h"
 #include "bytes/ByteBufferReader.h"
 #include <array>
 #include <cstdint>
@@ -17,6 +18,7 @@ public:
   static constexpr std::uint8_t GROUP_VALUE_WRITE = 0b0010;
 
   static DataACPI parseAndCreate(byte firstByte, byte length, ByteBufferReader &reader);
+  void toBytes(byte firstByte, ByteBufferWriter &writer);
 
   [[nodiscard]] std::uint8_t getType() const;
   [[nodiscard]] std::array<byte,2> getData() const;

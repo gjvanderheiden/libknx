@@ -17,6 +17,9 @@ IndividualAddress IndividualAddress::createAndParse(ByteBufferReader &bytebuffer
   return {area, line, address[1]};
 }
 
+void IndividualAddress::toBytes(ByteBufferWriter& writer) {
+}
+
 std::uint8_t IndividualAddress::getArea() const { return getHigh(); }
 std::uint8_t IndividualAddress::getLine() const { return getMiddle(); }
 std::uint8_t IndividualAddress::getDevice() const  { return getLow(); }
@@ -32,6 +35,8 @@ GroupAddress GroupAddress::createAndParse(ByteBufferReader &bytebuffer) {
   return {area, line, address[1]};
 }
 
+void GroupAddress::toBytes(ByteBufferWriter& writer) {
+}
 
 std::ostream& operator<<(std::ostream &stream, const GroupAddress& address) {
   return stream << (int)address.getHigh() << "/" << (int)address.getMiddle() << "/"
