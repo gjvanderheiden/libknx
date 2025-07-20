@@ -11,13 +11,13 @@ public:
 
   void appendToByteArray(ByteBufferWriter &data) const override;
   static ConnectionHeader parseAndCreate(ByteBufferReader &reader);
-  std::uint8_t getSeqeunce() const;
+  std::uint8_t getSequence() const;
   std::uint8_t getChannel() const;
   std::uint8_t getStatus() const;
 
 protected:
 
 private:
-  std::uint8_t sequence{0};
-  std::uint8_t status{0};
+  const std::uint8_t sequence;
+  const std::uint8_t status;
 };

@@ -50,7 +50,7 @@ TEST(TunnelingRequest, createAndParse1) {
   ByteBufferReader reader{test_frame1};
   KnxIpHeader header = KnxIpHeader::createAndParse(reader);
   const TunnelRequest request = TunnelRequest::parse(reader);
-  ASSERT_EQ(0, request.getConnectionHeader().getSeqeunce());
+  ASSERT_EQ(0, request.getConnectionHeader().getSequence());
   ASSERT_EQ(1, request.getConnectionHeader().getChannel());
   ASSERT_EQ(0, request.getConnectionHeader().getStatus());
 
@@ -68,7 +68,7 @@ TEST(TunnelingRequest, createAndParse2) {
   ByteBufferReader reader{test_frame2};
   KnxIpHeader header = KnxIpHeader::createAndParse(reader);
   const TunnelRequest request = TunnelRequest::parse(reader);
-  ASSERT_EQ(1, request.getConnectionHeader().getSeqeunce());
+  ASSERT_EQ(1, request.getConnectionHeader().getSequence());
   ASSERT_EQ(1, request.getConnectionHeader().getChannel());
 }
 
@@ -76,7 +76,7 @@ TEST(TunnelingRequest, createAndParse3) {
   ByteBufferReader reader{test_frame3};
   KnxIpHeader header = KnxIpHeader::createAndParse(reader);
   const TunnelRequest request = TunnelRequest::parse(reader);
-  ASSERT_EQ(2, request.getConnectionHeader().getSeqeunce());
+  ASSERT_EQ(2, request.getConnectionHeader().getSequence());
   ASSERT_EQ(1, request.getConnectionHeader().getChannel());
 }
 
@@ -84,6 +84,6 @@ TEST(TunnelingRequest, createAndParse4) {
   ByteBufferReader reader{test_frame4};
   KnxIpHeader header = KnxIpHeader::createAndParse(reader);
   const TunnelRequest request = TunnelRequest::parse(reader);
-  ASSERT_EQ(6, request.getConnectionHeader().getSeqeunce());
+  ASSERT_EQ(6, request.getConnectionHeader().getSequence());
   ASSERT_EQ(1, request.getConnectionHeader().getChannel());
 }

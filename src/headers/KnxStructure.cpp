@@ -9,7 +9,7 @@ KnxStructure::pr KnxStructure::parse(ByteBufferReader& byteBuffer) {
     length = byteBuffer.readUint16();
   }
   length -= 2;
-  return {length, byteBuffer.readBoolFromByte()};
+  return {length, byteBuffer.readUint8()};
 }
 
 std::uint8_t KnxStructure::getType() const {

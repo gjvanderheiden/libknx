@@ -18,5 +18,6 @@ ConnectResponse ConnectResponse::parse(ByteBufferReader &buffer) {
 std::uint8_t ConnectResponse::getChannelId() const { return channelId; }
 
 std::uint8_t ConnectResponse::getStatus() const { return status; }
+const ConnectionRequestData& ConnectResponse::getCRD() const {return crd;}
 
 } // namespace knx::requestresponse

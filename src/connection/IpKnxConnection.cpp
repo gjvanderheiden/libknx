@@ -198,7 +198,7 @@ void IpKnxConnection::setGroupData(GroupAddress &ga, bool value) {
   Control control{true};
   GroupAddress gaMove{ga};
   std::array<byte, 2> data{0x00};
-  data[1] = value & 0x00000001;
+  data[1] = value?0x01:0x00;
   DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, data};
   TCPI tcpi{false, false, 0x00};
   NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
