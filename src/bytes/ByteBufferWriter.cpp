@@ -32,7 +32,7 @@ void ByteBufferWriter::writeTerminatedString(const std::string_view aString,
   writeZeros(maxLength - aString.size());
 }
 
-void ByteBufferWriter::writeByteSpan(ByteSpan byteSpan) {
+void ByteBufferWriter::writeByteSpan(const ByteSpan byteSpan) {
   std::copy(byteSpan.begin(), byteSpan.end(), std::back_inserter(data));
 }
 

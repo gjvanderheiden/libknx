@@ -12,7 +12,7 @@ public:
   Cemi() = delete;
   Cemi(std::uint8_t messageCode, Control&& control, IndividualAddress&& source, std::variant<IndividualAddress, GroupAddress>&& destination, NPDUFrame&& frame);
   static Cemi parse(ByteBufferReader &byteBuffer);
-  void toBytes(ByteBufferWriter& byteBuffer);
+  void toBytes(ByteBufferWriter& byteBuffer) const;
   std::uint8_t getMessageCode() const;
   const Control& getControl() const;
   const IndividualAddress& getSource() const;
@@ -20,7 +20,7 @@ public:
   const NPDUFrame& getNPDU() const;
 
 private:
-  std::uint8_t messageCode;
+  std::uint8_t messageCode{0x29};
   Control control;
   IndividualAddress source;
   std::variant<IndividualAddress, GroupAddress> destination;

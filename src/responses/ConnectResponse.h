@@ -9,6 +9,7 @@ namespace knx::requestresponse {
 
 class ConnectResponse {
 public:
+  ConnectResponse(std::uint8_t channelId, std::uint8_t status, HPAI&& dataEndPoint, ConnectionRequestData&& crd);
   static ConnectResponse parse(ByteBufferReader &buffer);
 
   static constexpr std::uint16_t SERVICE_ID = 0x0206;
@@ -17,10 +18,10 @@ public:
   std::uint8_t getStatus() const;
 
 private:
-  std::uint8_t channelId{0};
-  std::uint8_t status{0};
-  HPAI dataEndPoint{};
-  ConnectionRequestData crd{};
+  const std::uint8_t channelId;
+  const std::uint8_t status;
+  const HPAI dataEndPoint;
+  const ConnectionRequestData crd;
 };
 
 } // namespace knx::requestresponse

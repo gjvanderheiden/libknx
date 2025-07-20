@@ -15,7 +15,6 @@ void SearchRequest::appendToByteWriter(ByteBufferWriter& writer) {
 }
 
 SearchRequest SearchRequest::newDefault() {
-  IpAddress multicast{};
-  multicast.address = {244, 0, 23, 12};
-  return SearchRequest(HPAI(IpAddress{}, 5371, HPAI::UDP));
+  IpAddress multicast{244, 0, 23, 12};
+  return SearchRequest(HPAI(multicast, 5371, HPAI::UDP));
 }

@@ -30,8 +30,7 @@ Discovery::Discovery(asio::io_context &io_context)
 
 void Discovery::lookAround(int maxResults) {
   this->maxResults = maxResults;
-  IpAddress ipAddress;
-  ipAddress.address = {224, 0, 23, 12};
+  IpAddress ipAddress{224, 0, 23, 12};
   HPAI local{ipAddress, 3671, HPAI::UDP};
   SearchRequest searchRequest{local};
   std::vector<byte> srBytes;

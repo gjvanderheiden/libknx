@@ -1,28 +1,22 @@
 #include "HPAI.h"
 #include "IpAddress.h"
+#include "KnxStructure.h"
 #include <cstdint>
 
 HPAI::HPAI(IpAddress address, int port, std::uint8_t protocolCode)
-    : address(std::move(address)), port(port) {
-  this->setType(protocolCode);
+    : KnxStructure(protocolCode), address(std::move(address)), port(port) {
 }
 
-void HPAI::appendToByteArray(ByteBufferWriter& data) {
+void HPAI::appendToByteArray(ByteBufferWriter& data) const {
   data.writeUint8(8);
   data.writeUint8(getProtocol());
   address.appendToByteArray(data);
   data.writeUint16(getPort());
 }
 
-HPAI HPAI::createAndParse(ByteBufferReader& byteBuffer) {
-  HPAI hpai;
-  hpai.parse(byteBuffer);
-  return hpai;
-}
-
-void HPAI::parseBody(ByteBufferReader& byteBuffer, std::uint16_t size) {
-  address = IpAddress::parse(byteBuffer);
-  port = byteBuffer.readUint16();
+HPAI HPAI::createAndParse(ByteBufferReader& reader) {
+  auto [length, type] = KnxStructure::parse(reader);
+  return HPAI{IpAddress::parse(reader), reader.readUint16(), type};
 }
 
 IpAddress HPAI::getAddress() const { return this->address; }

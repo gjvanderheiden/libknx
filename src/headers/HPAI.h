@@ -8,13 +8,10 @@
 
 class HPAI final: KnxStructure {
 public:
-  HPAI(){};
   HPAI(IpAddress address, int port, std::uint8_t protocolCode);
 
-
-  void appendToByteArray(ByteBufferWriter& data) override;
+  void appendToByteArray(ByteBufferWriter& data) const override;
   static HPAI createAndParse(ByteBufferReader& byteBuffer);
-
 
   IpAddress getAddress() const;
   std::uint16_t getPort() const;
@@ -24,8 +21,6 @@ public:
 
   static constexpr uint8_t UDP = 0x01;
   static constexpr uint8_t TCP = 0x02;
-protected:
-  void parseBody(ByteBufferReader& byteBuffer, std::uint16_t length) override;
 private:
   IpAddress address;
   std::uint16_t port;

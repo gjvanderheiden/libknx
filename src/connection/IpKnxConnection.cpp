@@ -23,7 +23,6 @@
 #include <functional>
 #include <iostream>
 
-
 namespace connection {
 
 using namespace knx::requestresponse;
@@ -77,7 +76,7 @@ asio::awaitable<void> IpKnxConnection::start() {
   // send connect request
   auto controlHpai = createControlHPAI();
   auto dataHpai = createDataHPAI();
-  auto cri = ConnectionRequestInformation::defaultTunnelingCRI();
+  auto cri = ConnectionRequestInformation::newTunneling();
   ConnectRequest connectRequest{std::move(controlHpai), std::move(dataHpai),
                                 std::move(cri)};
   auto bytes = connectRequest.toBytes();
@@ -100,7 +99,7 @@ asio::awaitable<void> IpKnxConnection::checkConnection() {
     checkConnectionTimer.expires_after(std::chrono::seconds(60));
     auto [errorcode] = co_await checkConnectionTimer.async_wait(asio::as_tuple);
     // if canceled, stop
-    if(errorcode) {
+    if (errorcode) {
       keepGoing = false;
       break;
     }
@@ -176,7 +175,7 @@ auto IpKnxConnection::onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
     DisconnectResponse response{channelId};
     auto responseBytes = response.toBytes();
     controlSocket.writeToSync(remoteControlEndPoint, responseBytes);
-    co_spawn(ctx, this->close(), asio::detached);
+    co_spawn(ctx, this->close(false), asio::detached);
   }
   return true;
 }
@@ -195,22 +194,25 @@ void IpKnxConnection::onReceiveData(std::vector<std::uint8_t> &data) {
 
 void IpKnxConnection::setGroupData(GroupAddress &ga, bool value) {
   // Contruct Cemi should be connection independend
-  IndividualAddress source(1,0,3); // my address
+  IndividualAddress source(1, 0, 3); // my address
   Control control{true};
   GroupAddress gaMove{ga};
   std::array<byte, 2> data{0x00};
   data[1] = value & 0x00000001;
-  DataACPI dataAcpi{DataACPI::GROUP_VALUE_READ, data};
+  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, data};
   TCPI tcpi{false, false, 0x00};
   NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
-  Cemi cemi{0x24, std::move(control), std::move(source), std::variant<IndividualAddress, GroupAddress>(gaMove), std::move(npduFrame)};
+  Cemi cemi{0x29, std::move(control), std::move(source),
+            std::variant<IndividualAddress, GroupAddress>(gaMove),
+            std::move(npduFrame)};
 
   // tunneling specific
   ConnectionHeader connectionHeader{channelId, 0x00, 0x00};
   TunnelRequest tunnelRequest{std::move(connectionHeader), std::move(cemi)};
   auto bytes = tunnelRequest.toBytes();
 
-  co_spawn(ctx, controlSocket.writeTo(remoteControlEndPoint, bytes), asio::detached);
+  co_spawn(ctx, controlSocket.writeTo(remoteControlEndPoint, bytes),
+           asio::detached);
   // do something with response
 }
 
@@ -218,7 +220,7 @@ bool IpKnxConnection::getGroupData(GroupAddress &ga) { return false; }
 
 ConnectionRequestInformation
 IpKnxConnection::createConnectRequestInformation() {
-  return ConnectionRequestInformation::defaultTunnelingCRI();
+  return ConnectionRequestInformation::newTunneling();
 }
 HPAI IpKnxConnection::createDataHPAI() {
   return {IpAddress{this->localBindIp.to_bytes()}, this->dataPort, HPAI::UDP};
@@ -238,23 +240,26 @@ void IpKnxConnection::forEveryListener(
   }
 }
 
-asio::awaitable<void> IpKnxConnection::close() {
+asio::awaitable<void>
+IpKnxConnection::close(bool needsDisconnectRequest) {
   if (!closingDown) {
     closingDown = true;
+    if (needsDisconnectRequest) {
 
-    DisconnectRequest disconnectRequest{channelId, createControlHPAI()};
-    auto requestBytes = disconnectRequest.toBytes();
-    using namespace std::literals;
+      DisconnectRequest disconnectRequest{channelId, createControlHPAI()};
+      auto requestBytes = disconnectRequest.toBytes();
+      using namespace std::literals;
 
-    asio::steady_timer timer(ctx);
-    timer.expires_after(std::chrono::milliseconds(400));
-    co_await sendRequest(
-        requestBytes, DisconnectResponse::SERVICE_ID,
-        [this, &timer](KnxIpHeader &knxIpHeader, ByteBufferReader &reader) {
-          timer.cancel_one();
-          return false;
-        });
-    auto [error] = co_await timer.async_wait(asio::as_tuple);
+      asio::steady_timer timer(ctx);
+      timer.expires_after(std::chrono::milliseconds(400));
+      co_await sendRequest(
+          requestBytes, DisconnectResponse::SERVICE_ID,
+          [this, &timer](KnxIpHeader &knxIpHeader, ByteBufferReader &reader) {
+            timer.cancel_one();
+            return false;
+          });
+      auto [error] = co_await timer.async_wait(asio::as_tuple);
+    }
     checkConnectionTimer.cancel_one();
     controlSocket.stop();
     dataSocket.stop();

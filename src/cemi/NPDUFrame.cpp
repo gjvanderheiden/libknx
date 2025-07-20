@@ -10,7 +10,7 @@ NPDUFrame NPDUFrame::createAndParse(ByteBufferReader& bytebuffer) {
   return NPDUFrame{TCPI::parseAndCreate(firstByte & 0xF0), DataACPI::parseAndCreate(firstByte & 0x0F, length, bytebuffer)};
 }
 
-void NPDUFrame::toBytes(ByteBufferWriter& writer) {
+void NPDUFrame::toBytes(ByteBufferWriter& writer) const {
   byte firstByte = tcpi.toByte();
   acpi.toBytes(firstByte, writer);
 }

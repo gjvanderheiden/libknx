@@ -7,7 +7,7 @@ class Control {
 public:
   explicit Control(bool destinationAddressIsGroup);
   static Control parse(ByteBufferReader &byteBuffer);
-  void toBytes(ByteBufferWriter &writer);
+  void toBytes(ByteBufferWriter &writer) const;
   [[nodiscard]] bool isDestinationGroupAddress() const;
 
 private:

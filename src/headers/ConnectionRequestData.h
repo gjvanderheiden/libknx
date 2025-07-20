@@ -7,9 +7,10 @@
 class ConnectionRequestData final : public KnxStructure {
 public:
   static constexpr std::uint8_t TUNNELING_TYPE = 4;
-  ConnectionRequestData() : KnxStructure(TUNNELING_TYPE){};
-  void appendToByteArray(ByteBufferWriter &data) override;
+  ConnectionRequestData(std::uint8_t type);
+  static ConnectionRequestData createAndParse(ByteBufferReader &data);
+  static ConnectionRequestData newTunneling();
 
-protected:
-  void parseBody(ByteBufferReader &byteBuffer, std::uint16_t length) override;
+  void appendToByteArray(ByteBufferWriter &data) const override;
+
 };

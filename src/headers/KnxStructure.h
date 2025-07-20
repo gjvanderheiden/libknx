@@ -1,24 +1,21 @@
 #pragma once
 
+#include "ByteBufferWriter.h"
 #include "bytes/ByteBufferReader.h"
-#include "bytes/ByteBufferWriter.h"
 #include <asio/awaitable.hpp>
 
 class KnxStructure {
 public:
   virtual ~KnxStructure() = default;
-
-  KnxStructure() = default;
-  explicit KnxStructure(std::uint16_t type);
-  void parse(ByteBufferReader &byteBuffer);
-  virtual void appendToByteArray(ByteBufferWriter &data) = 0;
+  explicit KnxStructure(std::uint8_t type);
   [[nodiscard]] std::uint8_t getType() const;
+  virtual void appendToByteArray(ByteBufferWriter& data) const = 0;
 
 protected:
-  void setType(std::uint8_t type);
-  virtual void parseBody(ByteBufferReader &byteBuffer,
-                         std::uint16_t length) = 0;
+  struct pr{std::uint16_t length; std::uint8_t type;};
+  static pr parse(ByteBufferReader &byteBuffer);
+  void appendKnxStructure(ByteBufferWriter& data, std::uint16_t length) const;
 
 private:
-  std::uint16_t type{0};
+  const std::uint8_t type{0};
 };

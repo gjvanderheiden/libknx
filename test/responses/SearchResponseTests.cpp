@@ -19,5 +19,5 @@ TEST(SearchResponse, parse) {
   ByteBufferReader reader{test_frame};
   KnxIpHeader header = KnxIpHeader::createAndParse(reader);
   SearchResponse searchReaponse = SearchResponse::parse(reader);
-  ASSERT_EQ(192, (int)(searchReaponse.getControlEndPoint().getAddress().address[0]));
+  ASSERT_EQ("192.168.10.15", searchReaponse.getControlEndPoint().getAddress().asString());
 }  

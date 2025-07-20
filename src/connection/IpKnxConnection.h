@@ -60,7 +60,7 @@ public:
    * Does not comply to RAII, but need to figure this one out a bit. Get the
    * project going.
    */
-  asio::awaitable<void> close();
+  asio::awaitable<void> close(bool needsDisconnectRequest = true);
 
 private:
   using CallBackFunction = std::function<

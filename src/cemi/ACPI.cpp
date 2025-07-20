@@ -19,10 +19,11 @@ DataACPI DataACPI::parseAndCreate(const byte firstByte, const byte length, ByteB
   return DataACPI{type, data};
 }
 
-void DataACPI::toBytes(byte firstByte, ByteBufferWriter &writer) {
+void DataACPI::toBytes(byte firstByte, ByteBufferWriter &writer) const {
   bool oneByteData = data[0] == 0 && (data[1] & 0x11000000) == 0;
   writer.writeUint8(oneByteData?1:2);
   firstByte |= (type & 0x05) >> 2; 
+  writer.writeUint8(firstByte);
   byte secondByte = (type & 0x03) << 6 ; 
   if(oneByteData) {
     secondByte |= data[1] & 0x0011111111;

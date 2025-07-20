@@ -18,14 +18,14 @@ static std::array<byte, 0x36> test_frame2 = {
 
 TEST(DeviceDibTest, parse1) {
   ByteBufferReader byteBuffer{test_frame1};
-  DeviceDib deviceDib = DeviceDib::createAndParse(byteBuffer);
+  DeviceDib deviceDib = DeviceDib::parseAndCreate(byteBuffer);
 
   EXPECT_EQ("calimero-core knx test-server", deviceDib.getDeviceName());
 }
 
 TEST(DeviceDibTest, parse2) {
   ByteBufferReader byteBuffer{test_frame2};
-  DeviceDib deviceDib = DeviceDib::createAndParse(byteBuffer);
+  DeviceDib deviceDib = DeviceDib::parseAndCreate(byteBuffer);
 
   EXPECT_EQ("KNX IP-Router", deviceDib.getDeviceName());
 }

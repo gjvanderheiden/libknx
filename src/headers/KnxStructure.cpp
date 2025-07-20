@@ -1,21 +1,28 @@
 #include "KnxStructure.h"
 
-KnxStructure::KnxStructure(std::uint16_t type) : type{type} {
+KnxStructure::KnxStructure(std::uint8_t type) : type{type} {
 }
-void KnxStructure::parse(ByteBufferReader& byteBuffer) {
+
+KnxStructure::pr KnxStructure::parse(ByteBufferReader& byteBuffer) {
   std::uint16_t length = byteBuffer.readUint8();
   if (length == 0xFF) {
     length = byteBuffer.readUint16();
   }
-  this->type = byteBuffer.readUint8();
-  this->parseBody(byteBuffer, length - 2);
+  length -= 2;
+  return {length, byteBuffer.readBoolFromByte()};
 }
 
 std::uint8_t KnxStructure::getType() const {
   return type;
 }
 
-
-void KnxStructure::setType(std::uint8_t type) {
-  this->type = type;
+void KnxStructure::appendKnxStructure(ByteBufferWriter& data, std::uint16_t length) const {
+  if (length >= 0xFF) {
+    data.writeUint8(0xFF);
+    data.writeUint16(length);
+  } else {
+    data.writeUint8(length);
+  }
+  data.writeUint8(type);
 }
+

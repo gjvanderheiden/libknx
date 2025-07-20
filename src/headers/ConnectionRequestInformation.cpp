@@ -5,18 +5,17 @@ ConnectionRequestInformation::ConnectionRequestInformation(
     std::uint8_t connectionType, std::uint8_t layer)
     : KnxStructure{connectionType}, layer{layer} {}
 
-ConnectionRequestInformation ConnectionRequestInformation::defaultTunnelingCRI() {
+ConnectionRequestInformation ConnectionRequestInformation::newTunneling() {
   return {TUNNELING_CONNECTION_TYPE, TUNNELING_LINK_LAYER}; 
 }
 
-void ConnectionRequestInformation::parseBody(ByteBufferReader &byteBuffer,
-                                             std::uint16_t length) {
-  byteBuffer.skip(length);
+ConnectionRequestInformation ConnectionRequestInformation::createAndParse(ByteBufferReader& reader) {
+  auto [length, type] = KnxStructure::parse(reader);
+  return ConnectionRequestInformation{type, reader.readBoolFromByte()};
 }
 
-void ConnectionRequestInformation::appendToByteArray(ByteBufferWriter &data) {
-  data.writeUint8(4);
-  data.writeUint8(getType());
+void ConnectionRequestInformation::appendToByteArray(ByteBufferWriter &data) const {
+  appendKnxStructure(data, 4);
   data.writeUint8(layer);
   data.writeUint8(0x00);
 }

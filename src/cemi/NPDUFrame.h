@@ -11,7 +11,7 @@ class NPDUFrame {
 public:
   NPDUFrame(TCPI&& tcpi, DataACPI&& acpi);
   static NPDUFrame createAndParse(ByteBufferReader& bytebuffer);
-  void toBytes(ByteBufferWriter& writer);
+  void toBytes(ByteBufferWriter& writer) const;
   [[nodiscard]] const TCPI& getTCPI() const;
   [[nodiscard]] const DataACPI& getACPI() const;
 private:

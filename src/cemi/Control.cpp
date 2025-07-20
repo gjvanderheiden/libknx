@@ -11,7 +11,10 @@ Control Control::parse(ByteBufferReader& byteBuffer) {
   return Control{isGroup};
 }
 
-void Control::toBytes(ByteBufferWriter &writer) {
+void Control::toBytes(ByteBufferWriter &writer) const {
+  writer.writeUint8(0xbc);
+  writer.writeUint8(0xd0);
+
 }
 
 bool Control::isDestinationGroupAddress() const {

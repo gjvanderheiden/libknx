@@ -39,10 +39,9 @@ public:
   void writeTerminatedString(std::string_view, int maxLength);
 
   /**
-   * Read numberOfBytes and creates a _reference_ to the buffer data.
-   * Be carefull!
+   * write the span to the buffer
    */
-  void writeByteSpan(ByteSpan span);
+  void writeByteSpan(const ByteSpan span);
 
   /**
    * Read one byte and return it as a bool. 0 is false, any other value is true.

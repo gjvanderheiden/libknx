@@ -10,21 +10,21 @@
 
 class DeviceDib final : public KnxStructure {
 public:
-  static DeviceDib createAndParse(ByteBufferReader &byteBuffer);
   std::string_view getDeviceName();
   std::span<std::uint8_t> getSerialNumber();
 
-  void appendToByteArray(ByteBufferWriter& data) override;
+  static DeviceDib parseAndCreate(ByteBufferReader& byteBuffer);
+  void appendToByteArray(ByteBufferWriter& data) const override;
 protected:
-  void parseBody(ByteBufferReader& byteBuffer, std::uint16_t length) override;
 
 private:
+  DeviceDib(IpAddress&& ipAddress);
   IndividualAddress individualAddress;
   std::string deviceName;
   std::array<std::uint8_t, 6> serialNumber;
   std::uint8_t knxMedium;
   std::uint8_t deviceStatus;
   std::uint16_t projectInstallationIdentifier;
-  IpAddress multicastAddress;
+  const IpAddress multicastAddress;
   std::array<std::uint8_t, 6> macAddress;
 };

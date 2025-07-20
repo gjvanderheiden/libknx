@@ -27,11 +27,11 @@ Cemi Cemi::parse(ByteBufferReader& byteBuffer) {
   return {std::move(messageCode), std::move(control), std::move(source), std::move(destination), std::move(npdu)};
 }
 
-void Cemi::toBytes(ByteBufferWriter &writer) {
+void Cemi::toBytes(ByteBufferWriter &writer) const {
   writer.writeUint8(messageCode);
+  writer.writeUint8(0x00);
   control.toBytes(writer);
   source.toBytes(writer);
-  control.toBytes(writer);
   if(std::holds_alternative<IndividualAddress>(destination)) {
     std::get<IndividualAddress>(destination).toBytes(writer);
   } else {

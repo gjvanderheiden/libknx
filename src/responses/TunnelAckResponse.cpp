@@ -4,10 +4,8 @@ namespace knx::requestresponse {
 
 TunnelAckResponse::TunnelAckResponse(ConnectionHeader&& connectionHeader): connectionHeader{std::move(connectionHeader)} {}
 
-TunnelAckResponse TunnelAckResponse::parse(ByteBufferReader& buffer) {
-  ConnectionHeader header;
-  header.parse(buffer);
-  return {std::move(header)};
+TunnelAckResponse TunnelAckResponse::parse(ByteBufferReader& reader) {
+  return {ConnectionHeader::parseAndCreate(reader)};
 }
 
 std::vector<byte> TunnelAckResponse::toBytes() {

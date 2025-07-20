@@ -68,7 +68,7 @@ asio::awaitable<void> stopConnection(asio::io_context &ctx,
 asio::awaitable<void> writeGroup(asio::io_context &ctx,
                                      connection::IpKnxConnection &connection) {
   asio::steady_timer timer(ctx);
-  timer.expires_after(std::chrono::seconds(20));
+  timer.expires_after(std::chrono::seconds(10));
   co_await timer.async_wait();
   GroupAddress ga{4,0,8};
   connection.setGroupData(ga, true);
@@ -91,6 +91,8 @@ void logEvents(std::string_view routerIP, std::uint16_t routerPort,
   asio::co_spawn(io_context, connection.start(), asio::detached);
   // stop after 2 minutes
   asio::co_spawn(io_context, stopConnection(io_context, connection),
+                 asio::detached);
+  asio::co_spawn(io_context, writeGroup(io_context, connection),
                  asio::detached);
   // on ctrl-c gracefully close connection
   asio::signal_set signals(io_context, SIGINT, SIGTERM);
