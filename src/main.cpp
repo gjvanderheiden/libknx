@@ -95,8 +95,6 @@ void logEvents(std::string_view routerIP, std::uint16_t routerPort,
   // stop after 2 minutes
   asio::co_spawn(io_context, stopConnection(io_context, connection),
                  asio::detached);
-  asio::co_spawn(io_context, writeGroup(io_context, connection),
-                 asio::detached);
   // on ctrl-c gracefully close connection
   asio::signal_set signals(io_context, SIGINT, SIGTERM);
   signals.async_wait([&](auto, auto) {
