@@ -16,7 +16,7 @@ std::uint8_t KnxStructure::getType() const {
   return type;
 }
 
-void KnxStructure::appendKnxStructure(ByteBufferWriter& data, std::uint16_t length) const {
+void KnxStructure::writeKnxStructure(ByteBufferWriter& data, std::uint16_t length) const {
   if (length >= 0xFF) {
     data.writeUint8(0xFF);
     data.writeUint16(length);

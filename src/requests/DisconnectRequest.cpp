@@ -12,14 +12,14 @@ std::vector<std::uint8_t> DisconnectRequest::toBytes() {
   writer.writeUint16(16);
   writer.writeUint8(channel);
   writer.writeUint8(0x00);
-  controlEndpoint.appendToByteArray(writer);
+  controlEndpoint.write(writer);
   return bytes;
 }
 
 DisconnectRequest DisconnectRequest::parse(ByteBufferReader& reader) {
   std::uint8_t channel = reader.readUint8();
   reader.skip(1);
-  return {channel, HPAI::createAndParse(reader)};
+  return {channel, HPAI::parse(reader)};
 }
 std::uint8_t DisconnectRequest::getChannel() const {
   return channel;

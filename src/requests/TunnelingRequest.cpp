@@ -10,13 +10,13 @@ std::vector<std::uint8_t> TunnelRequest::toBytes() {
   writer.writeUint8(0x10);
   writer.writeUint16(SERVICE_ID);
   writer.writeUint16(21);
-  connectionHeader.appendToByteArray(writer);
+  connectionHeader.write(writer);
   cemi.toBytes(writer);
   return bytes;
 }
 
 TunnelRequest TunnelRequest::parse(ByteBufferReader &reader) {
-  return TunnelRequest{ConnectionHeader::parseAndCreate(reader),
+  return TunnelRequest{ConnectionHeader::parse(reader),
                        Cemi::parse(reader)};
 }
 

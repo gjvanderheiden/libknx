@@ -12,8 +12,8 @@ public:
   static constexpr std::uint16_t SERVICE_ID = 0x0209;
 
   static DisconnectRequest parse(ByteBufferReader& reader);
+  std::vector<std::uint8_t> toBytes() override;
 
-  std::vector<std::uint8_t> toBytes();
   std::uint8_t getChannel() const;
   const HPAI& getControlEndpoint() const;
 

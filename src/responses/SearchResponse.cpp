@@ -15,8 +15,8 @@ DeviceDib& SearchResponse::getDeviceDib() {
   return this->deviceDib;
 }
 SearchResponse SearchResponse::parse(ByteBufferReader &buffer) {
-  HPAI controlEndPoint = HPAI::createAndParse(buffer);
-  return {std::move(controlEndPoint), DeviceDib::parseAndCreate(buffer)};
+  HPAI controlEndPoint = HPAI::parse(buffer);
+  return {std::move(controlEndPoint), DeviceDib::parse(buffer)};
 }
 
 } // namespace knx::requestresponse

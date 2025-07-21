@@ -14,9 +14,7 @@ public:
   StopContextOnDisconnect(asio::io_context &ctx) : ctx{ctx} {};
   ~StopContextOnDisconnect() override = default;
 
-  void onDisconnect() override {
-    ctx.stop();
-  }
+  void onDisconnect() override { ctx.stop(); }
 
   void onConnect() override {}
   void onGroupRead(const IndividualAddress &source,
@@ -66,11 +64,11 @@ asio::awaitable<void> stopConnection(asio::io_context &ctx,
 }
 
 asio::awaitable<void> writeGroup(asio::io_context &ctx,
-                                     connection::IpKnxConnection &connection) {
+                                 connection::IpKnxConnection &connection) {
   asio::steady_timer timer(ctx);
-  timer.expires_after(std::chrono::seconds(10));
+  timer.expires_after(std::chrono::seconds(3));
   co_await timer.async_wait();
-  GroupAddress ga{4,0,8};
+  GroupAddress ga{4, 0, 8};
   connection.setGroupData(ga, true);
 }
 
@@ -83,12 +81,17 @@ void logEvents(std::string_view routerIP, std::uint16_t routerPort,
   std::shared_ptr logger = std::make_shared<Logger>();
   connection.addListener(logger);
   // Stop the asio context on disconnect
-  // I want to see if this can be ommited, by refactoring IpKnxConnection.
-  // Right now, something keeps the asio context running, might be unavoidable though.
+  // I want to see if this can be ommited, by refactoring IpKnxConnection: All
+  // the asio resources are stopped / closed, but I could refactor so that the
+  // destructors of the asio objects are called. There is a separation needed
+  // for the tunneling specific stuff anyway. Right now, something keeps the
+  // asio context running, might be unavoidable though.
   std::shared_ptr stopCtxOnDisconnect =
       std::make_shared<StopContextOnDisconnect>(io_context);
   connection.addListener(stopCtxOnDisconnect);
   asio::co_spawn(io_context, connection.start(), asio::detached);
+  asio::co_spawn(io_context, writeGroup(io_context, connection),
+                 asio::detached);
   // stop after 2 minutes
   asio::co_spawn(io_context, stopConnection(io_context, connection),
                  asio::detached);
@@ -96,7 +99,8 @@ void logEvents(std::string_view routerIP, std::uint16_t routerPort,
                  asio::detached);
   // on ctrl-c gracefully close connection
   asio::signal_set signals(io_context, SIGINT, SIGTERM);
-  signals.async_wait([&](auto, auto) { co_spawn(io_context, connection.close(), asio::detached);
+  signals.async_wait([&](auto, auto) {
+    co_spawn(io_context, connection.close(), asio::detached);
   });
   io_context.run();
 }

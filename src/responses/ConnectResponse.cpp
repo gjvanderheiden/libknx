@@ -11,8 +11,8 @@ ConnectResponse::ConnectResponse(std::uint8_t channelId, std::uint8_t status,
 
 ConnectResponse ConnectResponse::parse(ByteBufferReader &buffer) {
   return ConnectResponse{buffer.readUint8(), buffer.readUint8(),
-                         HPAI::createAndParse(buffer),
-                         ConnectionRequestData::createAndParse(buffer)};
+                         HPAI::parse(buffer),
+                         ConnectionRequestData::parse(buffer)};
 }
 
 std::uint8_t ConnectResponse::getChannelId() const { return channelId; }

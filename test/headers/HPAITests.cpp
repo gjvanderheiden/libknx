@@ -4,11 +4,11 @@
 #include <gtest/gtest.h>
 
 
-TEST(HPAI, toByteArray) {
+TEST(HPAI, write) {
   HPAI hpai(IpAddress{1,2,3,4}, 0xABCD, HPAI::UDP);
   std::vector<byte> answer;
   ByteBufferWriter writer{answer};
-  hpai.appendToByteArray(writer);
+  hpai.write(writer);
   
   EXPECT_EQ(8, answer.size());
 
@@ -22,7 +22,7 @@ TEST(HPAI, toByteArray) {
   EXPECT_EQ(0xCD, answer[7]);
 
   ByteBufferReader byteBuffer{answer};
-  HPAI fromArray = HPAI::createAndParse(byteBuffer);
+  HPAI fromArray = HPAI::parse(byteBuffer);
   EXPECT_TRUE(fromArray.isUdp());
   EXPECT_EQ(0xABCD, fromArray.getPort());
 }

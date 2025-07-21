@@ -12,7 +12,7 @@ IpAddress IpAddress::parse(ByteBufferReader &byteBuffer) {
   return {std::move(array)};
 }
 
-void IpAddress::appendToByteArray(ByteBufferWriter &data) const {
+void IpAddress::write(ByteBufferWriter &data) const {
   data.writeUint8(address[0]);
   data.writeUint8(address[1]);
   data.writeUint8(address[2]);

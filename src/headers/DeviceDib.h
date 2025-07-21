@@ -13,9 +13,8 @@ public:
   std::string_view getDeviceName();
   std::span<std::uint8_t> getSerialNumber();
 
-  static DeviceDib parseAndCreate(ByteBufferReader& byteBuffer);
-  void appendToByteArray(ByteBufferWriter& data) const override;
-protected:
+  static DeviceDib parse(ByteBufferReader& reader);
+  void write(ByteBufferWriter& writer) const override;
 
 private:
   DeviceDib(IpAddress&& ipAddress);

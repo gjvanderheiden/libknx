@@ -17,7 +17,7 @@ using namespace knx::requestresponse;
 
 TEST(SearchResponse, parse) {
   ByteBufferReader reader{test_frame};
-  KnxIpHeader header = KnxIpHeader::createAndParse(reader);
+  KnxIpHeader header = KnxIpHeader::parse(reader);
   SearchResponse searchReaponse = SearchResponse::parse(reader);
   ASSERT_EQ("192.168.10.15", searchReaponse.getControlEndPoint().getAddress().asString());
 }  

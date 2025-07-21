@@ -8,13 +8,16 @@
 class ConnectionRequestData final : public KnxStructure {
 public:
   static constexpr std::uint8_t TUNNELING_TYPE = 4;
+
+public:
   ConnectionRequestData(std::uint8_t type, IndividualAddress&& address);
-  static ConnectionRequestData createAndParse(ByteBufferReader &data);
   static ConnectionRequestData newTunneling();
+
+  static ConnectionRequestData parse(ByteBufferReader &reader);
+  void write(ByteBufferWriter &writer) const override;
+
   const IndividualAddress& getAddress() const;
 
-  void appendToByteArray(ByteBufferWriter &data) const override;
 private:
   IndividualAddress address;
-
 };

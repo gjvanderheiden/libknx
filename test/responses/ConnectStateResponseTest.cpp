@@ -10,7 +10,7 @@ using namespace knx::requestresponse;
 
 TEST(ConnectStateResponse, parse) {
   ByteBufferReader reader{test_frame};
-  KnxIpHeader header = KnxIpHeader::createAndParse(reader);
+  KnxIpHeader header = KnxIpHeader::parse(reader);
   ConnectStateResponse response = ConnectStateResponse::parse(reader);
   ASSERT_EQ(0, response.getStatus());
   ASSERT_EQ(1, response.getChannelId());

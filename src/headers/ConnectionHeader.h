@@ -9,13 +9,12 @@ public:
   ConnectionHeader(std::uint8_t channel, std::uint8_t sequence,
                    std::uint8_t status = 0);
 
-  void appendToByteArray(ByteBufferWriter &data) const override;
-  static ConnectionHeader parseAndCreate(ByteBufferReader &reader);
+  void write(ByteBufferWriter &writer) const override;
+  static ConnectionHeader parse(ByteBufferReader &reader);
+
   std::uint8_t getSequence() const;
   std::uint8_t getChannel() const;
   std::uint8_t getStatus() const;
-
-protected:
 
 private:
   const std::uint8_t sequence;

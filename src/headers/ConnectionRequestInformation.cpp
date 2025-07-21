@@ -9,13 +9,13 @@ ConnectionRequestInformation ConnectionRequestInformation::newTunneling() {
   return {TUNNELING_CONNECTION_TYPE, TUNNELING_LINK_LAYER}; 
 }
 
-ConnectionRequestInformation ConnectionRequestInformation::createAndParse(ByteBufferReader& reader) {
+ConnectionRequestInformation ConnectionRequestInformation::parse(ByteBufferReader& reader) {
   auto [length, type] = KnxStructure::parse(reader);
   return ConnectionRequestInformation{type, reader.readBoolFromByte()};
 }
 
-void ConnectionRequestInformation::appendToByteArray(ByteBufferWriter &data) const {
-  appendKnxStructure(data, 4);
-  data.writeUint8(layer);
-  data.writeUint8(0x00);
+void ConnectionRequestInformation::write(ByteBufferWriter &writer) const {
+  writeKnxStructure(writer, 4);
+  writer.writeUint8(layer);
+  writer.writeUint8(0x00);
 }

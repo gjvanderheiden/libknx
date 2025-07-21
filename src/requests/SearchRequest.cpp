@@ -5,13 +5,19 @@
 
 SearchRequest::SearchRequest(HPAI hpaiLocal) : hpaiLocal(hpaiLocal) {}
 
+std::vector<std::uint8_t> SearchRequest::toBytes() {
+  std::vector<std::uint8_t> result;
+  ByteBufferWriter writer{result};
+  appendToByteWriter(writer);
+  return result;
+}
 void SearchRequest::appendToByteWriter(ByteBufferWriter& writer) {
   writer.writeUint8(0x06);
   writer.writeUint8(0x10);
   writer.writeUint16(SERVICE_ID);
   writer.writeUint8(0x00);
   writer.writeUint8(14);
-  hpaiLocal.appendToByteArray(writer);
+  hpaiLocal.write(writer);
 }
 
 SearchRequest SearchRequest::newDefault() {

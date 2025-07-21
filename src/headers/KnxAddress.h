@@ -22,8 +22,10 @@ public:
   IndividualAddress() = default;
   IndividualAddress(std::uint8_t high, std::uint8_t middle, std::uint8_t low);
   ~IndividualAddress() override = default;
-  static IndividualAddress createAndParse(ByteBufferReader& bytebuffer);
-  void toBytes(ByteBufferWriter& writer) const;
+
+  static IndividualAddress parse(ByteBufferReader& bytebuffer);
+  void write(ByteBufferWriter& writer) const;
+
   std::uint8_t getArea() const;
   std::uint8_t getLine() const;
   std::uint8_t getDevice() const;
@@ -34,7 +36,8 @@ public:
   GroupAddress() = default;
   GroupAddress(std::uint8_t high, std::uint8_t middle, std::uint8_t low);
   ~GroupAddress() override = default;
-  static GroupAddress createAndParse(ByteBufferReader& bytebuffer);
+
+  static GroupAddress parse(ByteBufferReader& reader);
   void toBytes(ByteBufferWriter& writer) const;
 };
 

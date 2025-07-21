@@ -49,7 +49,7 @@ void Discovery::do_receive() {
       [this](std::error_code ec, std::size_t length) {
         if (!ec) {
         ByteBufferReader reader{data};
-          KnxIpHeader knxIpHeader = KnxIpHeader::createAndParse(reader);
+          KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader);
           if (knxIpHeader.getServiceType() == knx::requestresponse::SearchResponse::SERVICE_ID) {
             ByteBufferReader bytebuffer{this->data};
             knx::requestresponse::SearchResponse sr =

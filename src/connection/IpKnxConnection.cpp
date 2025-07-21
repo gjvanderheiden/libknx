@@ -182,7 +182,7 @@ auto IpKnxConnection::onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
 
 void IpKnxConnection::onReceiveData(std::vector<std::uint8_t> &data) {
   ByteBufferReader reader(data);
-  KnxIpHeader knxIpHeader = KnxIpHeader::createAndParse(reader);
+  KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader);
   if (this->listeners.contains(knxIpHeader.getServiceType())) {
     const bool keep =
         this->listeners.at(knxIpHeader.getServiceType())(knxIpHeader, reader);
@@ -194,10 +194,11 @@ void IpKnxConnection::onReceiveData(std::vector<std::uint8_t> &data) {
 
 void IpKnxConnection::setGroupData(GroupAddress &ga, bool value) {
   // Contruct Cemi should be connection independend
-  IndividualAddress source(1, 0, 3); // my address
+  IndividualAddress source(0, 0, 0); // my address
   Control control{true};
   GroupAddress gaMove{ga};
   std::array<byte, 2> data{0x00};
+  data[0] =0x00;
   data[1] = value?0x01:0x00;
   DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, data};
   TCPI tcpi{false, false, 0x00};

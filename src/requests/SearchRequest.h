@@ -13,6 +13,8 @@ public:
   static SearchRequest newDefault();
 
 
+  std::vector<std::uint8_t> toBytes() override;
+
   void appendToByteWriter(ByteBufferWriter& writer); 
 
 private:

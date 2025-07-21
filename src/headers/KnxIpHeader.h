@@ -6,7 +6,9 @@
 class KnxIpHeader {
 public:
   KnxIpHeader() = delete;
-  static KnxIpHeader createAndParse(ByteBufferReader& bytebuffer);
+
+  static KnxIpHeader parse(ByteBufferReader& reader);
+
   std::uint16_t getServiceType();
   std::uint16_t getLengthInBytes();
 private:

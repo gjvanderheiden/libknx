@@ -10,7 +10,7 @@ public:
 
   explicit ConnectRequest(HPAI&& controlEndPoint, HPAI&& dataEndPoint, ConnectionRequestInformation&& cri);
 
-  std::vector<std::uint8_t> toBytes();
+  std::vector<std::uint8_t> toBytes() override;
 
 
 private:

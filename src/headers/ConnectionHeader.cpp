@@ -7,17 +7,17 @@ ConnectionHeader::ConnectionHeader(std::uint8_t channel, std::uint8_t sequence,
     : KnxStructure{channel}, sequence{sequence}, status{status} {
     }
 
-ConnectionHeader ConnectionHeader::parseAndCreate(ByteBufferReader &reader) {
+ConnectionHeader ConnectionHeader::parse(ByteBufferReader &reader) {
   auto [length, type] = KnxStructure::parse(reader);
   return {type, 
                          reader.readUint8(), 
                          reader.readUint8()};
 }
 
-void ConnectionHeader::appendToByteArray(ByteBufferWriter &data) const {
-  appendKnxStructure(data, 4);
-  data.writeUint8(sequence);
-  data.writeUint8(status);
+void ConnectionHeader::write(ByteBufferWriter &writer) const {
+  writeKnxStructure(writer, 4);
+  writer.writeUint8(sequence);
+  writer.writeUint8(status);
 }
 
 std::uint8_t ConnectionHeader::getSequence() const { return sequence; }

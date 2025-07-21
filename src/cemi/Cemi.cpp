@@ -16,12 +16,12 @@ Cemi Cemi::parse(ByteBufferReader& byteBuffer) {
   std::uint8_t additionalInfoLength = byteBuffer.readUint8();
   byteBuffer.skip(additionalInfoLength);
   Control control = Control::parse(byteBuffer);
-  IndividualAddress source = IndividualAddress::createAndParse(byteBuffer);
+  IndividualAddress source = IndividualAddress::parse(byteBuffer);
   std::variant<IndividualAddress, GroupAddress> destination;
   if(control.isDestinationGroupAddress()) {
-    destination = GroupAddress::createAndParse(byteBuffer);
+    destination = GroupAddress::parse(byteBuffer);
   } else {
-     destination = IndividualAddress::createAndParse(byteBuffer);
+     destination = IndividualAddress::parse(byteBuffer);
   }
   NPDUFrame npdu = NPDUFrame::createAndParse(byteBuffer);
   return {std::move(messageCode), std::move(control), std::move(source), std::move(destination), std::move(npdu)};
@@ -31,9 +31,9 @@ void Cemi::toBytes(ByteBufferWriter &writer) const {
   writer.writeUint8(messageCode);
   writer.writeUint8(0x00);
   control.toBytes(writer);
-  source.toBytes(writer);
+  source.write(writer);
   if(std::holds_alternative<IndividualAddress>(destination)) {
-    std::get<IndividualAddress>(destination).toBytes(writer);
+    std::get<IndividualAddress>(destination).write(writer);
   } else {
     std::get<GroupAddress>(destination).toBytes(writer);
   }

@@ -7,14 +7,14 @@ HPAI::HPAI(IpAddress address, int port, std::uint8_t protocolCode)
     : KnxStructure(protocolCode), address(std::move(address)), port(port) {
 }
 
-void HPAI::appendToByteArray(ByteBufferWriter& data) const {
-  data.writeUint8(8);
-  data.writeUint8(getProtocol());
-  address.appendToByteArray(data);
-  data.writeUint16(getPort());
+void HPAI::write(ByteBufferWriter& writer) const {
+  writer.writeUint8(8);
+  writer.writeUint8(getProtocol());
+  address.write(writer);
+  writer.writeUint16(getPort());
 }
 
-HPAI HPAI::createAndParse(ByteBufferReader& reader) {
+HPAI HPAI::parse(ByteBufferReader& reader) {
   auto [length, type] = KnxStructure::parse(reader);
   return HPAI{IpAddress::parse(reader), reader.readUint16(), type};
 }

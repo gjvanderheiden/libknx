@@ -46,9 +46,9 @@ static std::array<byte, 0x1E> test_frame4 = {
     0x11, 0x04, 0x00, 0x00, 0x06, 0x01, 0xc8, 0x00, 0x00,
     0x00, 0xb0, 0x01};
 
-TEST(TunnelingRequest, createAndParse1) {
+TEST(TunnelingRequest, parse1) {
   ByteBufferReader reader{test_frame1};
-  KnxIpHeader header = KnxIpHeader::createAndParse(reader);
+  KnxIpHeader header = KnxIpHeader::parse(reader);
   const TunnelRequest request = TunnelRequest::parse(reader);
   ASSERT_EQ(0, request.getConnectionHeader().getSequence());
   ASSERT_EQ(1, request.getConnectionHeader().getChannel());
@@ -64,25 +64,25 @@ TEST(TunnelingRequest, createAndParse1) {
 
 }
 
-TEST(TunnelingRequest, createAndParse2) {
+TEST(TunnelingRequest, parse2) {
   ByteBufferReader reader{test_frame2};
-  KnxIpHeader header = KnxIpHeader::createAndParse(reader);
+  KnxIpHeader header = KnxIpHeader::parse(reader);
   const TunnelRequest request = TunnelRequest::parse(reader);
   ASSERT_EQ(1, request.getConnectionHeader().getSequence());
   ASSERT_EQ(1, request.getConnectionHeader().getChannel());
 }
 
-TEST(TunnelingRequest, createAndParse3) {
+TEST(TunnelingRequest, parse3) {
   ByteBufferReader reader{test_frame3};
-  KnxIpHeader header = KnxIpHeader::createAndParse(reader);
+  KnxIpHeader header = KnxIpHeader::parse(reader);
   const TunnelRequest request = TunnelRequest::parse(reader);
   ASSERT_EQ(2, request.getConnectionHeader().getSequence());
   ASSERT_EQ(1, request.getConnectionHeader().getChannel());
 }
 
-TEST(TunnelingRequest, createAndParse4) {
+TEST(TunnelingRequest, parse4) {
   ByteBufferReader reader{test_frame4};
-  KnxIpHeader header = KnxIpHeader::createAndParse(reader);
+  KnxIpHeader header = KnxIpHeader::parse(reader);
   const TunnelRequest request = TunnelRequest::parse(reader);
   ASSERT_EQ(6, request.getConnectionHeader().getSequence());
   ASSERT_EQ(1, request.getConnectionHeader().getChannel());

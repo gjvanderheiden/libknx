@@ -16,7 +16,7 @@ public:
   const ConnectionHeader& getConnectionHeader() const;
   const Cemi& getCemi() const;
 
-  std::vector<std::uint8_t> toBytes();
+  std::vector<std::uint8_t> toBytes() override;
 
 private:
   const ConnectionHeader connectionHeader;
