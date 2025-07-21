@@ -92,6 +92,7 @@ private:
   asio::io_context &ctx;
   asio::steady_timer checkConnectionTimer;
   asio::ip::udp::endpoint remoteControlEndPoint;
+  asio::ip::udp::endpoint remoteDataEndPoint;
   asio::ip::address_v4 localBindIp;
   const std::uint16_t dataPort;
   const std::uint16_t controlPort;

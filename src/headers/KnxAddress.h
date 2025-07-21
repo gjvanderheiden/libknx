@@ -39,6 +39,8 @@ public:
 
   static GroupAddress parse(ByteBufferReader& reader);
   void toBytes(ByteBufferWriter& writer) const;
+
+  bool operator==(const GroupAddress& otherGroupAddress) const;
 };
 
 

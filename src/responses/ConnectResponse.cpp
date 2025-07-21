@@ -20,4 +20,5 @@ std::uint8_t ConnectResponse::getChannelId() const { return channelId; }
 std::uint8_t ConnectResponse::getStatus() const { return status; }
 const ConnectionRequestData& ConnectResponse::getCRD() const {return crd;}
 
+const HPAI& ConnectResponse::getDataEndPoint() const {return dataEndPoint;};
 } // namespace knx::requestresponse

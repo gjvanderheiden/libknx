@@ -85,6 +85,9 @@ asio::awaitable<void> IpKnxConnection::start() {
                          const ConnectResponse connectResponse =
                              ConnectResponse::parse(data);
                          channelId = connectResponse.getChannelId();
+                         auto ip = connectResponse.getDataEndPoint().getAddress().asString();
+                         auto port = connectResponse.getDataEndPoint().getPort();
+                         remoteDataEndPoint = {asio::ip::make_address_v4(ip), port};
                          asio::co_spawn(ctx, checkConnection(), asio::detached);
                          forEveryListener([](KnxConnectionListener *listener) {
                            listener->onConnect();
@@ -193,26 +196,28 @@ void IpKnxConnection::onReceiveData(std::vector<std::uint8_t> &data) {
 }
 
 void IpKnxConnection::setGroupData(GroupAddress &ga, bool value) {
-  // Contruct Cemi should be connection independend
-  IndividualAddress source(0, 0, 0); // my address
+  static std::uint8_t sequence{0};
+
+  // Common: Contruct Cemi
+  IndividualAddress source(0, 0, 0);
   Control control{true};
-  GroupAddress gaMove{ga};
   std::array<byte, 2> data{0x00};
-  data[0] =0x00;
-  data[1] = value?0x01:0x00;
+  if (value) {
+    data[1] = 0x01;
+  }
   DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, data};
   TCPI tcpi{false, false, 0x00};
   NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
-  Cemi cemi{0x29, std::move(control), std::move(source),
-            std::variant<IndividualAddress, GroupAddress>(gaMove),
+  Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
+            std::variant<IndividualAddress, GroupAddress>(ga),
             std::move(npduFrame)};
 
-  // tunneling specific
-  ConnectionHeader connectionHeader{channelId, 0x00, 0x00};
+  // IP Tunneling specific: TunnelRequest in a ConnectionHeader
+  ConnectionHeader connectionHeader{channelId, sequence++, 0x00};
   TunnelRequest tunnelRequest{std::move(connectionHeader), std::move(cemi)};
   auto bytes = tunnelRequest.toBytes();
 
-  co_spawn(ctx, controlSocket.writeTo(remoteControlEndPoint, bytes),
+  co_spawn(ctx, dataSocket.writeTo(remoteDataEndPoint, bytes),
            asio::detached);
   // do something with response
 }
@@ -224,7 +229,8 @@ IpKnxConnection::createConnectRequestInformation() {
   return ConnectionRequestInformation::newTunneling();
 }
 HPAI IpKnxConnection::createDataHPAI() {
-  return {IpAddress{this->localBindIp.to_bytes()}, this->dataPort, HPAI::UDP};
+  return {IpAddress{this->localBindIp.to_bytes()}, this->dataPort,
+          HPAI::UDP};
 }
 
 HPAI IpKnxConnection::createControlHPAI() {
@@ -241,8 +247,7 @@ void IpKnxConnection::forEveryListener(
   }
 }
 
-asio::awaitable<void>
-IpKnxConnection::close(bool needsDisconnectRequest) {
+asio::awaitable<void> IpKnxConnection::close(bool needsDisconnectRequest) {
   if (!closingDown) {
     closingDown = true;
     if (needsDisconnectRequest) {

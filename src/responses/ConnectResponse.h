@@ -17,6 +17,7 @@ public:
   std::uint8_t getChannelId() const;
   std::uint8_t getStatus() const;
   const ConnectionRequestData& getCRD() const;
+  const HPAI& getDataEndPoint() const;
 
 private:
   const std::uint8_t channelId;

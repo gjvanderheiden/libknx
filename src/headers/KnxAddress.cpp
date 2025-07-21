@@ -42,6 +42,11 @@ void GroupAddress::toBytes(ByteBufferWriter& writer) const{
   writer.writeUint8(getLow());
 }
 
+bool GroupAddress::operator==(const GroupAddress& otherGroupAddress) const {
+  return this->getHigh() == otherGroupAddress.getHigh() &&
+         this->getMiddle() == otherGroupAddress.getMiddle() &&
+         this->getLow() == otherGroupAddress.getLow();
+}
 std::ostream& operator<<(std::ostream &stream, const GroupAddress& address) {
   return stream << (int)address.getHigh() << "/" << (int)address.getMiddle() << "/"
          << (int)address.getLow();

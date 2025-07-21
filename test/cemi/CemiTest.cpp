@@ -2,11 +2,13 @@
 #include "bytes/ByteBufferReader.h"
 #include <gtest/gtest.h>
 
-static std::array<byte, 12> test_frame1 = {
-  0x29, 0x00, 0xBC, 0xE0, 0x11, 0x09, 0x2B, 0x08, 0x02, 0x00, 0x80, 0x00};
+static std::array<byte, 12> test_frame1 = {0x29, 0x00, 0xBC, 0xE0, 0x11, 0x09,
+                                           0x2B, 0x08, 0x02, 0x00, 0x80, 0x00};
 
-
-TEST(Cemi, createAndParse1) {
+static std::array<byte, 15> test_frame2 = {0x29, 0x4,  0x1,  0x2,  0x0,
+                                         0x6c, 0xbc, 0xd0, 0x11, 0x4,
+                                         0x8,  0x3,  0x1,  0x0,  0x0};
+TEST(Cemi, parse1) {
   ByteBufferReader byteBuffer{test_frame1};
   Cemi cemi = Cemi::parse(byteBuffer);
   ASSERT_EQ(1, cemi.getSource().getArea());
@@ -14,3 +16,22 @@ TEST(Cemi, createAndParse1) {
   ASSERT_EQ(9, cemi.getSource().getDevice());
 }
 
+TEST(Cemi, parse2) {
+  ByteBufferReader byteBuffer{test_frame2};
+  Cemi cemi = Cemi::parse(byteBuffer);
+  ASSERT_EQ(0x29, cemi.getMessageCode());
+  ASSERT_EQ(1, cemi.getSource().getArea());
+  ASSERT_EQ(1, cemi.getSource().getLine());
+  ASSERT_EQ(4, cemi.getSource().getDevice());
+  auto destination = cemi.getDestination();
+  bool isGroup = std::holds_alternative<GroupAddress>(destination);
+  ASSERT_TRUE(isGroup);
+  if(isGroup) {
+    const auto group = std::get<GroupAddress>(destination);
+    const GroupAddress expected{1,0,3};
+    ASSERT_EQ(expected, group);
+  }
+  auto acpi = cemi.getNPDU().getACPI();
+  ASSERT_EQ(DataACPI::GROUP_VALUE_READ, acpi.getType()); 
+  
+}

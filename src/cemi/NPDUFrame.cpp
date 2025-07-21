@@ -4,15 +4,15 @@
 NPDUFrame::NPDUFrame(TCPI&& tcpi, DataACPI&& acpi) : tcpi{tcpi}, acpi{acpi}{
 }
 
-NPDUFrame NPDUFrame::createAndParse(ByteBufferReader& bytebuffer) {
+NPDUFrame NPDUFrame::parse(ByteBufferReader& bytebuffer) {
   const byte length = bytebuffer.readUint8();
   const byte firstByte = bytebuffer.readUint8();
-  return NPDUFrame{TCPI::parseAndCreate(firstByte & 0xF0), DataACPI::parseAndCreate(firstByte & 0x0F, length, bytebuffer)};
+  return NPDUFrame{TCPI::parse(firstByte & 0xF0), DataACPI::parse(firstByte & 0x0F, length, bytebuffer)};
 }
 
-void NPDUFrame::toBytes(ByteBufferWriter& writer) const {
+void NPDUFrame::write(ByteBufferWriter& writer) const {
   byte firstByte = tcpi.toByte();
-  acpi.toBytes(firstByte, writer);
+  acpi.write(firstByte, writer);
 }
 
 const TCPI& NPDUFrame::getTCPI() const {

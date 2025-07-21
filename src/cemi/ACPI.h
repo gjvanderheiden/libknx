@@ -17,8 +17,8 @@ public:
   static constexpr std::uint8_t GROUP_VALUE_RESPONSE = 0b0001;
   static constexpr std::uint8_t GROUP_VALUE_WRITE = 0b0010;
 
-  static DataACPI parseAndCreate(byte firstByte, byte length, ByteBufferReader &reader);
-  void toBytes(byte firstByte, ByteBufferWriter &writer) const;
+  static DataACPI parse(byte firstByte, byte length, ByteBufferReader &reader);
+  void write(byte firstByte, ByteBufferWriter &writer) const;
 
   [[nodiscard]] std::uint8_t getType() const;
   [[nodiscard]] std::array<byte,2> getData() const;
@@ -36,7 +36,7 @@ enum class ControlType {
 class ControlACPI {
 public:
   explicit ControlACPI(ControlType controlType);
-  static ControlACPI parseAndCreate(byte firstByte, byte length, ByteBufferReader &reader);
+  static ControlACPI parse(byte firstByte, byte length, ByteBufferReader &reader);
   [[nodiscard]] ControlType getControlType() const;
 private:
   ControlType controlType;

@@ -23,21 +23,21 @@ Cemi Cemi::parse(ByteBufferReader& byteBuffer) {
   } else {
      destination = IndividualAddress::parse(byteBuffer);
   }
-  NPDUFrame npdu = NPDUFrame::createAndParse(byteBuffer);
+  NPDUFrame npdu = NPDUFrame::parse(byteBuffer);
   return {std::move(messageCode), std::move(control), std::move(source), std::move(destination), std::move(npdu)};
 }
 
-void Cemi::toBytes(ByteBufferWriter &writer) const {
+void Cemi::write(ByteBufferWriter &writer) const {
   writer.writeUint8(messageCode);
   writer.writeUint8(0x00);
-  control.toBytes(writer);
+  control.write(writer);
   source.write(writer);
   if(std::holds_alternative<IndividualAddress>(destination)) {
     std::get<IndividualAddress>(destination).write(writer);
   } else {
     std::get<GroupAddress>(destination).toBytes(writer);
   }
-  npdu.toBytes(writer);
+  npdu.write(writer);
 }
 
 std::uint8_t Cemi::getMessageCode() const {

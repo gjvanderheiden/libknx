@@ -84,7 +84,6 @@ Contains objects that are send between libknx and a KNX IP router. Theses object
 
 ## ToDo list
 ### Code
-- Make parse and asBytes consistent throughout all marshallable objects
 - Deal with KnxIpHeader consistenly
 - KnxIpConnection refactor, it's just a bowl of soup now
 - KnxIpConnection as an fascade to an implementation to:
@@ -98,3 +97,5 @@ First focus points:
   - string type 
   - uint8 
 - Time-out on (ConnectState)Request without a reponse
+  - Resend
+  - if no reply / second time-out: disconnect

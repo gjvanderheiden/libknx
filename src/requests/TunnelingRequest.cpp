@@ -11,7 +11,7 @@ std::vector<std::uint8_t> TunnelRequest::toBytes() {
   writer.writeUint16(SERVICE_ID);
   writer.writeUint16(21);
   connectionHeader.write(writer);
-  cemi.toBytes(writer);
+  cemi.write(writer);
   return bytes;
 }
 

@@ -1,10 +1,9 @@
 #include "ACPI.h"
 #include <cstdint>
 
-DataACPI::DataACPI(const std::uint8_t type, const std::array<std::uint8_t, 2> data) :type{type}, data{data} {
-}
+DataACPI::DataACPI(const std::uint8_t type, const std::array<std::uint8_t, 2> data) :type{type}, data{data} {}
 
-DataACPI DataACPI::parseAndCreate(const byte firstByte, const byte length, ByteBufferReader &reader) {
+DataACPI DataACPI::parse(const byte firstByte, const byte length, ByteBufferReader &reader) {
   const byte secondByte = reader.readUint8();
   byte type = (firstByte &  0x03) << 2;
   type |= (secondByte & 0xC0) >> 6 ;
@@ -19,7 +18,7 @@ DataACPI DataACPI::parseAndCreate(const byte firstByte, const byte length, ByteB
   return DataACPI{type, data};
 }
 
-void DataACPI::toBytes(byte firstByte, ByteBufferWriter &writer) const {
+void DataACPI::write(byte firstByte, ByteBufferWriter &writer) const {
   bool oneByteData = data[0] == 0 && (data[1] & 0x11000000) == 0;
   writer.writeUint8(oneByteData?1:2);
   firstByte |= (type & 0x05) >> 2; 
@@ -59,7 +58,7 @@ default:
   }
 }
 
-ControlACPI ControlACPI::parseAndCreate(byte firstByte, byte length, ByteBufferReader &bytebuffer) {
+ControlACPI ControlACPI::parse(byte firstByte, byte length, ByteBufferReader &bytebuffer) {
   return ControlACPI{getType(firstByte)};
 }
 ControlType ControlACPI::getControlType() const {
