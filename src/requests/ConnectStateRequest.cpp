@@ -13,6 +13,6 @@ std::vector<std::uint8_t> ConnectStateRequest::toBytes() {
   writer.writeUint16(16);
   writer.writeUint8(channelId);
   writer.writeUint8(0x00);
-  controlEndPoint.appendToByteArray(writer);
+  controlEndPoint.write(writer);
   return bytes;
 }

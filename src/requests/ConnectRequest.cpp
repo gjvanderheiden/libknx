@@ -16,8 +16,8 @@ std::vector<std::uint8_t> ConnectRequest::toBytes() {
   writer.writeUint8(0x10);
   writer.writeUint16(SERVICE_ID);
   writer.writeUint16(26);
-  controlEndPoint.appendToByteArray(writer);
-  dataEndPoint.appendToByteArray(writer);
-  cri.appendToByteArray(writer);
+  controlEndPoint.write(writer);
+  dataEndPoint.write(writer);
+  cri.write(writer);
   return bytes;
 }
