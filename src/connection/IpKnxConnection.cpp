@@ -220,6 +220,9 @@ void IpKnxConnection::setGroupData(GroupAddress &ga, bool value) {
   co_spawn(ctx, dataSocket.writeTo(remoteDataEndPoint, bytes),
            asio::detached);
   // do something with response
+  // the server should response with a TunnelAckResponse
+  // And a TunnelRequest with a Cemi:L_DATA_CON (confirmation)
+  // On which we send a TunnelAckResponse to te server
 }
 
 bool IpKnxConnection::getGroupData(GroupAddress &ga) { return false; }
