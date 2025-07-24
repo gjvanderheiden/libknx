@@ -96,6 +96,7 @@ First focus points:
   - bool type
   - string type 
   - uint8 
+- Requests, Response as bytes: dynamic length, not the current hard coded value
 - Time-out on (ConnectState)Request without a reponse
   - Resend
   - if no reply / second time-out: disconnect

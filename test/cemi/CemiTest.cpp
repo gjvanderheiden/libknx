@@ -35,3 +35,40 @@ TEST(Cemi, parse2) {
   ASSERT_EQ(DataACPI::GROUP_VALUE_READ, acpi.getType()); 
   
 }
+
+// only 4 bit data works, otherwise length wont be good
+TEST(Cemi, write) {
+  std::array<std::uint8_t, 2> value{0x00};
+  value[1] = 0x01;
+  GroupAddress ga{3,2,55};
+  IndividualAddress source(0, 0, 0);
+  Control control{KnxPrio::low, true};
+  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, value};
+  TCPI tcpi{false, false, 0x00};
+  NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
+  Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
+              std::variant<IndividualAddress, GroupAddress>(ga),
+              std::move(npduFrame)};
+  std::vector<std::uint8_t> result;
+  ByteBufferWriter writer{result};
+  cemi.write(writer);
+  ASSERT_EQ(11, result.size());
+}
+
+TEST(Cemi, write2) {
+  std::array<std::uint8_t, 2> value{2};
+  value[1] = 0x01;
+  GroupAddress ga{3,2,55};
+  IndividualAddress source(0, 0, 0);
+  Control control{KnxPrio::low, true};
+  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, value};
+  TCPI tcpi{false, false, 0x00};
+  NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
+  Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
+              std::variant<IndividualAddress, GroupAddress>(ga),
+              std::move(npduFrame)};
+  std::vector<std::uint8_t> result;
+  ByteBufferWriter writer{result};
+  cemi.write(writer);
+  ASSERT_EQ(12, result.size());
+}

@@ -69,7 +69,8 @@ asio::awaitable<void> writeGroup(asio::io_context &ctx,
   timer.expires_after(std::chrono::seconds(3));
   co_await timer.async_wait();
   GroupAddress ga{4, 0, 8};
-  connection.setGroupData(ga, true);
+  std::array<std::uint8_t,2> data{0x00, 0x01};
+  connection.writeToGroup(ga, data);
 }
 
 void logEvents(std::string_view routerIP, std::uint16_t routerPort,
