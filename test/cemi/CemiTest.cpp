@@ -70,5 +70,5 @@ TEST(Cemi, write2) {
   std::vector<std::uint8_t> result;
   ByteBufferWriter writer{result};
   cemi.write(writer);
-  ASSERT_EQ(12, result.size());
+  ASSERT_EQ(13, result.size());
 }
