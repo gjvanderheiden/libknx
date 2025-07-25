@@ -18,8 +18,6 @@ KnxConnection::KnxConnection(asio::io_context &ctx,
     std::unique_ptr<TunnelingConnection>&& tunnelingConnection) 
     : ctx{ctx}, tunnelingConnection{std::move(tunnelingConnection)} {}
 
-KnxConnection::~KnxConnection() { std::cout << "~IpKnxConnection()\n"; }
-
 void KnxConnection::addListener(
     std::weak_ptr<KnxConnectionListener> listener) {
   connectionListeners.push_back(listener);
@@ -30,6 +28,9 @@ asio::awaitable<void> KnxConnection::start() {
   co_await tunnelingConnection->start();
 }
 
+bool KnxConnection::isOpen() {
+  return tunnelingConnection.get() != nullptr;
+}
 void KnxConnection::onIncommingCemi(Cemi &cemi) {
   if (cemi.getMessageCode() == Cemi::L_DATA_IND) {
     switch (cemi.getNPDU().getACPI().getType()) {
@@ -118,7 +119,10 @@ void KnxConnection::forEveryListener(
 }
 
 asio::awaitable<void> KnxConnection::close() {
-  return this->tunnelingConnection->close();
+  if (tunnelingConnection) {
+    co_await this->tunnelingConnection->close();
+    tunnelingConnection.reset();
+  }
 }
 
 } // namespace connection

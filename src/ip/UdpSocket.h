@@ -22,11 +22,15 @@ public:
   void stop();
   void startMulticast(std::string_view multicastAddress);
   void writeToSync(asio::ip::udp::endpoint address, ByteSpan data);
-  awaitable<void> writeTo(asio::ip::udp::endpoint address, ByteSpan data);
+  awaitable<void> writeTo(const asio::ip::udp::endpoint& address, ByteSpan data);
 private:
+    awaitable<void> readIncoming();
+private:
+    asio::io_context& ctx;
   std::array<std::uint8_t, 512> buffer{0};
   std::string bindHost;
   unsigned short port;
+  bool open{false};
   asio::ip::udp::endpoint endpoint;
   asio::ip::udp::socket socket;
   asio::ip::udp::endpoint remoteEndpoint;

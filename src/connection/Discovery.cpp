@@ -62,6 +62,7 @@ void Discovery::do_receive() {
             if (maxResults == 0 || foundKnxIps.size() < maxResults) {
               do_receive();
             } else {
+              socket_read.cancel();
                socket_read.close();
             }
 

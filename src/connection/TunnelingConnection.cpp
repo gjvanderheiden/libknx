@@ -35,19 +35,22 @@ TunnelingConnection::TunnelingConnection(asio::io_context &ctx,
     : ctx{ctx}, checkConnectionTimer{ctx},
       remoteControlEndPoint{asio::ip::make_address_v4(remoteIp), remotePort},
       localBindIp{asio::ip::make_address_v4(localBindIp)},
-      dataPort{localDataPort}, controlPort{localControlPort},
-      dataSocket{ctx, localBindIp, localDataPort},
-      controlSocket{ctx, localBindIp, localControlPort} {
-  dataSocket.setHandler(
+      dataPort{localDataPort}, controlPort{localControlPort} {
+  dataSocket =
+      std::make_unique<udp::UdpSocket>(ctx, localBindIp, localDataPort);
+  controlSocket =
+      std::make_unique<udp::UdpSocket>(ctx, localBindIp, localControlPort);
+  dataSocket->setHandler(
       std::bind_front(&TunnelingConnection::onReceiveData, this));
-  controlSocket.setHandler(
+  controlSocket->setHandler(
       std::bind_front(&TunnelingConnection::onReceiveData, this));
 }
 
 TunnelingConnection::~TunnelingConnection() {
-  std::cout << "TunnelingConnection::~TunnelingConnection()\n";
-  dataSocket.stop();
-  controlSocket.stop();
+  if (dataSocket) {
+    dataSocket->stop();
+    controlSocket->stop();
+  }
 }
 
 asio::awaitable<void>
@@ -55,7 +58,7 @@ TunnelingConnection::sendRequest(std::vector<std::uint8_t> &request,
                                  const std::uint16_t responseServiceId,
                                  CallBackFunction &&callBackFunction) {
   listeners[responseServiceId] = std::move(callBackFunction);
-  co_await controlSocket.writeTo(remoteControlEndPoint, request);
+  co_await controlSocket->writeTo(remoteControlEndPoint, request);
 }
 
 void TunnelingConnection::addListener(ConnectionListener &listener) {
@@ -63,8 +66,8 @@ void TunnelingConnection::addListener(ConnectionListener &listener) {
 }
 
 asio::awaitable<void> TunnelingConnection::start() {
-  controlSocket.start();
-  dataSocket.start();
+  controlSocket->start();
+  dataSocket->start();
 
   listeners.emplace(
       TunnelRequest::SERVICE_ID,
@@ -131,7 +134,7 @@ auto TunnelingConnection::onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
   ConnectionHeader header{request.getConnectionHeader()};
   TunnelAckResponse response{std::move(header)};
   auto tunnelResponseBytes = response.toBytes();
-  controlSocket.writeToSync(remoteControlEndPoint, tunnelResponseBytes);
+  controlSocket->writeToSync(remoteControlEndPoint, tunnelResponseBytes);
 
   Cemi cemi = request.getCemi();
   forEveryListener([&cemi](ConnectionListener *listener) {
@@ -148,7 +151,7 @@ auto TunnelingConnection::onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
   if (request.getChannel() == channelId) {
     DisconnectResponse response{channelId};
     auto responseBytes = response.toBytes();
-    controlSocket.writeToSync(remoteControlEndPoint, responseBytes);
+    controlSocket->writeToSync(remoteControlEndPoint, responseBytes);
     co_spawn(ctx, this->close(false), asio::detached);
   }
   return true;
@@ -174,7 +177,7 @@ void TunnelingConnection::send(Cemi &&cemi) {
   TunnelRequest tunnelRequest{std::move(connectionHeader), std::move(cemi)};
   auto bytes = tunnelRequest.toBytes();
 
-  co_spawn(ctx, dataSocket.writeTo(remoteDataEndPoint, bytes), asio::detached);
+  co_spawn(ctx, dataSocket->writeTo(remoteDataEndPoint, bytes), asio::detached);
   // the server should response with a TunnelAckResponse
   // indicated it has been recieved
   // if not, within a timeout, resend, again timeout-> disconnect
@@ -216,14 +219,16 @@ asio::awaitable<void> TunnelingConnection::close(bool needsDisconnectRequest) {
       co_await sendRequest(
           requestBytes, DisconnectResponse::SERVICE_ID,
           [this, &timer](KnxIpHeader &knxIpHeader, ByteBufferReader &reader) {
-            timer.cancel_one();
+            timer.cancel();
             return false;
           });
       auto [error] = co_await timer.async_wait(asio::as_tuple);
     }
-    checkConnectionTimer.cancel_one();
-    controlSocket.stop();
-    dataSocket.stop();
+    checkConnectionTimer.cancel();
+    controlSocket->stop();
+    dataSocket->stop();
+    controlSocket.reset();
+    dataSocket.reset();
     forEveryListener(
         [](ConnectionListener *listener) { listener->onDisconnect(); });
   }

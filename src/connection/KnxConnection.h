@@ -24,13 +24,14 @@ public:
   KnxConnection(asio::io_context &ctx,
                 std::unique_ptr<TunnelingConnection> &&tunnelingConnection);
 
-  ~KnxConnection() override;
+  ~KnxConnection() override = default;
 
   /**
    * I will start up everything that is needed to maintain a connection with a
    * KNX IP Router.
    */
   asio::awaitable<void> start();
+  bool isOpen();
 
   void addListener(std::weak_ptr<KnxConnectionListener> listener);
 

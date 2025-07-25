@@ -90,8 +90,8 @@ private:
   asio::ip::address_v4 localBindIp;
   const std::uint16_t dataPort;
   const std::uint16_t controlPort;
-  udp::UdpSocket dataSocket;
-  udp::UdpSocket controlSocket;
+  std::unique_ptr<udp::UdpSocket> dataSocket;
+  std::unique_ptr<udp::UdpSocket> controlSocket;
   std::unordered_map<std::uint16_t, CallBackFunction> listeners{};
   std::uint8_t channelId{0};
   std::vector<ConnectionListener*> connectionListeners{};

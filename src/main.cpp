@@ -2,33 +2,16 @@
 #include "KnxAddress.h"
 #include "KnxConnection.h"
 #include "KnxConnectionFactory.h"
+#include <asio/as_tuple.hpp>
 #include <asio/co_spawn.hpp>
 #include <asio/detached.hpp>
 #include <asio/io_context.hpp>
+#include <asio/steady_timer.hpp>
 #include <cstdint>
 #include <iostream>
 #include <memory>
 #include <string_view>
-
-class StopContextOnDisconnect final : public connection::KnxConnectionListener {
-public:
-  StopContextOnDisconnect(asio::io_context &ctx) : ctx{ctx} {};
-  ~StopContextOnDisconnect() override = default;
-
-  void onDisconnect() override { ctx.stop(); }
-
-  void onConnect() override {}
-  void onGroupRead(const IndividualAddress &source,
-                   const GroupAddress &ga) override {}
-  void onGroupReadResponse(const IndividualAddress &source,
-                           const GroupAddress &ga,
-                           const std::array<byte, 2> data) override {}
-  void onGroupWrite(const IndividualAddress &source, const GroupAddress &ga,
-                    const std::array<byte, 2> data) override {}
-
-private:
-  asio::io_context &ctx;
-};
+#include <type_traits>
 
 class Logger final : public connection::KnxConnectionListener {
 public:
@@ -56,41 +39,48 @@ public:
   }
 };
 
+std::unique_ptr<asio::steady_timer> closeTimer;
 asio::awaitable<void> stopConnection(asio::io_context &ctx,
                                      connection::KnxConnection &connection) {
-  asio::steady_timer timer(ctx);
-  timer.expires_after(std::chrono::seconds(120));
-  co_await timer.async_wait();
-  co_await connection.close();
+  closeTimer = std::make_unique<asio::steady_timer>(ctx);
+  closeTimer->expires_after(std::chrono::seconds(120));
+  auto [errorcode] = co_await closeTimer->async_wait(asio::as_tuple);
+  if (!errorcode) {
+    co_await connection.close();
+  }
 }
 
+std::unique_ptr<asio::steady_timer> writeTimer;
 asio::awaitable<void> writeGroup(asio::io_context &ctx,
                                  connection::KnxConnection &connection) {
-  asio::steady_timer timer(ctx);
-  timer.expires_after(std::chrono::seconds(3));
-  co_await timer.async_wait();
-  GroupAddress ga{4, 0, 8};
-  std::array<std::uint8_t, 2> data{0x00, 0x01};
-  connection.writeToGroup(ga, data);
+  writeTimer = std::make_unique<asio::steady_timer>(ctx);
+  writeTimer->expires_after(std::chrono::seconds(3));
+  auto [errorcode] = co_await writeTimer->async_wait(asio::as_tuple);
+  if(!errorcode && connection.isOpen()) {
+    GroupAddress ga{4, 0, 8};
+    std::array<std::uint8_t, 2> data{0x00, 0x01};
+    connection.writeToGroup(ga, data);
+  }
+}
+asio::awaitable<void> onExit(connection::KnxConnection &connection) {
+  co_await (connection.close());
+  if (closeTimer) {
+    closeTimer->cancel();
+  }
+  if(writeTimer) {
+    writeTimer->cancel();
+  }
 }
 
 void logEvents(std::string_view routerIP, std::uint16_t routerPort,
                std::string_view bindIp) {
   asio::io_context io_context;
-  connection::KnxConnection connection = connection::KnxConnectionFactory::createTunneling(
-      io_context, routerIP, routerPort, bindIp);
+  connection::KnxConnection connection =
+      connection::KnxConnectionFactory::createTunneling(io_context, routerIP,
+                                                        routerPort, bindIp);
   // Log to the standard out
   std::shared_ptr logger = std::make_shared<Logger>();
   connection.addListener(logger);
-  // Stop the asio context on disconnect
-  // I want to see if this can be ommited, by refactoring IpKnxConnection: All
-  // the asio resources are stopped / closed, but I could refactor so that the
-  // destructors of the asio objects are called. There is a separation needed
-  // for the tunneling specific stuff anyway. Right now, something keeps the
-  // asio context running, might be unavoidable though.
-  std::shared_ptr stopCtxOnDisconnect =
-      std::make_shared<StopContextOnDisconnect>(io_context);
-  connection.addListener(stopCtxOnDisconnect);
   asio::co_spawn(io_context, connection.start(), asio::detached);
   asio::co_spawn(io_context, writeGroup(io_context, connection),
                  asio::detached);
@@ -100,7 +90,7 @@ void logEvents(std::string_view routerIP, std::uint16_t routerPort,
   // on ctrl-c gracefully close connection
   asio::signal_set signals(io_context, SIGINT, SIGTERM);
   signals.async_wait([&](auto, auto) {
-    co_spawn(io_context, connection.close(), asio::detached);
+    co_spawn(io_context, onExit(connection), asio::detached);
   });
   io_context.run();
 }
