@@ -1,0 +1,69 @@
+#pragma once
+
+#include "KnxAddress.h"
+#include "KnxConnectionListener.h"
+#include "TunnelingConnection.h"
+#include <asio/awaitable.hpp>
+#include <asio/io_context.hpp>
+#include <cstdint>
+#include <memory>
+#include <vector>
+
+namespace connection {
+
+/**
+ * I represent a connection to a knx system. For now I'm capable of using a
+ * tunneling connection. I can receive group write messages, send group write
+ * and send group reads.
+ *
+ * Detail about my resposiblities: I manage the communicition of Cemi frames and
+ * communicate with the tunnelingConnection.
+ */
+class KnxConnection final : ConnectionListener {
+public:
+  KnxConnection(asio::io_context &ctx,
+                std::unique_ptr<TunnelingConnection> &&tunnelingConnection);
+
+  ~KnxConnection() override;
+
+  /**
+   * I will start up everything that is needed to maintain a connection with a
+   * KNX IP Router.
+   */
+  asio::awaitable<void> start();
+
+  void addListener(std::weak_ptr<KnxConnectionListener> listener);
+
+  /**
+   * I'll send out a message to the IP KNX Router to send the value to the KNX
+   * network
+   */
+  void writeToGroup(GroupAddress &ga, std::array<std::uint8_t, 2> value);
+
+  /**
+   * Get the data of the specified group address
+   */
+  std::array<std::uint8_t, 2> readGroup(GroupAddress &ga);
+
+  /**
+   * Does not comply to RAII, but need to figure this one out a bit. Get the
+   * project going.
+   */
+  asio::awaitable<void> close();
+
+private:
+  void
+  forEveryListener(std::function<auto(KnxConnectionListener *)->void> doThis);
+
+  void onConnect() override;
+  void onDisconnect() override;
+  void onIncommingCemi(Cemi &cemi) override;
+
+private:
+  asio::io_context &ctx;
+  std::unique_ptr<TunnelingConnection> tunnelingConnection;
+  std::vector<std::weak_ptr<KnxConnectionListener>> connectionListeners{};
+  friend class Listener;
+};
+
+} // namespace connection

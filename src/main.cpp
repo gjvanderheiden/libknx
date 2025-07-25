@@ -1,6 +1,7 @@
 #include "Discovery.h"
-#include "IpKnxConnection.h"
 #include "KnxAddress.h"
+#include "KnxConnection.h"
+#include "KnxConnectionFactory.h"
 #include <asio/co_spawn.hpp>
 #include <asio/detached.hpp>
 #include <asio/io_context.hpp>
@@ -56,7 +57,7 @@ public:
 };
 
 asio::awaitable<void> stopConnection(asio::io_context &ctx,
-                                     connection::IpKnxConnection &connection) {
+                                     connection::KnxConnection &connection) {
   asio::steady_timer timer(ctx);
   timer.expires_after(std::chrono::seconds(120));
   co_await timer.async_wait();
@@ -64,20 +65,20 @@ asio::awaitable<void> stopConnection(asio::io_context &ctx,
 }
 
 asio::awaitable<void> writeGroup(asio::io_context &ctx,
-                                 connection::IpKnxConnection &connection) {
+                                 connection::KnxConnection &connection) {
   asio::steady_timer timer(ctx);
   timer.expires_after(std::chrono::seconds(3));
   co_await timer.async_wait();
   GroupAddress ga{4, 0, 8};
-  std::array<std::uint8_t,2> data{0x00, 0x01};
+  std::array<std::uint8_t, 2> data{0x00, 0x01};
   connection.writeToGroup(ga, data);
 }
 
 void logEvents(std::string_view routerIP, std::uint16_t routerPort,
                std::string_view bindIp) {
   asio::io_context io_context;
-  connection::IpKnxConnection connection{io_context, routerIP, routerPort,
-                                         bindIp};
+  connection::KnxConnection connection = connection::KnxConnectionFactory::createTunneling(
+      io_context, routerIP, routerPort, bindIp);
   // Log to the standard out
   std::shared_ptr logger = std::make_shared<Logger>();
   connection.addListener(logger);

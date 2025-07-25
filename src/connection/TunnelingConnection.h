@@ -15,6 +15,15 @@ namespace connection {
 /**
  * I'm responsible for keeping a connection to a KNX IP Router.
  *
+ * I deal with the KnxIpHeaders being received and send.
+ *
+ * Once in a while I'll send a ping to the server to see if we still have a good connection.
+ * If can disconnect if:
+ *  - a disconnect request is received
+ *  - a timeout on a acknowlegde of a message expired
+ *  - a error or wrong packet it received
+ *  - manual close() is send.
+ *
  * I initiate all te nessasary ports, gather all the nessasary objects together
  * to keep a sort of connection household. A facade if you like.
  *
@@ -24,8 +33,8 @@ class TunnelingConnection {
 public:
   TunnelingConnection(asio::io_context &ctx, std::string_view remoteIp,
                   std::uint16_t remotePort, std::string_view localBindIp,
-                  std::uint16_t localDataPort = 2001,
-                  std::uint16_t localControlPort = 2002);
+                  std::uint16_t localDataPort,
+                  std::uint16_t localControlPort);
 
   ~TunnelingConnection();
 
