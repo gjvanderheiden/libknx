@@ -12,7 +12,7 @@
 namespace connection {
 
 /**
- * I represent a connection to a knx system. For now I'm capable of using a
+ * I represent a client connection to a knx system. For now I'm capable of using a
  * tunneling connection. I can receive group write messages, send group write
  * and send group reads.
  *
