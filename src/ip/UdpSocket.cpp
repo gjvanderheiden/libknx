@@ -28,21 +28,26 @@ awaitable<void> watchdog(steady_clock::time_point &deadline);
 
 UdpSocket::UdpSocket(asio::io_context &ctx, std::string_view bindHost,
                      const unsigned short port)
-    : ctx(ctx), bindHost(bindHost), port(port),
-      endpoint(asio::ip::make_address_v4(bindHost), port), socket{ctx} {}
+    : ctx{ctx}, 
+      bindHost{bindHost},
+      port{port},
+      endpoint{asio::ip::make_address_v4(bindHost), port},
+      socket{ctx} {}
 
 void UdpSocket::setHandler(HandlerFunction &&function) {
   this->handlerFunction = std::move(function);
 }
 
-void UdpSocket::startMulticast(std::string_view multicastAddress) {
+void UdpSocket::startMulticast(asio::ip::address multicastAddress) {
   socket.open(endpoint.protocol());
   socket.set_option(asio::ip::udp::socket::reuse_address(true));
   socket.bind(endpoint);
-  socket.set_option(asio::ip::multicast::join_group(
-      asio::ip::make_address(multicastAddress)));
+  socket.set_option(asio::ip::multicast::join_group(multicastAddress));
   co_spawn(ctx, readIncoming(), asio::detached);
   open = true;
+}
+void UdpSocket::startMulticast(std::string_view multicastAddress) {
+  startMulticast(asio::ip::make_address(multicastAddress));
 }
 
 void UdpSocket::start() {
@@ -69,11 +74,11 @@ awaitable<void> UdpSocket::readIncoming() {
         asio::buffer(buffer), remoteEndpoint, use_nothrow_awaitable);
     if (error) {
       keepRunning = false;
-    } else if(size > 0 && this->handlerFunction) { 
+    } else if (size > 0 && this->handlerFunction) {
       std::vector<std::uint8_t> data;
       data.reserve(size);
       std::copy_n(buffer.begin(), size, std::back_inserter(data));
-      handlerFunction(data);
+      handlerFunction(std::move(data));
     }
   }
 }

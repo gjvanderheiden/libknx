@@ -68,7 +68,7 @@ private:
    */
   asio::awaitable<void> checkConnection();
 
-  auto onReceiveData(std::vector<std::uint8_t> &data) -> void;
+  auto onReceiveData(std::vector<std::uint8_t>&& data) -> void;
 
   auto onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
                               ByteBufferReader &reader) -> bool;

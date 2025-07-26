@@ -157,7 +157,7 @@ auto TunnelingConnection::onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
   return true;
 }
 
-void TunnelingConnection::onReceiveData(std::vector<std::uint8_t> &data) {
+void TunnelingConnection::onReceiveData(std::vector<std::uint8_t> &&data) {
   ByteBufferReader reader(data);
   KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader);
   if (this->listeners.contains(knxIpHeader.getServiceType())) {

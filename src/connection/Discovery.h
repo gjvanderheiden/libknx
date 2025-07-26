@@ -1,9 +1,11 @@
 #pragma once
 
+#include <asio/io_context.hpp>
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <asio.hpp>
+#include <ip/UdpSocket.h>
 
 namespace connection {
 
@@ -15,16 +17,20 @@ struct KnxIp {
 
 class Discovery {
 public:
-  explicit Discovery(asio::io_context& io_context);
+  explicit Discovery(asio::io_context& ctx);
   // no time out implemented
   void lookAround(int maxResults = 1);
   std::vector<KnxIp>& result();
+
 private:
-  void do_receive();
-  asio::ip::udp::socket socket_read;
-  asio::ip::udp::endpoint sender_endpoint;
+  void do_receive(std::vector<std::uint8_t>&& data);
+
+private:
+  udp::UdpSocket socket;
+  asio::io_context* ctx;
+  asio::ip::udp::endpoint senderEndpoint;
   std::array<std::uint8_t, 1024> data;
-  asio::ip::address multicast_address;
+  asio::ip::address multicastAddress;
   std::vector<KnxIp> foundKnxIps{};
   int maxResults{0};
 };
