@@ -84,15 +84,15 @@ Contains objects that are send between libknx and a KNX IP router. Theses object
 
 ## ToDo list
 ### Code
-- Deal with KnxIpHeader consistenly
-- KnxIpConnection refactor, it's just a bowl of soup now
-- KnxIpConnection as an fascade to an implementation to:
-  - destruct current connection on close and close all references in asio async context
+- Deal with KnxIpHeader consistenly and use KnxIpHeader or embed into Request Response
+- KnxClientConnection as an fascade to an implementation to:
   - allow a different config / implementation, being allow nat and routing
+  - Maybe is it possible to exlude asio awaitable dependeny from KnxClientConnection
 - KnxIpConnection construction with a builder or Config object.
 ### Functional
 First focus points:
-- Data parsing
+- DataPointType parsing
+  - length data in Cemi is 2 bytes fixed, should be a vector
   - bool type
   - string type 
   - uint8 

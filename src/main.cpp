@@ -1,6 +1,6 @@
 #include "Discovery.h"
 #include "KnxAddress.h"
-#include "KnxConnection.h"
+#include "KnxClientConnection.h"
 #include "KnxConnectionFactory.h"
 #include <asio/as_tuple.hpp>
 #include <asio/co_spawn.hpp>
@@ -11,7 +11,6 @@
 #include <iostream>
 #include <memory>
 #include <string_view>
-#include <type_traits>
 
 class Logger final : public connection::KnxConnectionListener {
 public:
@@ -41,7 +40,7 @@ public:
 
 std::unique_ptr<asio::steady_timer> closeTimer;
 asio::awaitable<void> stopConnection(asio::io_context &ctx,
-                                     connection::KnxConnection &connection) {
+                                     connection::KnxClientConnection &connection) {
   closeTimer = std::make_unique<asio::steady_timer>(ctx);
   closeTimer->expires_after(std::chrono::seconds(120));
   auto [errorcode] = co_await closeTimer->async_wait(asio::as_tuple);
@@ -52,7 +51,7 @@ asio::awaitable<void> stopConnection(asio::io_context &ctx,
 
 std::unique_ptr<asio::steady_timer> writeTimer;
 asio::awaitable<void> writeGroup(asio::io_context &ctx,
-                                 connection::KnxConnection &connection) {
+                                 connection::KnxClientConnection &connection) {
   writeTimer = std::make_unique<asio::steady_timer>(ctx);
   writeTimer->expires_after(std::chrono::seconds(3));
   auto [errorcode] = co_await writeTimer->async_wait(asio::as_tuple);
@@ -62,7 +61,7 @@ asio::awaitable<void> writeGroup(asio::io_context &ctx,
     connection.writeToGroup(ga, data);
   }
 }
-asio::awaitable<void> onExit(connection::KnxConnection &connection) {
+asio::awaitable<void> onExit(connection::KnxClientConnection &connection) {
   co_await (connection.close());
   if (closeTimer) {
     closeTimer->cancel();
@@ -75,8 +74,8 @@ asio::awaitable<void> onExit(connection::KnxConnection &connection) {
 void logEvents(std::string_view routerIP, std::uint16_t routerPort,
                std::string_view bindIp) {
   asio::io_context io_context;
-  connection::KnxConnection connection =
-      connection::KnxConnectionFactory::createTunneling(io_context, routerIP,
+  connection::KnxClientConnection connection =
+      connection::KnxConnectionFactory::createTunnelingClient(io_context, routerIP,
                                                         routerPort, bindIp);
   // Log to the standard out
   std::shared_ptr logger = std::make_shared<Logger>();

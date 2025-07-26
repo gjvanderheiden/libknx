@@ -19,12 +19,12 @@ namespace connection {
  * Detail about my resposiblities: I manage the communicition of Cemi frames and
  * communicate with the tunnelingConnection.
  */
-class KnxConnection final : ConnectionListener {
+class KnxClientConnection final : ConnectionListener {
 public:
-  KnxConnection(asio::io_context &ctx,
+  KnxClientConnection(asio::io_context &ctx,
                 std::unique_ptr<TunnelingConnection> &&tunnelingConnection);
 
-  ~KnxConnection() override = default;
+  ~KnxClientConnection() override = default;
 
   /**
    * I will start up everything that is needed to maintain a connection with a

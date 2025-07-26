@@ -3,12 +3,12 @@
 
 namespace connection {
 
-KnxConnection KnxConnectionFactory::createTunneling(asio::io_context &ctx, std::string_view remoteIp,
+KnxClientConnection KnxConnectionFactory::createTunnelingClient(asio::io_context &ctx, std::string_view remoteIp,
                   std::uint16_t remotePort, std::string_view localBindIp,
                   std::uint16_t localDataPort,
                   std::uint16_t localControlPort) {
   std::unique_ptr tunnelingConnection = std::make_unique<TunnelingConnection>(ctx,remoteIp, remotePort, localBindIp, localDataPort, localControlPort);
-  return KnxConnection{ctx, std::move(tunnelingConnection)};
+  return KnxClientConnection{ctx, std::move(tunnelingConnection)};
 }
 
 } // namespace connection

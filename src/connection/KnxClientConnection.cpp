@@ -1,4 +1,4 @@
-#include "KnxConnection.h"
+#include "KnxClientConnection.h"
 #include "KnxAddress.h"
 #include "cemi/ACPI.h"
 #include "cemi/Control.h"
@@ -14,24 +14,24 @@
 
 namespace connection {
 
-KnxConnection::KnxConnection(asio::io_context &ctx,
+KnxClientConnection::KnxClientConnection(asio::io_context &ctx,
     std::unique_ptr<TunnelingConnection>&& tunnelingConnection) 
     : ctx{ctx}, tunnelingConnection{std::move(tunnelingConnection)} {}
 
-void KnxConnection::addListener(
+void KnxClientConnection::addListener(
     std::weak_ptr<KnxConnectionListener> listener) {
   connectionListeners.push_back(listener);
 }
 
-asio::awaitable<void> KnxConnection::start() {
+asio::awaitable<void> KnxClientConnection::start() {
   tunnelingConnection->addListener(*this);
   co_await tunnelingConnection->start();
 }
 
-bool KnxConnection::isOpen() {
+bool KnxClientConnection::isOpen() {
   return tunnelingConnection.get() != nullptr;
 }
-void KnxConnection::onIncommingCemi(Cemi &cemi) {
+void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
   if (cemi.getMessageCode() == Cemi::L_DATA_IND) {
     switch (cemi.getNPDU().getACPI().getType()) {
     case DataACPI::GROUP_VALUE_READ:
@@ -80,7 +80,7 @@ Cemi createGroupWriteCemi(GroupAddress &ga, KnxPrio prio,
               std::move(npduFrame)};
 }
 
-void KnxConnection::writeToGroup(GroupAddress &ga,
+void KnxClientConnection::writeToGroup(GroupAddress &ga,
                                    std::array<std::uint8_t, 2> value) {
   IndividualAddress source(0, 0, 0);
   Control control{KnxPrio::low, true};
@@ -94,22 +94,22 @@ void KnxConnection::writeToGroup(GroupAddress &ga,
   // Server should send a Cemi:L_DATA_CON (confirmation)
 }
 
-std::array<std::uint8_t, 2> KnxConnection::readGroup(GroupAddress &ga) {
+std::array<std::uint8_t, 2> KnxClientConnection::readGroup(GroupAddress &ga) {
   return {0};
 }
 
-void KnxConnection::onConnect() {
+void KnxClientConnection::onConnect() {
   forEveryListener(
       [](KnxConnectionListener *listener) { listener->onConnect(); });
 }
 
-void KnxConnection::onDisconnect() {
+void KnxClientConnection::onDisconnect() {
   forEveryListener(
       [](KnxConnectionListener *listener) { listener->onDisconnect(); });
   this->tunnelingConnection.reset();
 }
 
-void KnxConnection::forEveryListener(
+void KnxClientConnection::forEveryListener(
     std::function<auto(KnxConnectionListener *)->void> doThis) {
   for (auto listenerRef : connectionListeners) {
     if (auto listener = listenerRef.lock()) {
@@ -118,7 +118,7 @@ void KnxConnection::forEveryListener(
   }
 }
 
-asio::awaitable<void> KnxConnection::close() {
+asio::awaitable<void> KnxClientConnection::close() {
   if (tunnelingConnection) {
     co_await this->tunnelingConnection->close();
     tunnelingConnection.reset();
