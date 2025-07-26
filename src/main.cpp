@@ -39,6 +39,9 @@ public:
 };
 
 std::unique_ptr<asio::steady_timer> closeTimer;
+std::unique_ptr<asio::steady_timer> writeTimer;
+std::unique_ptr<asio::signal_set> signals;
+
 asio::awaitable<void> stopConnection(asio::io_context &ctx,
                                      connection::KnxClientConnection &connection) {
   closeTimer = std::make_unique<asio::steady_timer>(ctx);
@@ -47,9 +50,14 @@ asio::awaitable<void> stopConnection(asio::io_context &ctx,
   if (!errorcode) {
     co_await connection.close();
   }
+  if(writeTimer) {
+    writeTimer->cancel();
+  }
+  if(signals) {
+    signals->cancel();
+  }
 }
 
-std::unique_ptr<asio::steady_timer> writeTimer;
 asio::awaitable<void> writeGroup(asio::io_context &ctx,
                                  connection::KnxClientConnection &connection) {
   writeTimer = std::make_unique<asio::steady_timer>(ctx);
@@ -87,8 +95,8 @@ void logEvents(std::string_view routerIP, std::uint16_t routerPort,
   asio::co_spawn(io_context, stopConnection(io_context, connection),
                  asio::detached);
   // on ctrl-c gracefully close connection
-  asio::signal_set signals(io_context, SIGINT, SIGTERM);
-  signals.async_wait([&](auto, auto) {
+  signals = std::make_unique<asio::signal_set>(io_context, SIGINT, SIGTERM);
+  signals->async_wait([&](auto, auto) {
     co_spawn(io_context, onExit(connection), asio::detached);
   });
   io_context.run();
