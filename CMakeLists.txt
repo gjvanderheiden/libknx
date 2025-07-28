@@ -35,11 +35,11 @@ target_sources(knx
       BASE_DIRS src/bytes src/cemi src/connection src/headers src/ip src/requests src/responses
       FILES ${knx_header_files}
     PRIVATE
-      ${knx_source_files})
+      ${knx_source_files}
+     )
     
-target_include_directories(knx-ip_tests PRIVATE src/bytes src/ip src/headers src/requests src/connection test)
 
-target_link_libraries(knx-ip PUBLIC knx Threads::Threads)
+target_link_libraries(knx-ip PRIVATE knx Threads::Threads)
 target_link_libraries(knx-ip_tests PRIVATE knx GTest::gtest_main Threads::Threads)
 
 include(GoogleTest)
@@ -57,8 +57,6 @@ install (
 )
 
 install (
-  FILES
-  cmake/knxConfig.cmake
-  DESTINATION
-    share/cmake/knx
+  FILES cmake/knxConfig.cmake
+  DESTINATION share/cmake/knx
 )
