@@ -7,12 +7,14 @@ project(KnxIP
     DESCRIPTION "Library to access KNX over IP"
     VERSION 0.1
     LANGUAGES CXX)
-  enable_testing()
+
+enable_testing()
 include(FindThreads)
 find_package(PkgConfig REQUIRED)
 find_package(GTest REQUIRED)
 
 pkg_check_modules(ASIO REQUIRED asio)
+
 
 file(GLOB_RECURSE knx_source_files  src/**/*.cpp)
 file(GLOB_RECURSE knx_header_files  src/**/*.h*)
@@ -24,6 +26,8 @@ add_executable(knx-ip src/main.cpp )
 add_executable(knx-ip_tests ${test_source_files})
 set_target_properties(knx PROPERTIES VERSION ${PROJECT_VERSION})
 
+target_include_directories(knx PUBLIC ${ASIO_INCLUDE_DIRS}) 
+
 target_sources(knx
     PUBLIC
       FILE_SET knx_headers
@@ -31,7 +35,7 @@ target_sources(knx
       BASE_DIRS src/bytes src/cemi src/connection src/headers src/ip src/requests src/responses
       FILES ${knx_header_files}
     PRIVATE
-      ${knx_source_files}) 
+      ${knx_source_files})
     
 target_include_directories(knx-ip_tests PRIVATE src/bytes src/ip src/headers src/requests src/connection test)
 
