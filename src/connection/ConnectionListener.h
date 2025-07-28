@@ -1,6 +1,6 @@
 #include "Cemi.h"
 
-namespace connection {
+namespace knx::connection {
 
 class ConnectionListener {
 public:

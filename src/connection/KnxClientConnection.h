@@ -9,7 +9,7 @@
 #include <memory>
 #include <vector>
 
-namespace connection {
+namespace knx::connection {
 
 /**
  * I represent a client connection to a knx system. For now I'm capable of using a

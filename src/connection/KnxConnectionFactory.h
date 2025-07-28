@@ -2,7 +2,7 @@
 
 #include <KnxClientConnection.h>
 
-namespace connection {
+namespace knx::connection {
 
 class KnxConnectionFactory {
 public:

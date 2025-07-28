@@ -1,6 +1,6 @@
 #include "KnxAddress.h"
 
-namespace connection {
+namespace knx::connection {
 
 class KnxConnectionListener {
  public:

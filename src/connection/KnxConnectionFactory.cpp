@@ -1,7 +1,7 @@
 #include "KnxConnectionFactory.h"
 #include <memory>
 
-namespace connection {
+namespace knx::connection {
 
 KnxClientConnection KnxConnectionFactory::createTunnelingClient(asio::io_context &ctx, std::string_view remoteIp,
                   std::uint16_t remotePort, std::string_view localBindIp,

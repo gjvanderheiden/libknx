@@ -12,7 +12,7 @@
 #include <functional>
 #include <memory>
 
-namespace connection {
+namespace knx::connection {
 
 KnxClientConnection::KnxClientConnection(asio::io_context &ctx,
     std::unique_ptr<TunnelingConnection>&& tunnelingConnection) 

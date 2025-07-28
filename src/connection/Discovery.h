@@ -7,7 +7,7 @@
 #include <asio.hpp>
 #include <UdpSocket.h>
 
-namespace connection {
+namespace knx::connection {
 
 struct KnxIp {
   std::string name;

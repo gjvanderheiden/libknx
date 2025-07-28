@@ -10,7 +10,7 @@
 #include <asio/ip/address_v4.hpp>
 #include <functional>
 
-namespace connection {
+namespace knx::connection {
 
 constexpr short multicast_port = 3671;
 

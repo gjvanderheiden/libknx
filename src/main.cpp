@@ -12,7 +12,7 @@
 #include <memory>
 #include <string_view>
 
-class Logger final : public connection::KnxConnectionListener {
+class Logger final : public knx::connection::KnxConnectionListener {
 public:
   Logger() = default;
   ~Logger() override = default;
@@ -43,7 +43,7 @@ std::unique_ptr<asio::steady_timer> writeTimer;
 std::unique_ptr<asio::signal_set> signals;
 
 asio::awaitable<void> stopConnection(asio::io_context &ctx,
-                                     connection::KnxClientConnection &connection) {
+                                     knx::connection::KnxClientConnection &connection) {
   closeTimer = std::make_unique<asio::steady_timer>(ctx);
   closeTimer->expires_after(std::chrono::seconds(120));
   auto [errorcode] = co_await closeTimer->async_wait(asio::as_tuple);
@@ -59,7 +59,7 @@ asio::awaitable<void> stopConnection(asio::io_context &ctx,
 }
 
 asio::awaitable<void> writeGroup(asio::io_context &ctx,
-                                 connection::KnxClientConnection &connection) {
+                                 knx::connection::KnxClientConnection &connection) {
   writeTimer = std::make_unique<asio::steady_timer>(ctx);
   writeTimer->expires_after(std::chrono::seconds(3));
   auto [errorcode] = co_await writeTimer->async_wait(asio::as_tuple);
@@ -69,7 +69,7 @@ asio::awaitable<void> writeGroup(asio::io_context &ctx,
     connection.writeToGroup(ga, data);
   }
 }
-asio::awaitable<void> onExit(connection::KnxClientConnection &connection) {
+asio::awaitable<void> onExit(knx::connection::KnxClientConnection &connection) {
   co_await (connection.close());
   if (closeTimer) {
     closeTimer->cancel();
@@ -82,8 +82,8 @@ asio::awaitable<void> onExit(connection::KnxClientConnection &connection) {
 void logEvents(std::string_view routerIP, std::uint16_t routerPort,
                std::string_view bindIp) {
   asio::io_context io_context;
-  connection::KnxClientConnection connection =
-      connection::KnxConnectionFactory::createTunnelingClient(io_context, routerIP,
+  knx::connection::KnxClientConnection connection =
+      knx::connection::KnxConnectionFactory::createTunnelingClient(io_context, routerIP,
                                                         routerPort, bindIp);
   // Log to the standard out
   std::shared_ptr logger = std::make_shared<Logger>();
@@ -105,7 +105,7 @@ void logEvents(std::string_view routerIP, std::uint16_t routerPort,
 int main(int argc, char *argv[]) {
   asio::io_context io_context;
   if (argc < 3) {
-    connection::Discovery discovery{io_context};
+    knx::connection::Discovery discovery{io_context};
     discovery.lookAround(1);
     io_context.run();
     for (auto router : discovery.result()) {

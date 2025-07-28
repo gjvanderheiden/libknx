@@ -19,10 +19,9 @@
 #include <chrono>
 #include <cstdint>
 #include <functional>
-#include <ios>
 #include <iostream>
 
-namespace connection {
+namespace knx::connection {
 
 using namespace knx::requestresponse;
 

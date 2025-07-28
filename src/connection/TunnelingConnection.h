@@ -10,7 +10,7 @@
 #include <string_view>
 #include <vector>
 
-namespace connection {
+namespace knx::connection {
 
 /**
  * I'm responsible for keeping a connection to a KNX IP Router.
