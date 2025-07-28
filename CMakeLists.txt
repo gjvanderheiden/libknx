@@ -32,7 +32,7 @@ target_sources(knx
     PUBLIC
       FILE_SET knx_headers
       TYPE HEADERS
-      BASE_DIRS src/bytes src/cemi src/connection src/headers src/ip src/requests src/responses
+      BASE_DIRS src/bytes src/cemi src/connection src/headers src/ip src/requests src/responses src/datapointtypes
       FILES ${knx_header_files}
     PRIVATE
       ${knx_source_files}

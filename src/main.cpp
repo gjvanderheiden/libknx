@@ -1,3 +1,4 @@
+#include "DataPointType.h"
 #include "Discovery.h"
 #include "KnxAddress.h"
 #include "KnxClientConnection.h"
@@ -10,6 +11,7 @@
 #include <cstdint>
 #include <iostream>
 #include <memory>
+#include <datapointtypes.h>
 #include <string_view>
 
 class Logger final : public knx::connection::KnxConnectionListener {
@@ -65,10 +67,10 @@ asio::awaitable<void> writeGroup(asio::io_context &ctx,
   auto [errorcode] = co_await writeTimer->async_wait(asio::as_tuple);
   if(!errorcode && connection.isOpen()) {
     GroupAddress ga{4, 0, 8};
-    std::array<std::uint8_t, 2> data{0x00, 0x01};
-    connection.writeToGroup(ga, data);
+    connection.writeToGroup(ga, knx::datapoint::BooleanDataPointType::on);
   }
 }
+
 asio::awaitable<void> onExit(knx::connection::KnxClientConnection &connection) {
   co_await (connection.close());
   if (closeTimer) {
