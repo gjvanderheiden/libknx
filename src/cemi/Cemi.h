@@ -1,10 +1,10 @@
 #pragma once
 
 #include "KnxAddress.h"
-#include "bytes/ByteBufferReader.h"
-#include "bytes/ByteBufferWriter.h"
-#include "cemi/Control.h"
-#include "cemi/NPDUFrame.h"
+#include "ByteBufferReader.h"
+#include "ByteBufferWriter.h"
+#include "Control.h"
+#include "NPDUFrame.h"
 #include <cstdint>
 #include <variant>
 

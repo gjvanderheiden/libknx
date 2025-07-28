@@ -1,6 +1,6 @@
 #include "HPAI.h"
-#include "bytes/ByteBufferReader.h"
-#include "bytes/ByteBufferWriter.h"
+#include "ByteBufferReader.h"
+#include "ByteBufferWriter.h"
 #include <gtest/gtest.h>
 
 

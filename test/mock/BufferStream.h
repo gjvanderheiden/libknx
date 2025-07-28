@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bytes/ByteBuffer.h"
+#include "ByteBuffer.h"
 
 class BufferStream {
 public:

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "KnxStructure.h"
-#include "bytes/ByteBufferWriter.h"
+#include "ByteBufferWriter.h"
 #include <cstdint>
 
 class ConnectionRequestInformation final : public KnxStructure {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "KnxStructure.h"
-#include "bytes/ByteBufferReader.h"
+#include "ByteBufferReader.h"
 #include <cstdint>
 
 class ConnectionHeader final : public KnxStructure {

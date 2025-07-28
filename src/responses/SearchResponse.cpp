@@ -1,5 +1,5 @@
 
-#include "responses/SearchResponse.h"
+#include "SearchResponse.h"
 #include "DeviceDib.h"
 
 namespace knx::requestresponse {

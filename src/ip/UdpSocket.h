@@ -1,7 +1,7 @@
 #pragma once
 
 #include <asio.hpp>
-#include <bytes/ByteDef.h>
+#include <ByteDef.h>
 #include <cstdint>
 #include <functional>
 #include <string>

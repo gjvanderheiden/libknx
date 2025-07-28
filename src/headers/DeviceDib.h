@@ -3,7 +3,7 @@
 #include "IpAddress.h"
 #include "KnxAddress.h"
 #include "KnxStructure.h"
-#include "bytes/ByteBufferReader.h"
+#include "ByteBufferReader.h"
 #include <array>
 #include <cstdint>
 #include <string>

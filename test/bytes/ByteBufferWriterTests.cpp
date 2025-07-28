@@ -1,4 +1,4 @@
-#include "bytes/ByteBufferWriter.h"
+#include "ByteBufferWriter.h"
 #include <cstdint>
 #include <gtest/gtest.h>
 

@@ -1,7 +1,7 @@
 #include "SearchRequest.h"
 #include "HPAI.h"
 #include "IpAddress.h"
-#include "bytes/ByteBufferWriter.h"
+#include "ByteBufferWriter.h"
 
 SearchRequest::SearchRequest(HPAI hpaiLocal) : hpaiLocal(hpaiLocal) {}
 

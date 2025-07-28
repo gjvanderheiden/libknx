@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ByteBufferWriter.h"
-#include "bytes/ByteBufferReader.h"
+#include "ByteBufferReader.h"
 #include <cstdint>
 
 enum class KnxPrio : std::uint8_t {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ByteBufferWriter.h"
-#include "bytes/ByteBufferReader.h"
+#include "ByteBufferReader.h"
 #include <asio/awaitable.hpp>
 
 class KnxStructure {

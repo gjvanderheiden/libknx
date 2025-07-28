@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <iterator>
 #include <cstring>
+
 ByteBufferReader::ByteBufferReader(const std::span<byte> data) : data{data} {}
 
 std::uint32_t ByteBufferReader::readUint32() {

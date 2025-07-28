@@ -3,8 +3,8 @@
 #include "IpAddress.h"
 #include "KnxIpHeader.h"
 #include "SearchRequest.h"
-#include "bytes/ByteBufferReader.h"
-#include "responses/SearchResponse.h"
+#include "ByteBufferReader.h"
+#include "SearchResponse.h"
 #include <asio.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>

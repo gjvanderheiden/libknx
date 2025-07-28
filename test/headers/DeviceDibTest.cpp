@@ -1,5 +1,5 @@
 #include "DeviceDib.h"
-#include "bytes/ByteBufferReader.h"
+#include "ByteBufferReader.h"
 #include <gtest/gtest.h>
 
 static std::array<byte, 0x36> test_frame1 = {

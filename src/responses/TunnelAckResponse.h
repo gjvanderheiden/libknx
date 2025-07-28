@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ConnectionHeader.h"
-#include "bytes/ByteBufferReader.h"
+#include "ByteBufferReader.h"
 
 namespace knx::requestresponse {
 

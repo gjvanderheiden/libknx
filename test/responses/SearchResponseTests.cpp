@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "KnxIpHeader.h"
-#include "responses/SearchResponse.h"
+#include "SearchResponse.h"
 #include <array>
 
 static std::array<byte, 102> test_frame = {

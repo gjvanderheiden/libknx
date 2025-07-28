@@ -2,9 +2,9 @@
 
 
 #include "ByteBufferWriter.h"
-#include "bytes/ByteBufferReader.h"
-#include "cemi/TCPI.h"
-#include "cemi/ACPI.h"
+#include "ByteBufferReader.h"
+#include "TCPI.h"
+#include "ACPI.h"
 
 
 class NPDUFrame {

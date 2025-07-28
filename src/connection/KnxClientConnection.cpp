@@ -1,7 +1,7 @@
 #include "KnxClientConnection.h"
 #include "KnxAddress.h"
-#include "cemi/ACPI.h"
-#include "cemi/Control.h"
+#include "ACPI.h"
+#include "Control.h"
 #include <asio/as_tuple.hpp>
 #include <asio/awaitable.hpp>
 #include <asio/detached.hpp>

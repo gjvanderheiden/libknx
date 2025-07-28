@@ -1,6 +1,6 @@
 #include "Cemi.h"
 #include "KnxAddress.h"
-#include "cemi/NPDUFrame.h"
+#include "NPDUFrame.h"
 
 
 Cemi::Cemi(std::uint8_t messageCode, Control&& control, IndividualAddress&& source, std::variant<IndividualAddress, GroupAddress>&& destination, NPDUFrame&& frame) :

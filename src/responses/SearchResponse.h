@@ -2,7 +2,7 @@
 
 #include "DeviceDib.h"
 #include "HPAI.h"
-#include "bytes/ByteBufferReader.h"
+#include "ByteBufferReader.h"
 
 namespace knx::requestresponse {
 

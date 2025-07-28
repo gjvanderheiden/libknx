@@ -1,5 +1,5 @@
 #include "ConnectionHeader.h"
-#include "bytes/ByteBufferReader.h"
+#include "ByteBufferReader.h"
 #include <gtest/gtest.h>
 
 static std::array<byte, 0x04> test_frame1 = {0x4, 0x5, 0x01, 0x0};

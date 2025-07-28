@@ -2,7 +2,7 @@
 
 #include "IpAddress.h"
 #include "KnxStructure.h"
-#include "bytes/ByteBufferReader.h"
+#include "ByteBufferReader.h"
 #include <asio/awaitable.hpp>
 #include <cstdint>
 

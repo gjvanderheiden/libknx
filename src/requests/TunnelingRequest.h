@@ -1,7 +1,7 @@
 #pragma once
 
-#include "cemi/Cemi.h"
-#include "headers/ConnectionHeader.h"
+#include "Cemi.h"
+#include "ConnectionHeader.h"
 #include <vector>
 
 #include "AbstractRequest.h"

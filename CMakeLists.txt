@@ -7,26 +7,54 @@ project(KnxIP
     DESCRIPTION "Library to access KNX over IP"
     VERSION 0.1
     LANGUAGES CXX)
-
+  enable_testing()
 include(FindThreads)
 find_package(PkgConfig REQUIRED)
 find_package(GTest REQUIRED)
 
 pkg_check_modules(ASIO REQUIRED asio)
 
-file(GLOB_RECURSE SOURCES  src/**/*.cpp)
-file(GLOB_RECURSE TEST_SOURCES  test/**/*.cpp)
+file(GLOB_RECURSE knx_source_files  src/**/*.cpp)
+file(GLOB_RECURSE knx_header_files  src/**/*.h*)
+file(GLOB_RECURSE test_source_files  test/**/*.cpp)
 
-add_library(knx SHARED ${SOURCES})
+add_library(knx SHARED)
+add_library(knx::knx ALIAS knx)
 add_executable(knx-ip src/main.cpp )
-add_executable(knx-ip_tests ${TEST_SOURCES})
+add_executable(knx-ip_tests ${test_source_files})
 set_target_properties(knx PROPERTIES VERSION ${PROJECT_VERSION})
 
-target_include_directories(knx PUBLIC src src/bytes src/ip src/headers src/requests src/connection ${ASIO_INCLUDE_DIRS})
-target_include_directories(knx-ip_tests PRIVATE src src/bytes src/ip src/headers src/requests src/connection test)
+target_sources(knx
+    PUBLIC
+      FILE_SET knx_headers
+      TYPE HEADERS
+      BASE_DIRS src/bytes src/cemi src/connection src/headers src/ip src/requests src/responses
+      FILES ${knx_header_files}
+    PRIVATE
+      ${knx_source_files}) 
+    
+target_include_directories(knx-ip_tests PRIVATE src/bytes src/ip src/headers src/requests src/connection test)
 
 target_link_libraries(knx-ip PUBLIC knx Threads::Threads)
 target_link_libraries(knx-ip_tests PRIVATE knx GTest::gtest_main Threads::Threads)
 
 include(GoogleTest)
 gtest_discover_tests(knx-ip_tests)
+
+install(
+  TARGETS knx
+  EXPORT knxTargets
+  FILE_SET knx_headers)
+
+install (
+  EXPORT knxTargets
+  DESTINATION share/cmake/knx
+  NAMESPACE knx::
+)
+
+install (
+  FILES
+  cmake/knxConfig.cmake
+  DESTINATION
+    share/cmake/knx
+)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bytes/ByteBufferReader.h"
+#include "ByteBufferReader.h"
 #include <cstdint>
 
 namespace knx::requestresponse {

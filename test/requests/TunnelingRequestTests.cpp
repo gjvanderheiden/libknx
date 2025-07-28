@@ -1,8 +1,8 @@
 
 #include "KnxIpHeader.h"
-#include "bytes/ByteBufferReader.h"
-#include "cemi/ACPI.h"
-#include "requests/TunnelingRequest.h"
+#include "ByteBufferReader.h"
+#include "ACPI.h"
+#include "TunnelingRequest.h"
 #include <gtest/gtest.h>
 
 // TunnelReq #01:0 L_Data.ind 1.1.4->1/0/1 GroupValueWrite $00
