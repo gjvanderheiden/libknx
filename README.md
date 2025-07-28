@@ -1,7 +1,7 @@
 # libknx
 Libknx is an open source C++ library to interact with a KNX network. Becasue this project is very much work in progress (as is this Readme...), the first focus is client side KNX over IP. In other words to connect to a KNX IP router. A client still can send and receive group messages like any other KNX device, but it act as an IP router itself.
 
-A knx ip client needs to open an UDP socket and send messages to UDP sockets. Libknx uses asio with coroutines for that.
+A knx ip client needs to open an UDP socket and send messages to UDP sockets. Libknx uses asio with coroutines for that. At a later stage I might try to use the lib in an embedded system, together with [modm.io],
 
 ## Design principles
 Libknx is an object oriented library. Every object has it's specific responsiblilty, in order to keeps stuff tidy, testable and reusable as much as possible. It is a build up of groups of objects (packages).
@@ -19,6 +19,7 @@ Modern C++ can be mem safe in the sence that you don't reference to unallocated 
 ### Operating System
 - FreeBSD
 - Linux
+- MacOs 15.5
 ### Build
 - gcc or clang
 - CMake
@@ -29,7 +30,7 @@ Modern C++ can be mem safe in the sence that you don't reference to unallocated 
 
 Operating system and devtools should be up to date. I'm not supporting old stuff, as this is a new project.
 
-I'm developing against asio 1.34.2. On FreeBSD you need to install the port instead of the binary package for now, works fine.
+I'm developing against asio 1.34.2. On FreeBSD you need to install the port instead of the binary package for now, works fine. I can't test MacOs throughly, I own a Intel Mac from 2017 and it has a patched Mac Os 15.5 on it.
 
 # How to build
 Just a basic cmake build:
@@ -61,7 +62,7 @@ Likewise, the client can send a DisconnectRequest.
 Periodically, the client sends a ConnectStateRequest and the server responds with a ConnectStateResponse. This is to check the connection is still active. Without this, the server can close the connection, to free up resources.
 
 ### Tunneling
-When a tunneling connection is established, actual data is encapsulated in a TunnelingRequest. Again, the client must respond with a acknowlegde, a AcknowlegdeTunnelingResponse. This TunnelingRequest contains a Cemi packet, which is the packet that would also go over a TP link line (not sure exactly). A Cemi packet doesn't have any dependencies to the TunnelingRequest, but of course the TunnelingRequest is dependend on the Cemi packet as a association.
+When a tunneling connection is established, actual data is encapsulated in a TunnelingRequest. Again, the client must respond with a acknowlegde, a AcknowlegdeTunnelingResponse. This TunnelingRequest contains a Cemi packet, which is the packet that would also go over a TP link line (not sure exactly). A Cemi packet doesn't have any dependencies to the TunnelingRequest, but of course the TunnelingRequest is dependend on the Cemi packet as a association. Cemi over Tunneling doesn't use the full types of cemi's, because they are not used in IP tunneling.
 
 ## General source Setup
 ### src/bytes
@@ -89,6 +90,7 @@ Contains objects that are send between libknx and a KNX IP router. Theses object
   - allow a different config / implementation, being allow nat and routing
   - Maybe is it possible to exlude asio awaitable dependeny from KnxClientConnection
 - KnxIpConnection construction with a builder or Config object.
+- I would like to use Cpp Modules, need to see how that works with cmake install
 ### Functional
 First focus points:
 - DataPointType parsing
@@ -100,3 +102,6 @@ First focus points:
 - Time-out on (ConnectState)Request without a reponse
   - Resend
   - if no reply / second time-out: disconnect
+- cmake install working, preferably with:
+  - freebsd port
+  - ArchLinux AUR package
