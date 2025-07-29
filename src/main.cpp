@@ -11,7 +11,6 @@
 #include <cstdint>
 #include <iostream>
 #include <memory>
-#include <datapointtypes.h>
 #include <string_view>
 
 class Logger final : public knx::connection::KnxConnectionListener {
@@ -68,7 +67,16 @@ asio::awaitable<void> writeGroup(asio::io_context &ctx,
   if(!errorcode && connection.isOpen()) {
     GroupAddress ga{4, 0, 8};
     connection.writeToGroup(ga, knx::datapoint::BooleanDataPointType::on);
+
+    writeTimer->expires_after(std::chrono::seconds(1));
+    auto [errorcode] = co_await writeTimer->async_wait(asio::as_tuple);
+    if(!errorcode && connection.isOpen()) {
+      GroupAddress ga{4, 1, 8};
+      connection.readGroup(ga);
+    }
+    
   }
+  
 }
 
 asio::awaitable<void> onExit(knx::connection::KnxClientConnection &connection) {

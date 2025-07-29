@@ -5,6 +5,9 @@ DataACPI::DataACPI(const std::uint8_t type,
                    const std::array<std::uint8_t, 2> data)
     : type{type}, data{data} {}
 
+DataACPI::DataACPI(const std::uint8_t type)
+    : type{type}, data{0x00} {}
+
 DataACPI DataACPI::parse(const byte firstByte, const byte length,
                          ByteBufferReader &reader) {
   const byte secondByte = reader.readUint8();

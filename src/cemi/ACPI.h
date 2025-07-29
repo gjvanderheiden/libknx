@@ -9,6 +9,7 @@
 class DataACPI {
 public:
   DataACPI(std::uint8_t type, std::array<std::uint8_t, 2> data);
+  DataACPI(std::uint8_t type);
   // 10 bit
   static constexpr std::uint8_t GROUP_VALUE_READ = 0b0000;
   static constexpr std::uint8_t INDIVIDUAL_ADDRESS_READ = 0b0100;
