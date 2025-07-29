@@ -1,5 +1,5 @@
-#include "Cemi.h"
-#include "ByteBufferReader.h"
+#include "knx/cemi/Cemi.h"
+#include "knx/bytes/ByteBufferReader.h"
 #include <gtest/gtest.h>
 
 static std::array<byte, 12> test_frame1 = {0x29, 0x00, 0xBC, 0xE0, 0x11, 0x09,

@@ -1,8 +1,7 @@
-#include "DataPointType.h"
-#include "Discovery.h"
-#include "KnxAddress.h"
-#include "KnxClientConnection.h"
-#include "KnxConnectionFactory.h"
+#include "knx/connection/Discovery.h"
+#include "knx/headers/KnxAddress.h"
+#include "knx/connection/KnxClientConnection.h"
+#include "knx/connection/KnxConnectionFactory.h"
 #include <asio/as_tuple.hpp>
 #include <asio/co_spawn.hpp>
 #include <asio/detached.hpp>
@@ -40,7 +39,6 @@ public:
 };
 
 std::unique_ptr<asio::steady_timer> closeTimer;
-std::unique_ptr<asio::steady_timer> writeTimer;
 std::unique_ptr<asio::signal_set> signals;
 
 asio::awaitable<void> stopConnection(asio::io_context &ctx,
@@ -51,41 +49,15 @@ asio::awaitable<void> stopConnection(asio::io_context &ctx,
   if (!errorcode) {
     co_await connection.close();
   }
-  if(writeTimer) {
-    writeTimer->cancel();
-  }
   if(signals) {
     signals->cancel();
   }
-}
-
-asio::awaitable<void> writeGroup(asio::io_context &ctx,
-                                 knx::connection::KnxClientConnection &connection) {
-  writeTimer = std::make_unique<asio::steady_timer>(ctx);
-  writeTimer->expires_after(std::chrono::seconds(3));
-  auto [errorcode] = co_await writeTimer->async_wait(asio::as_tuple);
-  if(!errorcode && connection.isOpen()) {
-    GroupAddress ga{4, 0, 8};
-    connection.writeToGroup(ga, knx::datapoint::BooleanDataPointType::on);
-
-    writeTimer->expires_after(std::chrono::seconds(1));
-    auto [errorcode] = co_await writeTimer->async_wait(asio::as_tuple);
-    if(!errorcode && connection.isOpen()) {
-      GroupAddress ga{4, 1, 8};
-      connection.readGroup(ga);
-    }
-    
-  }
-  
 }
 
 asio::awaitable<void> onExit(knx::connection::KnxClientConnection &connection) {
   co_await (connection.close());
   if (closeTimer) {
     closeTimer->cancel();
-  }
-  if(writeTimer) {
-    writeTimer->cancel();
   }
 }
 
@@ -99,8 +71,6 @@ void logEvents(std::string_view routerIP, std::uint16_t routerPort,
   std::shared_ptr logger = std::make_shared<Logger>();
   connection.addListener(logger);
   asio::co_spawn(io_context, connection.start(), asio::detached);
-  asio::co_spawn(io_context, writeGroup(io_context, connection),
-                 asio::detached);
   // stop after 2 minutes
   asio::co_spawn(io_context, stopConnection(io_context, connection),
                  asio::detached);

@@ -1,6 +1,6 @@
-#include "HPAI.h"
-#include "ByteBufferReader.h"
-#include "ByteBufferWriter.h"
+#include "knx/headers/HPAI.h"
+#include "knx/bytes/ByteBufferReader.h"
+#include "knx/bytes/ByteBufferWriter.h"
 #include <gtest/gtest.h>
 
 

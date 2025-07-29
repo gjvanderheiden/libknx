@@ -8,8 +8,8 @@ Libknx is an object oriented library. Every object has it's specific responsibli
 
 KNX has a bunch of types, like percentage, absolute value, on/off, etc. But most of them boil down to standard types e.g. an uint8 (like percentage and value both do). The first setup will only focus on parsing and encoding the basic types. The user / client of this lib must know what kind of types belong to a group value. This depends on the setup of the KNX system. There is not a import of ETS in this lib, as that is a seperate thing. 
 
-### Modern C++
-libknx is on C++23.
+### Modern C++ and cmake 
+libknx is on C++23. Also the cmake is used in a way that is should be easy to compile and import into e.g. neovim or CLion.
 
 ### Memory safety
 Modern C++ can be mem safe in the sence that you don't reference to unallocated objects. You can still cause memory leaks, just like in a language with a garbage collector at runtime. Libknx doesn't use the new keyword and only references objects as a getter (not owner). If shared ownership is needed, shared pointers  should be used.
@@ -41,7 +41,15 @@ cmake -G Ninja ..
 ninja
 ```
 
+This will install it:
+```
+#ninja install
+```
+
+
 # Development setup
+
+
 The CMakeLists.txt or cmake config of this project forms the basis. From there I use neovim with clangd as a LSP. It is also possible to use Clion, it imports the CMakeLists.txt perfectly. I use Clion for the debugger and nice code suggestions. I just don't like to use the mouse a lot, so Clion is not my preffered IDE.
 
 My setup runs on Arch Linux, I don't have a automated setup (yet). So I just recompile on FreeBSD by hand and run the tests on both a Intel and a arm (Raspberry Pi), so I know big / little endian conversions work as intended. FreeBSD is my target platform, as I like it as a server.
@@ -97,11 +105,9 @@ First focus points:
   - length data in Cemi is 2 bytes fixed, should be a vector
   - bool type
   - string type 
-  - uint8 
+  - uint8, uint16 and uint32 
+  - float
 - Requests, Response as bytes: dynamic length, not the current hard coded value
 - Time-out on (ConnectState)Request without a reponse
   - Resend
   - if no reply / second time-out: disconnect
-- cmake install working, preferably with:
-  - freebsd port
-  - ArchLinux AUR package

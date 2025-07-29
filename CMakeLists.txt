@@ -32,12 +32,11 @@ target_sources(knx
     PUBLIC
       FILE_SET knx_headers
       TYPE HEADERS
-      BASE_DIRS src/bytes src/cemi src/connection src/headers src/ip src/requests src/responses src/datapointtypes
+      BASE_DIRS src
       FILES ${knx_header_files}
     PRIVATE
       ${knx_source_files}
      )
-    
 
 target_link_libraries(knx-ip PRIVATE knx Threads::Threads)
 target_link_libraries(knx-ip_tests PRIVATE knx GTest::gtest_main Threads::Threads)
