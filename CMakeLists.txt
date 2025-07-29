@@ -22,7 +22,6 @@ file(GLOB_RECURSE test_source_files  test/**/*.cpp)
 
 add_library(knx SHARED)
 add_library(knx::knx ALIAS knx)
-add_executable(knx-ip src/main.cpp )
 add_executable(knx-ip_tests ${test_source_files})
 set_target_properties(knx PROPERTIES VERSION ${PROJECT_VERSION})
 
@@ -38,11 +37,11 @@ target_sources(knx
       ${knx_source_files}
      )
 
-target_link_libraries(knx-ip PRIVATE knx Threads::Threads)
 target_link_libraries(knx-ip_tests PRIVATE knx GTest::gtest_main Threads::Threads)
 
 include(GoogleTest)
 gtest_discover_tests(knx-ip_tests)
+add_subdirectory(knx_usage)
 
 install(
   TARGETS knx
