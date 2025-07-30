@@ -32,11 +32,11 @@ jobs:
 
         cd ${{github.workspace}}
         git clone https://github.com/chriskohlhoff/asio.git ${{github.workspace}}/asio
-        mkdir ${{github.workspace}}/asio/build
-        cd ${{github.workspace}}/asio
-        cmake -B ${{github.workspace}}/asio/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        cmake --build ${{github.workspace}}/asio/build --config ${{env.BUILD_TYPE}}
-        cmake --install ${{github.workspace}}/asio/build --config ${{env.BUILD_TYPE}}
+        mkdir ${{github.workspace}}/asio/asio/build
+        cd ${{github.workspace}}/asio/asio
+        cmake -B ${{github.workspace}}/asio/asio/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        cmake --build ${{github.workspace}}/asio/asio/build --config ${{env.BUILD_TYPE}}
+        cmake --install ${{github.workspace}}/asio/asio/build --config ${{env.BUILD_TYPE}}
         cd ${{github.workspace}}
 
     - name: Configure CMake
