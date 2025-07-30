@@ -3,6 +3,7 @@
 #include <bit>
 #include "knx/bytes/ByteDef.h"
 #include <string>
+#include <array>
 
 /**
  * I can read data from a byte array to specific types and keep track of the
