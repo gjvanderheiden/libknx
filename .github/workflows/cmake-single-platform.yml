@@ -25,12 +25,11 @@ jobs:
     - name: Install dependencies
       run:
         git clone https://github.com/chriskohlhoff/asio.git
-        cd asio
-        mkdir build
-        cmake --build build
-        cd build
+        mkdir ${{github.workspace}}/asio/build
+        cmake -B ${{github.workspace}}/asio/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        cd ${{github.workspace}}/asio/build
         sudo make install
-        cd ../..
+        cd ${{github.workspace}}
         sudo apt-get update
         sudo apt-get install -y libgtest-dev
 
