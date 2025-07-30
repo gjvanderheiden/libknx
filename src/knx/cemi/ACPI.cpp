@@ -1,6 +1,7 @@
 #include "knx/cemi/ACPI.h"
 #include <cstdint>
 #include <iterator>
+#include <algorithm>
 
 DataACPI::DataACPI(std::uint8_t type, std::vector<byte>&& data) : type{type}, data{std::move(data)}{}
 
