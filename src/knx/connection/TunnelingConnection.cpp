@@ -1,5 +1,6 @@
 #include "knx/connection/TunnelingConnection.h"
 #include "knx/bytes/ByteBufferReader.h"
+#include "knx/ip/UdpSocket.h"
 #include "knx/requests/ConnectRequest.h"
 #include "knx/headers/ConnectionRequestInformation.h"
 #include "knx/headers/KnxIpHeader.h"
@@ -167,6 +168,9 @@ void TunnelingConnection::onReceiveData(std::vector<std::uint8_t> &&data) {
     }
   }
 }
+asio::awaitable<void> sendData(udp::UdpSocket* socket, asio::ip::udp::endpoint endPoint,std::vector<byte> data) {
+  co_await socket->writeTo(endPoint, data);
+}
 
 void TunnelingConnection::send(Cemi &&cemi) {
   static std::uint8_t sequence{0};
@@ -176,7 +180,7 @@ void TunnelingConnection::send(Cemi &&cemi) {
   TunnelRequest tunnelRequest{std::move(connectionHeader), std::move(cemi)};
   auto bytes = tunnelRequest.toBytes();
 
-  co_spawn(ctx, dataSocket->writeTo(remoteDataEndPoint, bytes), asio::detached);
+  co_spawn(ctx, sendData(dataSocket.get(), remoteDataEndPoint, bytes) , asio::detached);
   // the server should response with a TunnelAckResponse
   // indicated it has been recieved
   // if not, within a timeout, resend, again timeout-> disconnect
@@ -187,12 +191,18 @@ TunnelingConnection::createConnectRequestInformation() {
   return ConnectionRequestInformation::newTunneling();
 }
 
+static IpAddress toIpAddress(const asio::ip::address_v4& address) {
+  auto to_bytes = address.to_bytes();
+  ByteBufferReader reader{to_bytes}; 
+  return {reader.get4BytesCopy()};
+}
+
 HPAI TunnelingConnection::createDataHPAI() {
-  return {IpAddress{this->localBindIp.to_bytes()}, this->dataPort, HPAI::UDP};
+  return {toIpAddress(this->localBindIp), this->dataPort, HPAI::UDP};
 }
 
 HPAI TunnelingConnection::createControlHPAI() {
-  return {IpAddress{this->localBindIp.to_bytes()}, this->controlPort,
+  return {toIpAddress(this->localBindIp), this->controlPort,
           HPAI::UDP};
 };
 

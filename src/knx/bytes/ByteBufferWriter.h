@@ -38,11 +38,13 @@ public:
    */
   void writeTerminatedString(std::string_view, int maxLength);
 
+  void writeByteSpan(std::span<const std::uint8_t> byteSpan);
   /**
    * write the span to the buffer
    */
-  void writeByteSpan(const ByteSpan span);
+  void writeByteSpan(ByteSpan span);
 
+  void writeVector(const std::vector<uint8_t>& vector);
   /**
    * Read one byte and return it as a bool. 0 is false, any other value is true.
    */

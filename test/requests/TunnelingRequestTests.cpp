@@ -58,8 +58,8 @@ TEST(TunnelingRequest, parse1) {
   const auto& acpi = cemi.getNPDU().getACPI();
   ASSERT_EQ(DataACPI::GROUP_VALUE_WRITE, acpi.getType());
   auto data = acpi.getData();
+    ASSERT_EQ(1, data.size());
   ASSERT_EQ(0x00, data[0]);
-  ASSERT_EQ(0x00, data[1]);
 
 }
 
@@ -86,3 +86,26 @@ TEST(TunnelingRequest, parse4) {
   ASSERT_EQ(6, request.getConnectionHeader().getSequence());
   ASSERT_EQ(1, request.getConnectionHeader().getChannel());
 }
+
+TEST(TunnelingRequest, writeparse1) {
+  ByteBufferReader reader{test_frame1};
+  KnxIpHeader header = KnxIpHeader::parse(reader);
+  TunnelRequest request = TunnelRequest::parse(reader);
+  ASSERT_EQ(0, request.getConnectionHeader().getSequence());
+  ASSERT_EQ(1, request.getConnectionHeader().getChannel());
+  ASSERT_EQ(0, request.getConnectionHeader().getStatus());
+
+  const Cemi &cemi = request.getCemi();
+  ASSERT_FALSE(cemi.getNPDU().getTCPI().isControl());
+  const auto& acpi = cemi.getNPDU().getACPI();
+  ASSERT_EQ(DataACPI::GROUP_VALUE_WRITE, acpi.getType());
+  auto data = acpi.getData();
+    ASSERT_EQ(1, data.size());
+  ASSERT_EQ(0x00, data[0]);
+
+  auto bytes = request.toBytes();
+  // 4 less, no additional info supported yet
+  ASSERT_EQ(test_frame1.size() - 4, bytes.size());
+
+}
+

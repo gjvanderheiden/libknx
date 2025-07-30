@@ -109,7 +109,7 @@ TEST(ByteBufferWriter, readTerminatedString3) {
   ASSERT_EQ(0, data[6]);
 }
 TEST(ByteBufferWriter, writeByteSpan) {
-  std::array<byte, 8> testData = { 0x01, 0x00, 0xFF, 0xF0, 0x00, 0x00, 0x00, 0x01};
+  std::array<const byte, 8> testData = { 0x01, 0x00, 0xFF, 0xF0, 0x00, 0x00, 0x00, 0x01};
   std::vector<byte> data;
   ByteBufferWriter byteBufferWriter{data};
   byteBufferWriter.writeByteSpan(testData);

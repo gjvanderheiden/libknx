@@ -40,7 +40,10 @@ public:
   static GroupAddress parse(ByteBufferReader& reader);
   void toBytes(ByteBufferWriter& writer) const;
 
+  std::size_t operator()(const GroupAddress& key) const;
   bool operator==(const GroupAddress& otherGroupAddress) const;
+  bool operator<(const GroupAddress& otherGroupAddress) const;
+  bool operator>(const GroupAddress& otherGroupAddress) const;
 };
 
 

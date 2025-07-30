@@ -2,6 +2,7 @@
 #include "knx/headers/HPAI.h"
 #include "knx/headers/IpAddress.h"
 #include "knx/bytes/ByteBufferWriter.h"
+#include "knx/headers/KnxIpHeader.h"
 
 SearchRequest::SearchRequest(HPAI hpaiLocal) : hpaiLocal(hpaiLocal) {}
 
@@ -12,11 +13,7 @@ std::vector<std::uint8_t> SearchRequest::toBytes() {
   return result;
 }
 void SearchRequest::appendToByteWriter(ByteBufferWriter& writer) {
-  writer.writeUint8(0x06);
-  writer.writeUint8(0x10);
-  writer.writeUint16(SERVICE_ID);
-  writer.writeUint8(0x00);
-  writer.writeUint8(14);
+  KnxIpHeader{SERVICE_ID, 14}.write(writer);
   hpaiLocal.write(writer);
 }
 

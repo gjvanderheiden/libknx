@@ -1,4 +1,5 @@
 #include "knx/requests/ConnectRequest.h"
+#include "knx/headers/KnxIpHeader.h"
 
 ConnectRequest::ConnectRequest(HPAI &&controlEndPoint,
                                      HPAI &&dataEndPoint,
@@ -12,10 +13,7 @@ ConnectRequest::ConnectRequest(HPAI &&controlEndPoint,
 std::vector<std::uint8_t> ConnectRequest::toBytes() {
   std::vector<std::uint8_t> bytes;
   ByteBufferWriter writer{bytes};
-  writer.writeUint8(0x06);
-  writer.writeUint8(0x10);
-  writer.writeUint16(SERVICE_ID);
-  writer.writeUint16(26);
+  KnxIpHeader{SERVICE_ID, 26}.write(writer);
   controlEndPoint.write(writer);
   dataEndPoint.write(writer);
   cri.write(writer);

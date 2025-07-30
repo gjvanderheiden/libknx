@@ -1,7 +1,7 @@
 #include "knx/connection/KnxClientConnection.h"
-#include "knx/headers/KnxAddress.h"
 #include "knx/cemi/ACPI.h"
 #include "knx/cemi/Control.h"
+#include "knx/headers/KnxAddress.h"
 #include <asio/as_tuple.hpp>
 #include <asio/awaitable.hpp>
 #include <asio/detached.hpp>
@@ -14,9 +14,11 @@
 
 namespace knx::connection {
 
-KnxClientConnection::KnxClientConnection(asio::io_context &ctx,
-    std::unique_ptr<TunnelingConnection>&& tunnelingConnection) 
-    : ctx{ctx}, tunnelingConnection{std::move(tunnelingConnection)} {}
+KnxClientConnection::KnxClientConnection(
+    asio::io_context &ctx,
+    std::unique_ptr<TunnelingConnection> &&tunnelingConnection)
+    : ctx{ctx}, tunnelingConnection{std::move(tunnelingConnection)} {
+    }
 
 void KnxClientConnection::addListener(
     std::weak_ptr<KnxConnectionListener> listener) {
@@ -43,19 +45,21 @@ void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
       ;
       break;
     case DataACPI::GROUP_VALUE_RESPONSE:
-      
+
       forEveryListener([cemi](KnxConnectionListener *listener) {
+        auto data = cemi.getNPDU().getACPI().getData();
         listener->onGroupReadResponse(
             cemi.getSource(), std::get<GroupAddress>(cemi.getDestination()),
-            cemi.getNPDU().getACPI().getData());
+            data);
       });
       ;
       break;
     case DataACPI::GROUP_VALUE_WRITE:
       forEveryListener([cemi](KnxConnectionListener *listener) {
+        auto data = cemi.getNPDU().getACPI().getData();
         listener->onGroupWrite(cemi.getSource(),
                                std::get<GroupAddress>(cemi.getDestination()),
-                               cemi.getNPDU().getACPI().getData());
+                               data);
       });
       ;
       break;
@@ -70,10 +74,10 @@ void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
 }
 
 Cemi createGroupWriteCemi(const GroupAddress &ga, const KnxPrio prio,
-                          std::array<std::uint8_t, 2> &&data) {
+                          std::vector<std::uint8_t> &&data) {
   IndividualAddress source(0, 0, 0);
   Control control{prio, true};
-  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, data};
+  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, std::move(data)};
   TCPI tcpi{false, false, 0x00};
   NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
   return Cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
@@ -82,15 +86,15 @@ Cemi createGroupWriteCemi(const GroupAddress &ga, const KnxPrio prio,
 }
 
 void KnxClientConnection::writeToGroup(GroupAddress &ga,
-                                   std::array<std::uint8_t, 2> value) {
+                                       std::span<const std::uint8_t> value) {
   IndividualAddress source(0, 0, 0);
   Control control{KnxPrio::low, true};
   DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, value};
   TCPI tcpi{false, false, 0x00};
   NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
   Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
-              std::variant<IndividualAddress, GroupAddress>(ga),
-              std::move(npduFrame)};
+            std::variant<IndividualAddress, GroupAddress>(ga),
+            std::move(npduFrame)};
   this->tunnelingConnection->send(std::move(cemi));
   // Server should send a Cemi:L_DATA_CON (confirmation)
 }
@@ -102,8 +106,8 @@ std::array<std::uint8_t, 2> KnxClientConnection::readGroup(GroupAddress &ga) {
   TCPI tcpi{false, false, 0x00};
   NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
   Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
-              std::variant<IndividualAddress, GroupAddress>(ga),
-              std::move(npduFrame)};
+            std::variant<IndividualAddress, GroupAddress>(ga),
+            std::move(npduFrame)};
   this->tunnelingConnection->send(std::move(cemi));
   // group value response?
   return {0, 0};
@@ -136,4 +140,4 @@ asio::awaitable<void> KnxClientConnection::close() {
   }
 }
 
-} // namespace connection
+} // namespace knx::connection

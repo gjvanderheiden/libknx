@@ -38,8 +38,7 @@ TEST(Cemi, parse2) {
 
 // only 4 bit data works, otherwise length wont be good
 TEST(Cemi, write) {
-  std::array<std::uint8_t, 2> value{0x00};
-  value[1] = 0x01;
+  std::array<std::uint8_t, 1> value{0x01};
   GroupAddress ga{3,2,55};
   IndividualAddress source(0, 0, 0);
   Control control{KnxPrio::low, true};
@@ -56,7 +55,8 @@ TEST(Cemi, write) {
 }
 
 TEST(Cemi, write2) {
-  std::array<std::uint8_t, 2> value{2};
+  std::array<std::uint8_t, 2> value{0x00};
+  value[1] = 0x02;
   value[1] = 0x01;
   GroupAddress ga{3,2,55};
   IndividualAddress source(0, 0, 0);

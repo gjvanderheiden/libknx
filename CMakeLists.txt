@@ -16,8 +16,8 @@ find_package(GTest REQUIRED)
 pkg_check_modules(ASIO REQUIRED asio)
 
 
-file(GLOB_RECURSE knx_source_files  src/**/*.cpp)
-file(GLOB_RECURSE knx_header_files  src/**/*.h*)
+file(GLOB_RECURSE knx_source_files   src/**/*.cpp)
+file(GLOB_RECURSE knx_header_files   src/**/*.h*)
 file(GLOB_RECURSE test_source_files  test/**/*.cpp)
 
 add_library(knx SHARED)
@@ -41,7 +41,6 @@ target_link_libraries(knx-ip_tests PRIVATE knx GTest::gtest_main Threads::Thread
 
 include(GoogleTest)
 gtest_discover_tests(knx-ip_tests)
-add_subdirectory(knx_usage)
 
 install(
   TARGETS knx

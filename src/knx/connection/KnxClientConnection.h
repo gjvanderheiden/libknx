@@ -39,7 +39,7 @@ public:
    * I'll send out a message to the IP KNX Router to send the value to the KNX
    * network
    */
-  void writeToGroup(GroupAddress &ga, std::array<std::uint8_t, 2> value);
+  void writeToGroup(GroupAddress &ga, std::span<const std::uint8_t> value);
 
   /**
    * Get the data of the specified group address

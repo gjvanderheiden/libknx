@@ -5,7 +5,7 @@
 #include <iterator>
 #include <cstring>
 
-ByteBufferReader::ByteBufferReader(const std::span<byte> data) : data{data} {}
+ByteBufferReader::ByteBufferReader(std::span<const byte> data) : data{data} {}
 
 std::uint32_t ByteBufferReader::readUint32() {
   std::uint32_t value{0};
@@ -17,7 +17,7 @@ std::uint32_t ByteBufferReader::readUint32() {
   return value;
 }
 
-std::size_t ByteBufferReader::bytesLeft() {
+std::size_t ByteBufferReader::bytesLeft() const {
   return data.size() - index - 1;
 }
 void ByteBufferReader::skip(const int numberOfBytes) { index += numberOfBytes; }
@@ -30,17 +30,20 @@ std::string ByteBufferReader::readString(const int numberOfBytes) {
 
 std::string ByteBufferReader::readTerminatedString(const int maxLength) {
   std::string knxString;
-  const std::span<std::uint8_t> knxText = readByteSpan(maxLength);
-  int i = 0;
-  for (; i < maxLength && knxText[i] != 0x00; i++) {
-    knxString.push_back(knxText[i]);
+  for (auto byte: readByteSpan(maxLength)) {
+    if(byte == 0x00) {
+      break;
+    }
+    knxString.push_back(byte);
   }
-  skip(maxLength - i);
   return knxString;
 }
 
-ByteSpan ByteBufferReader::readByteSpan(const int numberOfBytes) {
-  ByteSpan span = data.subspan(index, numberOfBytes);
+std::array<const byte, 4> ByteBufferReader::get4BytesCopy() {
+  return {data[index++], data[index++], data[index++], data[index++]};
+}
+std::span<const byte> ByteBufferReader::readByteSpan(const int numberOfBytes) {
+  std::span<const byte> span = data.subspan(index, numberOfBytes);
   index += numberOfBytes;
   return span;
 }

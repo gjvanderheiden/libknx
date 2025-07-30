@@ -2,13 +2,15 @@
 
 #include "knx/bytes/ByteBufferWriter.h"
 #include "knx/bytes/ByteBufferReader.h"
-#include <array>
 #include <cstdint>
+#include <vector>
+#include <span>
 
 
 class DataACPI {
 public:
-  DataACPI(std::uint8_t type, std::array<std::uint8_t, 2> data);
+  DataACPI(std::uint8_t type, std::vector<byte>&& data);
+  DataACPI(std::uint8_t type, std::span<const byte> data);
   DataACPI(std::uint8_t type);
   // 10 bit
   static constexpr std::uint8_t GROUP_VALUE_READ = 0b0000;
@@ -22,11 +24,11 @@ public:
   void write(byte firstByte, ByteBufferWriter &writer) const;
 
   [[nodiscard]] std::uint8_t getType() const;
-  [[nodiscard]] std::array<byte,2> getData() const;
+  [[nodiscard]] std::vector<byte> getData() const;
 
 private:
   std::uint8_t type{0};
-  std::array<byte, 2> data{0};
+  std::vector<byte> data{};
 };
 
 enum class ControlType {

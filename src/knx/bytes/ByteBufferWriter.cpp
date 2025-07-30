@@ -32,10 +32,16 @@ void ByteBufferWriter::writeTerminatedString(const std::string_view aString,
   writeZeros(maxLength - aString.size());
 }
 
+void ByteBufferWriter::writeByteSpan(const std::span<const std::uint8_t> byteSpan) {
+  std::copy(byteSpan.begin(), byteSpan.end(), std::back_inserter(data));
+}
 void ByteBufferWriter::writeByteSpan(const ByteSpan byteSpan) {
   std::copy(byteSpan.begin(), byteSpan.end(), std::back_inserter(data));
 }
 
+void ByteBufferWriter::writeVector(const std::vector<uint8_t>& vector) {
+  std::ranges::copy(vector, std::back_inserter(data));
+}
 void ByteBufferWriter::writeBoolAsByte(const bool value) { this->writeUint8(value); }
 
 void ByteBufferWriter::writeUint8(const std::uint8_t value) { data.push_back(value); }
