@@ -44,7 +44,7 @@ public:
   /**
    * Get the data of the specified group address
    */
-  std::array<std::uint8_t, 2> readGroup(GroupAddress &ga);
+  void readGroup(const GroupAddress &ga);
 
   /**
    * Does not comply to RAII, but need to figure this one out a bit. Get the

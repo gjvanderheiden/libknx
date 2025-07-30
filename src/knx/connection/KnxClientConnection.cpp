@@ -99,7 +99,7 @@ void KnxClientConnection::writeToGroup(GroupAddress &ga,
   // Server should send a Cemi:L_DATA_CON (confirmation)
 }
 
-std::array<std::uint8_t, 2> KnxClientConnection::readGroup(GroupAddress &ga) {
+void KnxClientConnection::readGroup(const GroupAddress &ga) {
   IndividualAddress source(0, 0, 0);
   Control control{KnxPrio::low, true};
   DataACPI dataAcpi{DataACPI::GROUP_VALUE_READ};
@@ -110,7 +110,6 @@ std::array<std::uint8_t, 2> KnxClientConnection::readGroup(GroupAddress &ga) {
             std::move(npduFrame)};
   this->tunnelingConnection->send(std::move(cemi));
   // group value response?
-  return {0, 0};
 }
 
 void KnxClientConnection::onConnect() {
