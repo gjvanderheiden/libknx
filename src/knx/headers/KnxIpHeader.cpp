@@ -1,6 +1,6 @@
 #include "KnxIpHeader.h"
 
-KnxIpHeader::KnxIpHeader(std::uint16_t serviceType, std::uint16_t lengthInBytes)
+KnxIpHeader::KnxIpHeader(const std::uint16_t serviceType, const std::uint16_t lengthInBytes)
     : serviceType{serviceType}, lengthInBytes{lengthInBytes} {}
 
 void KnxIpHeader::write(ByteBufferWriter &writer) {
@@ -16,5 +16,5 @@ KnxIpHeader KnxIpHeader::parse(ByteBufferReader &reader) {
   return {reader.readUint16(), reader.readUint16()};
 }
 
-std::uint16_t KnxIpHeader::getServiceType() { return serviceType; }
-std::uint16_t KnxIpHeader::getLengthInBytes() { return lengthInBytes; }
+std::uint16_t KnxIpHeader::getServiceType() const { return serviceType; }
+std::uint16_t KnxIpHeader::getLengthInBytes() const { return lengthInBytes; }

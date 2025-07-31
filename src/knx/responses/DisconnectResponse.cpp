@@ -3,14 +3,14 @@
 
 namespace knx::requestresponse {
 
-DisconnectResponse::DisconnectResponse(std::uint8_t channel,
-                                       std::uint8_t status) : channel{channel}, status{status}{}
+DisconnectResponse::DisconnectResponse(const std::uint8_t channel,
+                                       const std::uint8_t status) : channel{channel}, status{status}{}
 
 DisconnectResponse DisconnectResponse::parse(ByteBufferReader &reader) {
-  return {reader.readUint8(), reader.readUint8()};
+  return DisconnectResponse{reader.readUint8(), reader.readUint8()};
 }
 
-std::vector<std::uint8_t> DisconnectResponse::toBytes() {
+std::vector<std::uint8_t> DisconnectResponse::toBytes() const {
   std::vector<byte> bytes;
   ByteBufferWriter writer(bytes);
   writer.writeUint8(0x06);

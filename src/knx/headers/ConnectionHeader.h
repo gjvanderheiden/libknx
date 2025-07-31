@@ -12,9 +12,9 @@ public:
   void write(ByteBufferWriter &writer) const override;
   static ConnectionHeader parse(ByteBufferReader &reader);
 
-  std::uint8_t getSequence() const;
-  std::uint8_t getChannel() const;
-  std::uint8_t getStatus() const;
+  [[nodiscard]] std::uint8_t getSequence() const;
+  [[nodiscard]] std::uint8_t getChannel() const;
+  [[nodiscard]] std::uint8_t getStatus() const;
 
 private:
   const std::uint8_t sequence;

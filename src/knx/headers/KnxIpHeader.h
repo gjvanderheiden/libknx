@@ -12,9 +12,9 @@ public:
 
   static KnxIpHeader parse(ByteBufferReader& reader);
 
-  std::uint16_t getServiceType();
-  std::uint16_t getLengthInBytes();
+  [[nodiscard]] std::uint16_t getServiceType() const;
+  [[nodiscard]] std::uint16_t getLengthInBytes() const;
 private:
-  std::uint16_t serviceType;
-  std::uint16_t lengthInBytes;
+  const std::uint16_t serviceType;
+  const std::uint16_t lengthInBytes;
 };

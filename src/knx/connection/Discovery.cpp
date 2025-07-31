@@ -21,7 +21,7 @@ Discovery::Discovery(asio::io_context &ctx)
 std::vector<uint8_t> makeSearchRequest() {
   IpAddress ipAddress{224, 0, 23, 12};
   HPAI local{ipAddress, 3671, HPAI::UDP};
-  SearchRequest searchRequest{local};
+  SearchRequest searchRequest{std::move(local)};
   std::vector<byte> srBytes;
   ByteBufferWriter writer(srBytes);
   searchRequest.appendToByteWriter(writer);

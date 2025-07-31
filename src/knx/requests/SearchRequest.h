@@ -9,13 +9,13 @@ public:
   static constexpr std::uint16_t SERVICE_ID = 0x0201;
 
 public:
-  explicit SearchRequest(HPAI hpaiLocal);
+  explicit SearchRequest(HPAI&& hpaiLocal);
   static SearchRequest newDefault();
 
 
   std::vector<std::uint8_t> toBytes() override;
 
-  void appendToByteWriter(ByteBufferWriter& writer); 
+  void appendToByteWriter(ByteBufferWriter& writer) const;
 
 private:
   HPAI hpaiLocal;

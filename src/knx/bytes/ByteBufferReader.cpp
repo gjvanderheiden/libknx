@@ -5,7 +5,7 @@
 #include <iterator>
 #include <cstring>
 
-ByteBufferReader::ByteBufferReader(std::span<const byte> data) : data{data} {}
+ByteBufferReader::ByteBufferReader(const std::span<const byte> data) : data{data} {}
 
 std::uint32_t ByteBufferReader::readUint32() {
   std::uint32_t value{0};
@@ -24,13 +24,14 @@ void ByteBufferReader::skip(const int numberOfBytes) { index += numberOfBytes; }
 
 std::string ByteBufferReader::readString(const int numberOfBytes) {
   std::string aString;
-  std::copy(data.data() + index, data.data() +index +numberOfBytes, std::back_inserter(aString));
+  std::copy_n(&data[index], numberOfBytes, std::back_inserter(aString));
+  index += numberOfBytes;
   return aString;
 }
 
 std::string ByteBufferReader::readTerminatedString(const int maxLength) {
   std::string knxString;
-  for (auto byte: readByteSpan(maxLength)) {
+  for (const auto byte: readByteSpan(maxLength)) {
     if(byte == 0x00) {
       break;
     }
@@ -58,7 +59,7 @@ bool ByteBufferReader::readBoolFromByte() { return data[index++] != 0; }
 std::uint8_t ByteBufferReader::readUint8() { return data[index++]; }
 
 std::uint16_t ByteBufferReader::readUint16() {
-  if constexpr (ByteBufferReader::isNativeLittleEndian()) {
+  if  constexpr (ByteBufferReader::isNativeLittleEndian()) {
     std::uint16_t value = data[index++] << 8;
     value |= data[index++];
     return value;

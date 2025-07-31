@@ -12,9 +12,9 @@ public:
 
   static constexpr std::uint16_t SERVICE_ID = 0x0420;
 
-  static TunnelRequest parse(ByteBufferReader& buffer);
-  const ConnectionHeader& getConnectionHeader() const;
-  const Cemi& getCemi() const;
+  static TunnelRequest parse(ByteBufferReader& reader);
+  [[nodiscard]] const ConnectionHeader& getConnectionHeader() const;
+  [[nodiscard]] const Cemi& getCemi() const;
 
   std::vector<std::uint8_t> toBytes() override;
 

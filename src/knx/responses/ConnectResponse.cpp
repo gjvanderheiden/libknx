@@ -3,7 +3,7 @@
 
 namespace knx::requestresponse {
 
-ConnectResponse::ConnectResponse(std::uint8_t channelId, std::uint8_t status,
+ConnectResponse::ConnectResponse(const std::uint8_t channelId, const std::uint8_t status,
                                  HPAI &&dataEndPoint,
                                  ConnectionRequestData &&crd)
     : channelId{channelId}, status{status},
@@ -20,5 +20,5 @@ std::uint8_t ConnectResponse::getChannelId() const { return channelId; }
 std::uint8_t ConnectResponse::getStatus() const { return status; }
 const ConnectionRequestData& ConnectResponse::getCRD() const {return crd;}
 
-const HPAI& ConnectResponse::getDataEndPoint() const {return dataEndPoint;};
+const HPAI& ConnectResponse::getDataEndPoint() const {return dataEndPoint;}
 } // namespace knx::requestresponse

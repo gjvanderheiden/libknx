@@ -1,7 +1,7 @@
 #include "knx/requests/DisconnectRequest.h"
 #include "knx/headers/KnxIpHeader.h"
 
-DisconnectRequest::DisconnectRequest(std::uint8_t channel, HPAI&& hpai) : channel{channel}, controlEndpoint{std::move(hpai)} {
+DisconnectRequest::DisconnectRequest(const std::uint8_t channel, HPAI&& hpai) : channel{channel}, controlEndpoint{std::move(hpai)} {
 }
 
 std::vector<std::uint8_t> DisconnectRequest::toBytes() {

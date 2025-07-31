@@ -8,7 +8,7 @@ TunnelAckResponse TunnelAckResponse::parse(ByteBufferReader& reader) {
   return {ConnectionHeader::parse(reader)};
 }
 
-std::vector<byte> TunnelAckResponse::toBytes() {
+std::vector<byte> TunnelAckResponse::toBytes() const {
   std::vector<byte> bytes;
   ByteBufferWriter writer(bytes);
   writer.writeUint8(0x06);

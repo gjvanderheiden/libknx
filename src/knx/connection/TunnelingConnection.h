@@ -1,3 +1,5 @@
+#pragma once
+
 #include "knx/bytes/ByteBufferReader.h"
 #include "knx/headers/ConnectionRequestInformation.h"
 #include "knx/headers/HPAI.h"

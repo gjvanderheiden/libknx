@@ -5,7 +5,7 @@
 
 
 TEST(HPAI, write) {
-  HPAI hpai(IpAddress{1,2,3,4}, 0xABCD, HPAI::UDP);
+  const HPAI hpai(IpAddress{1,2,3,4}, 0xABCD, HPAI::UDP);
   std::vector<byte> answer;
   ByteBufferWriter writer{answer};
   hpai.write(writer);
@@ -22,7 +22,7 @@ TEST(HPAI, write) {
   EXPECT_EQ(0xCD, answer[7]);
 
   ByteBufferReader byteBuffer{answer};
-  HPAI fromArray = HPAI::parse(byteBuffer);
+  const HPAI fromArray = HPAI::parse(byteBuffer);
   EXPECT_TRUE(fromArray.isUdp());
   EXPECT_EQ(0xABCD, fromArray.getPort());
 }

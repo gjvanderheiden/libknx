@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 TEST(ByteBufferWriter, writeUint8) {
-  std::uint8_t testValue = 0x55;
+  const std::uint8_t testValue = 0x55;
   std::vector<byte> data;
   ByteBufferWriter byteBufferWriter{data}; 
   byteBufferWriter.writeUint8(testValue);
@@ -12,7 +12,7 @@ TEST(ByteBufferWriter, writeUint8) {
 }
 
 TEST(ByteBufferWriter, writeUint16) {
-  std::uint16_t testValue = 0x010F;
+  const std::uint16_t testValue = 0x010F;
   std::vector<byte> data;
   ByteBufferWriter byteBufferWriter{data};
   byteBufferWriter.writeUint16(testValue);
@@ -22,7 +22,7 @@ TEST(ByteBufferWriter, writeUint16) {
 }
 
 TEST(ByteBufferWriter, writeUint32) {
-  std::uint32_t testValue = 0x010F8033;
+  const std::uint32_t testValue = 0x010F8033;
   std::vector<byte> data;
   ByteBufferWriter byteBufferWriter{data};
   byteBufferWriter.writeUint32(testValue);

@@ -2,7 +2,7 @@
 #include "knx/headers/KnxIpHeader.h"
 
 TunnelRequest::TunnelRequest(ConnectionHeader &&connectionHeader, Cemi &&cemi)
-    : cemi{std::move(cemi)}, connectionHeader{std::move(connectionHeader)} {}
+    : connectionHeader{std::move(connectionHeader)}, cemi{std::move(cemi)} {}
 
 std::vector<std::uint8_t> TunnelRequest::toBytes() {
   std::vector<std::uint8_t> requestBytes;

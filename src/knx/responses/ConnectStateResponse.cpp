@@ -2,8 +2,8 @@
 
 namespace knx::requestresponse {
 
-ConnectStateResponse::ConnectStateResponse(std::uint8_t channelId,
-                                           std::uint8_t status)
+ConnectStateResponse::ConnectStateResponse(const std::uint8_t channelId,
+                                           const std::uint8_t status)
     : channelId{channelId}, status{status} {}
 
 ConnectStateResponse ConnectStateResponse::parse(ByteBufferReader &buffer) {

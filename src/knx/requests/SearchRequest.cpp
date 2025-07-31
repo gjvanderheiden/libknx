@@ -4,7 +4,7 @@
 #include "knx/bytes/ByteBufferWriter.h"
 #include "knx/headers/KnxIpHeader.h"
 
-SearchRequest::SearchRequest(HPAI hpaiLocal) : hpaiLocal(hpaiLocal) {}
+SearchRequest::SearchRequest(HPAI&& hpaiLocal) : hpaiLocal(std::move(hpaiLocal)) {}
 
 std::vector<std::uint8_t> SearchRequest::toBytes() {
   std::vector<std::uint8_t> result;
@@ -12,12 +12,12 @@ std::vector<std::uint8_t> SearchRequest::toBytes() {
   appendToByteWriter(writer);
   return result;
 }
-void SearchRequest::appendToByteWriter(ByteBufferWriter& writer) {
+void SearchRequest::appendToByteWriter(ByteBufferWriter& writer) const {
   KnxIpHeader{SERVICE_ID, 14}.write(writer);
   hpaiLocal.write(writer);
 }
 
 SearchRequest SearchRequest::newDefault() {
-  IpAddress multicast{244, 0, 23, 12};
+  const IpAddress multicast{244, 0, 23, 12};
   return SearchRequest(HPAI(multicast, 5371, HPAI::UDP));
 }

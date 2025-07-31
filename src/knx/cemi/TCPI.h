@@ -8,9 +8,9 @@ public:
   TCPI(bool isControl, bool hasSequence, std::uint8_t sequence);
 
   static TCPI parse(byte byte);
-  byte toByte() const;
+  [[nodiscard]] byte toByte() const;
 
-  bool isControl() const;
+  [[nodiscard]] bool isControl() const;
 
 private:
   bool _isControl{false};

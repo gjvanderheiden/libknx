@@ -3,12 +3,12 @@
 #include <iterator>
 #include <algorithm>
 
-DataACPI::DataACPI(std::uint8_t type, std::vector<byte>&& data) : type{type}, data{std::move(data)}{}
+DataACPI::DataACPI(const std::uint8_t type, std::vector<byte>&& data) : type{type}, data{std::move(data)}{}
 
-DataACPI::DataACPI(std::uint8_t type, std::span<const std::uint8_t> pData)
+DataACPI::DataACPI(const std::uint8_t type, std::span<const std::uint8_t> data)
     : type{type}, data{} {
-  data.reserve(pData.size());
-  std::ranges::copy(pData, std::back_inserter(data));
+  this->data.reserve(data.size());
+  std::ranges::copy(data, std::back_inserter(this->data));
 }
 
 DataACPI::DataACPI(const std::uint8_t type) : type{type}, data{} {}
@@ -29,8 +29,8 @@ DataACPI DataACPI::parse(const byte firstByte, const byte length,
 }
 
 void DataACPI::write(byte firstByte, ByteBufferWriter &writer) const {
-  bool oneByteData = data.size() == 1 && ((data[0] & 0b11000000) == 0);
-  bool noData = data.empty();
+  const bool oneByteData = data.size() == 1 && (data[0] & 0b11000000) == 0;
+  const bool noData = data.empty();
   writer.writeUint8(oneByteData || noData ? 1 : data.size() + 1); // length
   firstByte |= (type & 0x06) >> 2;
   writer.writeUint8(firstByte);
@@ -65,8 +65,8 @@ ControlType getType(const byte lastByte) {
   }
 }
 
-ControlACPI ControlACPI::parse(byte firstByte, byte length,
-                               ByteBufferReader &bytebuffer) {
+ControlACPI ControlACPI::parse(const byte firstByte, byte length,
+                               ByteBufferReader &readerr) {
   return ControlACPI{getType(firstByte)};
 }
 ControlType ControlACPI::getControlType() const { return controlType; }
