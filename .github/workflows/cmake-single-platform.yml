@@ -31,7 +31,7 @@ jobs:
         sudo cp lib/*.a /usr/lib
 
         cd ${{github.workspace}}
-        git clone https://github.com/chriskohlhoff/asio.git ${{github.workspace}}/asio
+        git clone https://github.com/chriskohlhoff/asio.git ${{github.workspace}}/asio -b asio-1-34-2 --depth 1
         mkdir ${{github.workspace}}/asio/asio/build
         cd ${{github.workspace}}/asio/asio
         ./autogen.sh
