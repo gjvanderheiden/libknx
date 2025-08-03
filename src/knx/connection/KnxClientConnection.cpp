@@ -7,12 +7,14 @@
 #include <asio/detached.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>
+#include <asio/steady_timer.hpp>
 #include <asio/use_awaitable.hpp>
 #include <cstdint>
 #include <functional>
 #include <memory>
-
 namespace knx::connection {
+
+using namespace std::chrono_literals;
 
 KnxClientConnection::KnxClientConnection(
     asio::io_context &ctx,
@@ -85,7 +87,7 @@ Cemi createGroupWriteCemi(const GroupAddress &ga, const KnxPrio prio,
               std::move(npduFrame)};
 }
 
-void KnxClientConnection::writeToGroup(GroupAddress &ga,
+asio::awaitable<void> KnxClientConnection::writeToGroup(GroupAddress &ga,
                                        std::span<const std::uint8_t> value) {
   IndividualAddress source(0, 0, 0);
   Control control{KnxPrio::low, true};
@@ -95,11 +97,26 @@ void KnxClientConnection::writeToGroup(GroupAddress &ga,
   Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
             std::variant<IndividualAddress, GroupAddress>(ga),
             std::move(npduFrame)};
-  this->tunnelingConnection->send(std::move(cemi));
+  co_await this->tunnelingConnection->send(std::move(cemi));
+  /*
+  std::shared_ptr timer = std::make_shared<asio::steady_timer>(ctx);
+  this->waitingAcks[ga] = timer;
+  timer->expires_after(50ms);
+  auto [errorcode] = co_await timer->async_wait(asio::as_tuple);
+  if(!errorcode) {
+    std::cout << "o oh\n";
+  }
+  this->waitingAcks.erase(ga);
+  */
+  
   // Server should send a Cemi:L_DATA_CON (confirmation)
 }
 
-void KnxClientConnection::readGroup(const GroupAddress &ga) {
+asio::awaitable<void> KnxClientConnection::readGroup(const GroupAddress &ga) {
+  co_await sendReadGroup(ga);
+}
+
+asio::awaitable<void> KnxClientConnection::sendReadGroup(const GroupAddress &ga) {
   IndividualAddress source(0, 0, 0);
   Control control{KnxPrio::low, true};
   DataACPI dataAcpi{DataACPI::GROUP_VALUE_READ};
@@ -108,7 +125,7 @@ void KnxClientConnection::readGroup(const GroupAddress &ga) {
   Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
             std::variant<IndividualAddress, GroupAddress>(ga),
             std::move(npduFrame)};
-  this->tunnelingConnection->send(std::move(cemi));
+  co_await this->tunnelingConnection->send(std::move(cemi));
   // group value response?
 }
 

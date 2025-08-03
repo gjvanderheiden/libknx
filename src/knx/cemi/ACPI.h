@@ -12,11 +12,11 @@ public:
   DataACPI(std::uint8_t type, std::vector<byte>&& data);
   DataACPI(std::uint8_t type, std::span<const byte> data);
   DataACPI(std::uint8_t type);
-  // 10 bit
+
   static constexpr std::uint8_t GROUP_VALUE_READ = 0b0000;
   static constexpr std::uint8_t INDIVIDUAL_ADDRESS_READ = 0b0100;
   static constexpr std::uint8_t INDIVIDUAL_ADDRESS_WRITE = 0b0101;
-  // 4 bit
+  // these can compact data of 6 bits into second byte in the networkframe:
   static constexpr std::uint8_t GROUP_VALUE_RESPONSE = 0b0001;
   static constexpr std::uint8_t GROUP_VALUE_WRITE = 0b0010;
 

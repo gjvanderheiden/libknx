@@ -14,6 +14,8 @@ public:
   static TunnelAckResponse parse(ByteBufferReader& reader);
   std::vector<byte> toBytes() const;
 
+  const ConnectionHeader& getConnectionHeader() const;
+
 private:
   ConnectionHeader connectionHeader;
 };

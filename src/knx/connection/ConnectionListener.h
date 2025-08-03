@@ -1,3 +1,5 @@
+#pragma once
+
 #include "knx/cemi/Cemi.h"
 
 namespace knx::connection {

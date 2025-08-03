@@ -20,5 +20,8 @@ std::vector<byte> TunnelAckResponse::toBytes() const {
   return bytes;
 }
 
+const ConnectionHeader& TunnelAckResponse::getConnectionHeader() const {
+  return connectionHeader;
+}
 
 }

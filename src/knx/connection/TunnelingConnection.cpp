@@ -1,12 +1,12 @@
 #include "knx/connection/TunnelingConnection.h"
 #include "knx/bytes/ByteBufferReader.h"
-#include "knx/ip/UdpSocket.h"
-#include "knx/requests/ConnectRequest.h"
 #include "knx/headers/ConnectionRequestInformation.h"
 #include "knx/headers/KnxIpHeader.h"
-#include "knx/requests/TunnelingRequest.h"
-#include "knx/requests/ConnectStateRequest.h"
+#include "knx/ip/UdpSocket.h"
 #include "knx/requests//DisconnectRequest.h"
+#include "knx/requests/ConnectRequest.h"
+#include "knx/requests/ConnectStateRequest.h"
+#include "knx/requests/TunnelingRequest.h"
 #include "knx/responses/ConnectResponse.h"
 #include "knx/responses/ConnectStateResponse.h"
 #include "knx/responses/DisconnectResponse.h"
@@ -16,15 +16,19 @@
 #include <asio/detached.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>
+#include <asio/steady_timer.hpp>
 #include <asio/use_awaitable.hpp>
 #include <chrono>
 #include <cstdint>
 #include <functional>
 #include <iostream>
+#include <map>
+#include <memory>
 
 namespace knx::connection {
 
 using namespace knx::requestresponse;
+using namespace std::chrono_literals;
 
 TunnelingConnection::TunnelingConnection(asio::io_context &ctx,
                                          std::string_view remoteIp,
@@ -75,6 +79,9 @@ asio::awaitable<void> TunnelingConnection::start() {
   listeners.emplace(
       DisconnectRequest::SERVICE_ID,
       std::bind_front(&TunnelingConnection::onReceiveDisconnectRequest, this));
+  listeners.emplace(
+      TunnelAckResponse::SERVICE_ID,
+      std::bind_front(&TunnelingConnection::onReceiveAckTunnelResponse, this));
 
   // send connect request
   auto controlHpai = createControlHPAI();
@@ -157,6 +164,18 @@ auto TunnelingConnection::onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
   return true;
 }
 
+auto TunnelingConnection::onReceiveAckTunnelResponse(KnxIpHeader &knxIpHeader,
+                                                     ByteBufferReader &reader)
+    -> bool {
+  const TunnelAckResponse response = TunnelAckResponse::parse(reader);
+  if (response.getConnectionHeader().getChannel() == channelId) {
+    auto sequenceAck = response.getConnectionHeader().getSequence();
+    if (sendItems.contains(sequenceAck)) {
+      sendItems[sequenceAck]->onReceiveAckTunnelResponse(response.getConnectionHeader());
+    }
+  }
+  return true;
+}
 void TunnelingConnection::onReceiveData(std::vector<std::uint8_t> &&data) {
   ByteBufferReader reader(data);
   KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader);
@@ -168,22 +187,15 @@ void TunnelingConnection::onReceiveData(std::vector<std::uint8_t> &&data) {
     }
   }
 }
-asio::awaitable<void> sendData(udp::UdpSocket* socket, asio::ip::udp::endpoint endPoint,std::vector<byte> data) {
-  co_await socket->writeTo(endPoint, data);
-}
 
-void TunnelingConnection::send(Cemi &&cemi) {
-  static std::uint8_t sequence{0};
-
-  // IP Tunneling: TunnelRequest in a ConnectionHeader
-  ConnectionHeader connectionHeader{channelId, sequence++, 0x00};
-  TunnelRequest tunnelRequest{std::move(connectionHeader), std::move(cemi)};
-  auto bytes = tunnelRequest.toBytes();
-
-  co_spawn(ctx, sendData(dataSocket.get(), remoteDataEndPoint, bytes) , asio::detached);
-  // the server should response with a TunnelAckResponse
-  // indicated it has been recieved
-  // if not, within a timeout, resend, again timeout-> disconnect
+asio::awaitable<void> TunnelingConnection::send(Cemi &&cemi) {
+  std::uint8_t sequenceSend = sequence++;
+  static SendTunnelingState::SendMethod sendMethod = [this](ByteSpan data)->asio::awaitable<void> {
+      co_await this->dataSocket->writeTo(this->remoteDataEndPoint,  data);
+      } ;
+  sendItems[sequenceSend] = std::make_unique<SendTunnelingState>(std::move(cemi), channelId, sequenceSend, ctx, sendMethod);
+  co_await sendItems[sequenceSend]->send();
+  sendItems.erase(sequenceSend);
 }
 
 ConnectionRequestInformation
@@ -191,9 +203,9 @@ TunnelingConnection::createConnectRequestInformation() {
   return ConnectionRequestInformation::newTunneling();
 }
 
-static IpAddress toIpAddress(const asio::ip::address_v4& address) {
+static IpAddress toIpAddress(const asio::ip::address_v4 &address) {
   auto to_bytes = address.to_bytes();
-  ByteBufferReader reader{to_bytes}; 
+  ByteBufferReader reader{to_bytes};
   return {reader.get4BytesCopy()};
 }
 
@@ -202,8 +214,7 @@ HPAI TunnelingConnection::createDataHPAI() {
 }
 
 HPAI TunnelingConnection::createControlHPAI() {
-  return {toIpAddress(this->localBindIp), this->controlPort,
-          HPAI::UDP};
+  return {toIpAddress(this->localBindIp), this->controlPort, HPAI::UDP};
 };
 
 void TunnelingConnection::forEveryListener(
@@ -243,4 +254,4 @@ asio::awaitable<void> TunnelingConnection::close(bool needsDisconnectRequest) {
   }
 }
 
-} // namespace connection
+} // namespace knx::connection

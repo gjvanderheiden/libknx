@@ -1,6 +1,7 @@
 #pragma once
 
 #include "knx/bytes/ByteBufferReader.h"
+#include "knx/connection/SendTunnelingState.h"
 #include "knx/headers/ConnectionRequestInformation.h"
 #include "knx/headers/HPAI.h"
 #include "knx/connection/ConnectionListener.h"
@@ -9,6 +10,7 @@
 #include <asio/awaitable.hpp>
 #include <asio/io_context.hpp>
 #include <cstdint>
+#include <map>
 #include <string_view>
 #include <vector>
 
@@ -47,7 +49,7 @@ public:
   asio::awaitable<void> start();
 
   void addListener(ConnectionListener& listener);
-  void send(Cemi&& cemi);
+  asio::awaitable<void> send(Cemi&& cemi);
 
   /**
    * Does not comply to RAII, but need to figure this one out a bit. Get the
@@ -74,7 +76,11 @@ private:
 
   auto onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
                               ByteBufferReader &reader) -> bool;
+
   auto onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
+                                  ByteBufferReader &reader) -> bool;
+
+  auto onReceiveAckTunnelResponse(KnxIpHeader &knxIpHeader,
                                   ByteBufferReader &reader) -> bool;
 
   ConnectionRequestInformation createConnectRequestInformation();
@@ -98,6 +104,8 @@ private:
   std::uint8_t channelId{0};
   std::vector<ConnectionListener*> connectionListeners{};
   bool closingDown{false};
+  std::uint8_t sequence{0};
+  std::map<std::uint8_t, std::unique_ptr<SendTunnelingState>> sendItems{};
 };
 
 } // namespace connection

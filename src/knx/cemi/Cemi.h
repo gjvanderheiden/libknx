@@ -28,7 +28,7 @@ public:
   const NPDUFrame &getNPDU() const;
 
 private:
-  std::uint8_t messageCode{0x29};
+  const std::uint8_t messageCode{0x29};
   Control control;
   IndividualAddress source;
   std::variant<IndividualAddress, GroupAddress> destination;
