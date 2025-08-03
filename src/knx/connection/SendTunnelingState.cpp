@@ -3,12 +3,12 @@
 #include <asio/as_tuple.hpp>
 #include <asio/awaitable.hpp>
 #include <asio/detached.hpp>
+#include <asio/error.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>
 #include <asio/steady_timer.hpp>
 #include <asio/use_awaitable.hpp>
 #include <cstdint>
-#include <iostream>
 
 namespace knx::connection {
 
@@ -24,6 +24,11 @@ SendTunnelingState::SendTunnelingState(Cemi &&cemi, std::uint8_t channelId,
 
 void SendTunnelingState::onReceiveAckTunnelResponse(
     const ConnectionHeader &connectionHeader) {
+  if(connectionHeader.getStatus()) {
+    state = State::error;
+  } else {
+    state = State::ok;
+  }
   sendTimer.cancel();
 }
 
@@ -43,21 +48,15 @@ asio::awaitable<void> SendTunnelingState::send(const unsigned int attempts) {
   co_await sendMethod(data);
   sendTimer.expires_after(50ms);
   auto [error] = co_await sendTimer.async_wait(asio::as_tuple);
-  if (error == asio::error::operation_aborted) {
-  } else if (error) {
-    if(state != State::canceled) {
-      state = State::ok;
-    }
-    std::cout << "got an error for sequence " << +sequence << "closing"
-              << std::endl;
-  } else {
-    std::cout << "time out on sequence " << +sequence << std::endl;
+  if (!error) {
     if (attempts > 1) {
       co_await send(attempts - 1);
     } else {
       state = State::timeout;
     }
-  }
+  } else if(error != asio::error::operation_aborted) {
+      state = State::error;
+  } 
 }
 
 } // namespace knx::connection
