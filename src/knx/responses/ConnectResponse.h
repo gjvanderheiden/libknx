@@ -9,10 +9,17 @@ namespace knx::requestresponse {
 
 class ConnectResponse {
 public:
+  static constexpr std::uint16_t SERVICE_ID = 0x0206;
+
+
+  static constexpr std::uint8_t NO_ERROR = 0x00;
+  static constexpr std::uint8_t CONNECTION_TYPE_ERROR = 0x22;
+  static constexpr std::uint8_t CONNECTION_OPTION_ERROR = 0x23;
+  static constexpr std::uint8_t NO_MORE_CONNECTIONS_ERROR = 0x24;
+public:
   ConnectResponse(std::uint8_t channelId, std::uint8_t status, HPAI&& dataEndPoint, ConnectionRequestData&& crd);
   static ConnectResponse parse(ByteBufferReader &buffer);
 
-  static constexpr std::uint16_t SERVICE_ID = 0x0206;
 
   std::uint8_t getChannelId() const;
   std::uint8_t getStatus() const;

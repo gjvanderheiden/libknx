@@ -1,13 +1,13 @@
-#include "DeviceDib.h"
+#include "ManufacturerDib.h"
 #include "IpAddress.h"
 #include "KnxAddress.h"
 #include "KnxStructure.h"
 #include <cstdint>
 
-DeviceDib::DeviceDib(IpAddress &&ipAddress)
-    : KnxStructure(DeviceDib::TYPE), multicastAddress{std::move(ipAddress)} {}
+ManufacturerDib::ManufacturerDib(IpAddress &&ipAddress)
+    : KnxStructure(ManufacturerDib::TYPE), multicastAddress{std::move(ipAddress)} {}
 
-DeviceDib DeviceDib::parse(ByteBufferReader &reader) {
+ManufacturerDib ManufacturerDib::parse(ByteBufferReader &reader) {
   auto [length, type] = KnxStructure::parse(reader);
 
   auto knxMedium = reader.readUint8();
@@ -17,7 +17,7 @@ DeviceDib DeviceDib::parse(ByteBufferReader &reader) {
   std::array<std::uint8_t, 6> serialNumber;
   reader.copyToSpan(serialNumber);
   auto multicastAddress = IpAddress::parse(reader);
-  DeviceDib result{std::move(multicastAddress)};
+  ManufacturerDib result{std::move(multicastAddress)};
   reader.copyToSpan(result.macAddress);
   result.knxMedium = knxMedium;
   result.deviceStatus = deviceStatus;
@@ -28,10 +28,10 @@ DeviceDib DeviceDib::parse(ByteBufferReader &reader) {
   return result;
 }
 
-void DeviceDib::write(ByteBufferWriter &data) const {
+void ManufacturerDib::write(ByteBufferWriter &data) const {
 
 }
 
-std::string_view DeviceDib::getDeviceName() const { return deviceName; }
+std::string_view ManufacturerDib::getManufacturerName() { return deviceName; }
 
-std::span<const std::uint8_t> DeviceDib::getSerialNumber() const { return serialNumber; }
+std::span<std::uint8_t> ManufacturerDib::getSerialNumber() { return serialNumber; }

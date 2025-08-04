@@ -1,9 +1,10 @@
 #include "knx/connection/Discovery.h"
+#include "knx/bytes/ByteBufferReader.h"
 #include "knx/headers/HPAI.h"
 #include "knx/headers/IpAddress.h"
 #include "knx/headers/KnxIpHeader.h"
+#include "knx/headers/SupportedServiceFamiliesDib.h"
 #include "knx/requests/SearchRequest.h"
-#include "knx/bytes/ByteBufferReader.h"
 #include "knx/responses/SearchResponse.h"
 #include <asio.hpp>
 #include <asio/io_context.hpp>
@@ -47,7 +48,6 @@ void Discovery::do_receive(std::vector<std::uint8_t> &&data) {
     ByteBufferReader bytebuffer{this->data};
     knx::requestresponse::SearchResponse sr =
         knx::requestresponse::SearchResponse::parse(reader);
-
     foundKnxIps.emplace_back(std::string{sr.getDeviceDib().getDeviceName()},
                              sr.getControlEndPoint().getAddress().asString(),
                              sr.getControlEndPoint().getPort());
@@ -58,4 +58,4 @@ void Discovery::do_receive(std::vector<std::uint8_t> &&data) {
 }
 
 std::vector<KnxIp> &Discovery::result() { return foundKnxIps; }
-} // namespace connection
+} // namespace knx::connection

@@ -8,18 +8,18 @@
 #include <cstdint>
 #include <string>
 
-class DeviceDib final : public KnxStructure {
+class ManufacturerDib final : public KnxStructure {
 public:
-   static constexpr std::uint8_t TYPE = 0x01;
+   static constexpr std::uint8_t TYPE = 0xFE;
 public:
-  std::string_view getDeviceName() const;
-  std::span<const std::uint8_t> getSerialNumber() const;
+  std::string_view getManufacturerName();
+  std::span<std::uint8_t> getSerialNumber();
 
-  static DeviceDib parse(ByteBufferReader& reader);
+  static ManufacturerDib parse(ByteBufferReader& reader);
   void write(ByteBufferWriter& writer) const override;
 
 private:
-  DeviceDib(IpAddress&& ipAddress);
+  ManufacturerDib(IpAddress&& ipAddress);
   IndividualAddress individualAddress;
   std::string deviceName;
   std::array<std::uint8_t, 6> serialNumber;

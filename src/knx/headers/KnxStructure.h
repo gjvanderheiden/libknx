@@ -3,6 +3,16 @@
 #include "knx/bytes/ByteBufferWriter.h"
 #include "knx/bytes/ByteBufferReader.h"
 #include <asio/awaitable.hpp>
+#include <cstdint>
+
+
+enum class KnxMedium : std::uint8_t {
+  KNX_TP = 0x01,
+  PL110 = 0x04,
+  RF = 0x10,
+  KNX_IP = 0x20,
+};
+
 
 class KnxStructure {
 public:

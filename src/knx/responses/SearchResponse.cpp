@@ -1,22 +1,33 @@
 
 #include "knx/responses/SearchResponse.h"
 #include "knx/headers/DeviceDib.h"
+#include "knx/headers/SupportedServiceFamiliesDib.h"
 
 namespace knx::requestresponse {
 
-SearchResponse::SearchResponse(HPAI &&controlEndPoint, DeviceDib && deviceDib)
-    : controlEndPoint{std::move(controlEndPoint)}, deviceDib{std::move(deviceDib)} {}
+SearchResponse::SearchResponse(
+    HPAI &&controlEndPoint, DeviceDib &&deviceDib,
+    SupportedServiceFamiliesDib &&supportedServiceFamiliesDib)
+    : controlEndPoint{std::move(controlEndPoint)},
+      deviceDib{std::move(deviceDib)},
+      supportedServiceFamiliesDib{std::move(supportedServiceFamiliesDib)} {}
 
-HPAI SearchResponse::getControlEndPoint() {
+const HPAI &SearchResponse::getControlEndPoint() const {
   return this->controlEndPoint;
 }
 
-DeviceDib& SearchResponse::getDeviceDib() {
+const SupportedServiceFamiliesDib &
+SearchResponse::getSupportedServiceFamiliesDib() const {
+  return this->supportedServiceFamiliesDib;
+}
+
+const DeviceDib &SearchResponse::getDeviceDib() const {
   return this->deviceDib;
 }
-SearchResponse SearchResponse::parse(ByteBufferReader &buffer) {
-  HPAI controlEndPoint = HPAI::parse(buffer);
-  return {std::move(controlEndPoint), DeviceDib::parse(buffer)};
+
+SearchResponse SearchResponse::parse(ByteBufferReader &reader) {
+  return {HPAI::parse(reader), DeviceDib::parse(reader),
+          SupportedServiceFamiliesDib::parse(reader)};
 }
 
 } // namespace knx::requestresponse
