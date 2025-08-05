@@ -3,21 +3,23 @@
 #include "knx/headers/HPAI.h"
 #include "knx/headers/IpAddress.h"
 #include "knx/headers/KnxIpHeader.h"
-#include "knx/headers/SupportedServiceFamiliesDib.h"
 #include "knx/requests/SearchRequest.h"
 #include "knx/responses/SearchResponse.h"
 #include <asio.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>
 #include <functional>
+#include <chrono>
 
 namespace knx::connection {
 
+using namespace std::chrono_literals;
 constexpr short multicast_port = 3671;
 
-Discovery::Discovery(asio::io_context &ctx)
-    : socket(ctx, "0.0.0.0", multicast_port),
-      multicastAddress(asio::ip::make_address_v4("224.0.23.12")) {}
+Discovery::Discovery(asio::io_context &ctx, std::chrono::duration<long> timeout)
+    : ctx{ctx}, timeOut{timeout}, socket(ctx, "0.0.0.0", multicast_port),
+      multicastAddress(asio::ip::make_address_v4("224.0.23.12")),
+      timer{ctx}{}
 
 std::vector<uint8_t> makeSearchRequest() {
   IpAddress ipAddress{224, 0, 23, 12};
@@ -38,6 +40,13 @@ void Discovery::lookAround(int maxResults) {
   asio::ip::udp::endpoint endpoint{multicastAddress, multicast_port};
   auto searchRequest = makeSearchRequest();
   socket.writeToSync(endpoint, searchRequest);
+  co_spawn(ctx, runTimeOut(), asio::detached);
+}
+
+asio::awaitable<void> Discovery::runTimeOut() {
+  timer.expires_after(timeOut);
+  co_await timer.async_wait();
+  socket.stop();
 }
 
 void Discovery::do_receive(std::vector<std::uint8_t> &&data) {
@@ -52,6 +61,7 @@ void Discovery::do_receive(std::vector<std::uint8_t> &&data) {
                              sr.getControlEndPoint().getAddress().asString(),
                              sr.getControlEndPoint().getPort());
     if (foundKnxIps.size() == maxResults) {
+      timer.cancel();
       socket.stop();
     }
   }
