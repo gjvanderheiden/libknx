@@ -32,6 +32,9 @@ asio::awaitable<void> KnxClientConnection::start() {
   co_await tunnelingConnection->start();
 }
 
+asio::awaitable<void> KnxClientConnection::printDescription() {
+  co_await tunnelingConnection->printDescription();
+}
 bool KnxClientConnection::isOpen() {
   return tunnelingConnection.get() != nullptr;
 }

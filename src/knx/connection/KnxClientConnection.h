@@ -34,6 +34,7 @@ public:
    */
   asio::awaitable<void> start();
   bool isOpen();
+  asio::awaitable<void> printDescription();
 
   void addListener(std::weak_ptr<KnxConnectionListener> listener);
 

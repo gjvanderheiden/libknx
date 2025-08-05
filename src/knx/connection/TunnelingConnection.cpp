@@ -6,9 +6,11 @@
 #include "knx/requests//DisconnectRequest.h"
 #include "knx/requests/ConnectRequest.h"
 #include "knx/requests/ConnectStateRequest.h"
+#include "knx/requests/DescriptionRequest.h"
 #include "knx/requests/TunnelingRequest.h"
 #include "knx/responses/ConnectResponse.h"
 #include "knx/responses/ConnectStateResponse.h"
+#include "knx/responses/DescriptionResponse.h"
 #include "knx/responses/DisconnectResponse.h"
 #include "knx/responses/TunnelAckResponse.h"
 #include <asio/as_tuple.hpp>
@@ -171,7 +173,8 @@ auto TunnelingConnection::onReceiveAckTunnelResponse(KnxIpHeader &knxIpHeader,
   if (response.getConnectionHeader().getChannel() == channelId) {
     auto sequenceAck = response.getConnectionHeader().getSequence();
     if (sendItems.contains(sequenceAck)) {
-      sendItems[sequenceAck]->onReceiveAckTunnelResponse(response.getConnectionHeader());
+      sendItems[sequenceAck]->onReceiveAckTunnelResponse(
+          response.getConnectionHeader());
     }
   }
   return true;
@@ -190,17 +193,14 @@ void TunnelingConnection::onReceiveData(std::vector<std::uint8_t> &&data) {
 
 asio::awaitable<void> TunnelingConnection::send(Cemi &&cemi) {
   std::uint8_t sequenceSend = sequence++;
-  static SendTunnelingState::SendMethod sendMethod = [this](ByteSpan data)->asio::awaitable<void> {
-      co_await this->dataSocket->writeTo(this->remoteDataEndPoint,  data);
-      } ;
-  sendItems[sequenceSend] = std::make_unique<SendTunnelingState>(std::move(cemi), channelId, sequenceSend, ctx, sendMethod);
+  static SendTunnelingState::SendMethod sendMethod =
+      [this](ByteSpan data) -> asio::awaitable<void> {
+    co_await this->dataSocket->writeTo(this->remoteDataEndPoint, data);
+  };
+  sendItems[sequenceSend] = std::make_unique<SendTunnelingState>(
+      std::move(cemi), channelId, sequenceSend, ctx, sendMethod);
   co_await sendItems[sequenceSend]->send();
   sendItems.erase(sequenceSend);
-}
-
-ConnectionRequestInformation
-TunnelingConnection::createConnectRequestInformation() {
-  return ConnectionRequestInformation::newTunneling();
 }
 
 static IpAddress toIpAddress(const asio::ip::address_v4 &address) {
@@ -225,6 +225,33 @@ void TunnelingConnection::forEveryListener(
 }
 
 asio::awaitable<void> TunnelingConnection::close() { return close(true); }
+
+asio::awaitable<void> TunnelingConnection::printDescription() {
+  DescriptionRequest request{createControlHPAI()};
+  auto requestBytes = request.toBytes();
+  using namespace std::literals;
+
+  asio::steady_timer timer(ctx);
+  timer.expires_after(std::chrono::milliseconds(400));
+  co_await sendRequest(
+      requestBytes, DescriptionResponse::SERVICE_ID,
+      [this, &timer](KnxIpHeader &knxIpHeader, ByteBufferReader &reader) {
+        timer.cancel();
+        auto response = DescriptionResponse::parse(reader);
+        std::cout << "supported service families ("
+                  << response.getSupportedServiceFamiliesDib()
+                         .getServiceFamilies()
+                         .size()
+                  << "):\n";
+        for (auto fam :
+             response.getSupportedServiceFamiliesDib().getServiceFamilies()) {
+          std::cout << fam.toString() << std::endl;
+        }
+        return false;
+      });
+  auto [error] = co_await timer.async_wait(asio::as_tuple);
+}
+
 asio::awaitable<void> TunnelingConnection::close(bool needsDisconnectRequest) {
   if (!closingDown) {
     closingDown = true;

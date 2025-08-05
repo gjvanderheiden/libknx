@@ -11,6 +11,9 @@
 class DeviceDib final : public KnxStructure {
 public:
    static constexpr std::uint8_t TYPE = 0x01;
+
+   static constexpr std::uint8_t PROGRAMMING_MODE_STATUS = 0x01;
+
 public:
   std::string_view getDeviceName() const;
   std::span<const std::uint8_t> getSerialNumber() const;

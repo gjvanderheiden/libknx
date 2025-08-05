@@ -57,6 +57,8 @@ public:
    */
   asio::awaitable<void> close();
 
+  asio::awaitable<void> printDescription();
+
 private:
   asio::awaitable<void> close(bool needsDisconnectRequest);
 
@@ -83,7 +85,6 @@ private:
   auto onReceiveAckTunnelResponse(KnxIpHeader &knxIpHeader,
                                   ByteBufferReader &reader) -> bool;
 
-  ConnectionRequestInformation createConnectRequestInformation();
   HPAI createDataHPAI();
   HPAI createControlHPAI();
 

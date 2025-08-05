@@ -28,11 +28,8 @@ awaitable<void> watchdog(steady_clock::time_point &deadline);
 
 UdpSocket::UdpSocket(asio::io_context &ctx, std::string_view bindHost,
                      const unsigned short port)
-    : ctx{ctx}, 
-      bindHost{bindHost},
-      port{port},
-      endpoint{asio::ip::make_address_v4(bindHost), port},
-      socket{ctx} {}
+    : ctx{ctx}, bindHost{bindHost}, port{port},
+      endpoint{asio::ip::make_address_v4(bindHost), port}, socket{ctx} {}
 
 void UdpSocket::setHandler(HandlerFunction &&function) {
   this->handlerFunction = std::move(function);
@@ -84,10 +81,14 @@ awaitable<void> UdpSocket::readIncoming() {
 }
 
 void UdpSocket::stop() {
+  open = false;
+  this->handlerFunction = nullptr;
   try {
-    open = false;
-    this->handlerFunction = nullptr;
     socket.cancel();
+  } catch (std::exception &e) {
+    std::cout << "Error cancelling socket: " << e.what() << "\n";
+  }
+  try {
     socket.close();
   } catch (std::exception &e) {
     std::cout << "Error closing socket: " << e.what() << "\n";
