@@ -94,21 +94,13 @@ Contains objects that are send between libknx and a KNX IP router. These objects
 
 ## ToDo list
 ### Code
-- Deal with KnxIpHeader consistently and use KnxIpHeader or embed into Request Response
-- KnxClientConnection as a facade to an implementation to:
-  - allow a different config / implementation, being enable nat and routing
-  - Maybe is it possible to exclude asio awaitable dependency from KnxClientConnection
-- KnxIpConnection construction with a builder or Config object.
 - I would like to use Cpp Modules, need to see how that works with cmake install
 ### Functional
 First focus points:
+- KnxConnection readGroup with a return value, waiting on con and response from KNX
 - DataPointType parsing
   - length data in Cemi is 2 bytes fixed, should be a vector
   - bool type
   - string type 
   - uint8, uint16 and uint32 
   - float
-- Requests, Response as bytes: dynamic length, not the current hard coded value
-- Time-out on (ConnectState)Request without a response
-  - Resend
-  - if no reply / second time-out: disconnect
