@@ -2,7 +2,6 @@
 
 #include "knx/bytes/ByteBufferReader.h"
 #include "knx/connection/SendTunnelingState.h"
-#include "knx/headers/ConnectionRequestInformation.h"
 #include "knx/headers/HPAI.h"
 #include "knx/connection/ConnectionListener.h"
 #include "knx/headers/KnxIpHeader.h"
