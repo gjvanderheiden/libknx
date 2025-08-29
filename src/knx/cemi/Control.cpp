@@ -12,7 +12,7 @@ Control Control::parse(ByteBufferReader &writer) {
   const KnxPrio prio = static_cast<KnxPrio>((byte1 >> 2) & 0x03);
   const std::uint8_t hopCount = (byte2 >> 4) & 0x05;
   Control control = Control{prio, isGroup, hopCount};
-  control.frameType = (byte1 & 0b10000000) != 0x00;
+  control.standardFrameType = (byte1 & 0b10000000) != 0x00;
   control.repeatOnError = (byte1 & 0b00100000) != 0x00;
   control.systemBroadcast = (byte1 & 0b00010000) != 0x00;
   control.acknowledgeWanted = (byte1 & 0b00000010) == 0x00;
@@ -26,7 +26,7 @@ void Control::write(ByteBufferWriter &writer) const {
 }
 
 
-[[nodiscard]] bool Control::isStandardFrameType() const { return frameType; }
+[[nodiscard]] bool Control::isStandardFrameType() const { return standardFrameType; }
 [[nodiscard]] bool Control::repeatOnErrorSet() const { return repeatOnError; }
 [[nodiscard]] bool Control::systemBroadcastSet() const {
   return systemBroadcast;

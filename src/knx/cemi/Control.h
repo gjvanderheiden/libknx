@@ -29,12 +29,12 @@ public:
   [[nodiscard]] std::uint8_t getHopCount() const;
 
 private:
-  bool frameType;
-  bool repeatOnError;
-  bool systemBroadcast;
+  bool standardFrameType{true};
+  bool repeatOnError {true};
+  bool systemBroadcast{false};
   KnxPrio priority;
-  bool acknowledgeWanted;
-  bool confirmationOnError;
+  bool acknowledgeWanted{true};
+  bool confirmationOnError{true};
   bool destinationAddressIsGroup;
   std::uint8_t hopCount;
   // 4 bits extended frame format;

@@ -17,10 +17,10 @@ namespace knx::connection {
 using namespace std::chrono_literals;
 
 KnxClientConnection::KnxClientConnection(
-    asio::io_context &ctx,
     std::unique_ptr<TunnelingConnection> &&tunnelingConnection)
-    : ctx{ctx}, tunnelingConnection{std::move(tunnelingConnection)} {
+    : tunnelingConnection{std::move(tunnelingConnection)} {
     }
+
 
 void KnxClientConnection::addListener(
     std::weak_ptr<KnxConnectionListener> listener) {
@@ -90,6 +90,30 @@ Cemi createGroupWriteCemi(const GroupAddress &ga, const KnxPrio prio,
               std::move(npduFrame)};
 }
 
+asio::awaitable<void> KnxClientConnection::writeToGroup(GroupAddress &ga,
+                                       std::uint8_t value, bool only6Bits) {
+  IndividualAddress source(0, 0, 0);
+  Control control{KnxPrio::low, true};
+  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, value, only6Bits};
+  TCPI tcpi{false, false, 0x00};
+  NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
+  Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
+            std::variant<IndividualAddress, GroupAddress>(ga),
+            std::move(npduFrame)};
+  co_await this->tunnelingConnection->send(std::move(cemi));
+  /*
+  std::shared_ptr timer = std::make_shared<asio::steady_timer>(ctx);
+  this->waitingAcks[ga] = timer;
+  timer->expires_after(50ms);
+  auto [errorcode] = co_await timer->async_wait(asio::as_tuple);
+  if(!errorcode) {
+    std::cout << "o oh\n";
+  }
+  this->waitingAcks.erase(ga);
+  */
+  
+  // Server should send a Cemi:L_DATA_CON (confirmation)
+}
 asio::awaitable<void> KnxClientConnection::writeToGroup(GroupAddress &ga,
                                        std::span<const std::uint8_t> value) {
   IndividualAddress source(0, 0, 0);

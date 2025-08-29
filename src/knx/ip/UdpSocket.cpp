@@ -10,7 +10,6 @@
 #include <asio/socket_base.hpp>
 #include <asio/use_awaitable.hpp>
 #include <asio/write.hpp>
-#include <chrono>
 #include <iostream>
 #include <utility>
 
@@ -18,13 +17,8 @@ namespace udp {
 
 using asio::awaitable;
 using asio::co_spawn;
-using namespace asio::experimental::awaitable_operators;
-using std::chrono::steady_clock;
-using namespace std::literals::chrono_literals;
 
 constexpr auto use_nothrow_awaitable = asio::as_tuple(asio::use_awaitable);
-
-awaitable<void> watchdog(steady_clock::time_point &deadline);
 
 UdpSocket::UdpSocket(asio::io_context &ctx, std::string_view bindHost,
                      const unsigned short port)

@@ -5,6 +5,12 @@
 
 DataACPI::DataACPI(const std::uint8_t type, std::vector<byte>&& data) : type{type}, data{std::move(data)}{}
 
+DataACPI::DataACPI(std::uint8_t type, byte byteData, bool fits6Bits):
+  type{type}, data{}, fits6Bits(fits6Bits)
+{
+  data.push_back(byteData);
+}
+
 DataACPI::DataACPI(const std::uint8_t type, std::span<const std::uint8_t> data)
     : type{type}, data{} {
   this->data.reserve(data.size());
@@ -29,7 +35,7 @@ DataACPI DataACPI::parse(const byte firstByte, const byte length,
 }
 
 void DataACPI::write(byte firstByte, ByteBufferWriter &writer) const {
-  const bool oneByteData = data.size() == 1 && (data[0] & 0b11000000) == 0;
+  const bool oneByteData = fits6Bits  && data.size() == 1 && (data[0] & 0b11000000) == 0;
   const bool noData = data.empty();
   writer.writeUint8(oneByteData || noData ? 1 : data.size() + 1); // length
   firstByte |= (type & 0x06) >> 2;

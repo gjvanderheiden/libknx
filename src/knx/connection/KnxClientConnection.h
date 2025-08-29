@@ -7,7 +7,6 @@
 #include <asio/io_context.hpp>
 #include <asio/steady_timer.hpp>
 #include <cstdint>
-#include <map>
 #include <memory>
 #include <vector>
 
@@ -23,11 +22,12 @@ namespace knx::connection {
  */
 class KnxClientConnection final : ConnectionListener {
 public:
-  KnxClientConnection(asio::io_context &ctx,
-                std::unique_ptr<TunnelingConnection> &&tunnelingConnection);
-
+  KnxClientConnection(std::unique_ptr<TunnelingConnection> &&tunnelingConnection);
   ~KnxClientConnection() override = default;
+  KnxClientConnection(KnxClientConnection&& other) noexcept = default;
+  KnxClientConnection& operator=(KnxClientConnection&& other) noexcept =  default;
 
+public:
   /**
    * I will start up everything that is needed to maintain a connection with a
    * KNX IP Router.
@@ -43,6 +43,12 @@ public:
    * network
    */
   asio::awaitable<void> writeToGroup(GroupAddress &ga, std::span<const std::uint8_t> value);
+
+  /**
+   * I'll send out a message to the IP KNX Router to send the value to the KNX
+   * network
+   */
+  asio::awaitable<void> writeToGroup(GroupAddress &ga, std::uint8_t value, bool only6Bits = false);
 
   /**
    * Get the data of the specified group address
@@ -71,7 +77,6 @@ private:
   void onIncommingCemi(Cemi &cemi) override;
 
 private:
-  asio::io_context &ctx;
   std::unique_ptr<TunnelingConnection> tunnelingConnection;
   std::vector<std::weak_ptr<KnxConnectionListener>> connectionListeners{};
   friend class Listener;

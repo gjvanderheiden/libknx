@@ -11,6 +11,7 @@ class DataACPI {
 public:
   DataACPI(std::uint8_t type, std::vector<byte>&& data);
   DataACPI(std::uint8_t type, std::span<const byte> data);
+  DataACPI(std::uint8_t type, byte byteData, bool fits6Bits);
   DataACPI(std::uint8_t type);
 
   static constexpr std::uint8_t GROUP_VALUE_READ = 0b0000;
@@ -27,6 +28,7 @@ public:
   [[nodiscard]] std::vector<byte> getData() const;
 
 private:
+  bool fits6Bits{false};
   std::uint8_t type{0};
   std::vector<byte> data{};
 };
