@@ -58,6 +58,17 @@ bool ByteBufferReader::readBoolFromByte() { return data[index++] != 0; }
 
 std::uint8_t ByteBufferReader::readUint8() { return data[index++]; }
 
+std::int16_t ByteBufferReader::readInt16() {
+  if  constexpr (ByteBufferReader::isNativeLittleEndian()) {
+    std::int16_t value = data[index++] << 8;
+    value |= data[index++];
+    return value;
+  } else {
+    std::int16_t value = data[index++];
+    value |= data[index++] << 8;
+    return value;
+  }
+}
 std::uint16_t ByteBufferReader::readUint16() {
   if  constexpr (ByteBufferReader::isNativeLittleEndian()) {
     std::uint16_t value = data[index++] << 8;

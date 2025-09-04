@@ -66,6 +66,11 @@ public:
   std::uint16_t readUint16();
 
   /**
+   * read two bytes to a int16
+   */
+  std::int16_t readInt16();
+
+  /**
    * I read 4 bytes of data into a native uint32.
    */
   std::uint32_t readUint32();
