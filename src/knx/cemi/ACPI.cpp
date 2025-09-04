@@ -3,7 +3,7 @@
 #include <iterator>
 #include <algorithm>
 
-DataACPI::DataACPI(const std::uint8_t type, std::vector<byte>&& data) : type{type}, data{std::move(data)}{}
+DataACPI::DataACPI(const std::uint8_t type, std::vector<byte>&& data, bool fits6Bits) : type{type}, data{std::move(data)}, fits6Bits{fits6Bits}{}
 
 DataACPI::DataACPI(std::uint8_t type, byte byteData, bool fits6Bits):
   type{type}, data{}, fits6Bits(fits6Bits)
@@ -25,13 +25,15 @@ DataACPI DataACPI::parse(const byte firstByte, const byte length,
   byte type = (firstByte & 0x03) << 2;
   type |= (secondByte & 0xC0) >> 6;
   std::vector<byte> data{};
+  bool fits6Bits{false};
   if (length == 1) {
     data.push_back(secondByte & 0b00111111);
+    fits6Bits = true;
   } else {
     data.resize(length - 1);
     reader.copyToSpan(data);
   }
-  return DataACPI{type, std::move(data)};
+  return DataACPI{type, std::move(data), fits6Bits};
 }
 
 void DataACPI::write(byte firstByte, ByteBufferWriter &writer) const {

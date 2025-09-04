@@ -61,6 +61,11 @@ public:
   void writeUint16(std::uint16_t value);
 
   /**
+   * write two bytes representing int16
+   */
+  void writeInt16(std::int16_t value);
+
+  /**
    * I read 4 bytes of data into a native uint32.
    */
   void writeUint32(std::uint32_t value);

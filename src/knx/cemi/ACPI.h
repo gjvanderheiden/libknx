@@ -9,7 +9,7 @@
 
 class DataACPI {
 public:
-  DataACPI(std::uint8_t type, std::vector<byte>&& data);
+  DataACPI(std::uint8_t type, std::vector<byte>&& data, bool fits6Bits = false);
   DataACPI(std::uint8_t type, std::span<const byte> data);
   DataACPI(std::uint8_t type, byte byteData, bool fits6Bits);
   DataACPI(std::uint8_t type);

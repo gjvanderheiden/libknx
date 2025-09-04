@@ -12,7 +12,7 @@
 
 namespace knx::datapoint {
 
-class BooleanDataPointType {
+class BooleanFormat {
 public:
   static const bool FITS_IN_6BITS{true};
 
@@ -30,7 +30,7 @@ public:
   }
 };
 
-class StringDataPointType {
+class StringFormat {
   static const bool FITS_IN_6BITS{false};
 
 public:
@@ -48,7 +48,7 @@ public:
   }
 };
 
-class UInt8DataPointType {
+class UInt8Format {
   static const bool FITS_IN_6BITS{false};
 
 public:
@@ -65,7 +65,7 @@ public:
   }
 };
 
-class UInt16DataPointType {
+class UInt16Format {
   static const bool FITS_IN_6BITS{false};
 
 public:
@@ -82,22 +82,50 @@ public:
   }
 };
 
-class KnxFloat16DataPointType {
+class KnxFloat16Format {
+
 public:
-  /**  static auto toData(double value)
-        -> std::array<std::uint8_t, 2> {
-
-
+  static auto toData(double number) -> std::array<std::uint8_t, 2> {
+    std::array<std::uint8_t, 2> data{0x00};
+    // do range check
+    if (number <= -671088.64) {
+      return data;
     }
-  **/
+
+    if (number >= 670760.96) {
+      return data;
+    }
+
+    number = (number * 100);
+
+    std::uint8_t sign = 0;
+    std::uint8_t exponent = 0;
+    double mantisse = number;
+
+    while ((mantisse < -2048) || (mantisse > 2047)) {
+      mantisse /= 2.0;
+      exponent++;
+    }
+    std::vector<std::uint8_t> mantisseBytes;
+    mantisseBytes.reserve(2);
+    ByteBufferWriter writer(mantisseBytes);
+    writer.writeInt16(static_cast<std::int16_t>(mantisse));
+    data[0] = exponent << 3 | (mantisseBytes[0] &0x87);
+    data[1] = mantisseBytes[1];
+    return data;
+  }
+
   static double toValue(std::span<const std::uint8_t> data) {
+
     if (data.size() == 2) {
       std::uint8_t m_data[2];
-      m_data[0] = data[0] & static_cast<std::uint8_t>(0b10000111);
+      m_data[0] = data[0] & 0x87;
       m_data[1] = data[1];
+      if((data[0] & 0x80) == 0x80) {
+        m_data[0] |= 0x78;
+      } 
       double m = static_cast<double>(ByteBufferReader(m_data).readInt16());
-      std::uint8_t e = data[0] >> 3;
-      e = e & 0x0F;
+      std::uint8_t e = (data[0] >> 3) & 0x0F;
       return 0.01 * m * pow(2.0, e);
     } else {
       return 0;
@@ -105,18 +133,18 @@ public:
   }
 };
 
-class KnxSceneDataPointType {
+class UInt6Format {
 public:
   static const bool FITS_IN_6BITS{true};
 
 public:
   static auto toData(std::uint8_t value) -> std::array<std::uint8_t, 1> {
-    return {value};
+    return {static_cast<std::uint8_t>(value & 0x3F)};
   }
 
   static std::uint8_t toValue(std::span<const std::uint8_t> data) {
     if (data.size() == 1) {
-      return data[0];
+      return data[0] & 0x3F;
     } else {
       return 0;
     }

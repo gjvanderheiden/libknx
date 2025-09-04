@@ -36,13 +36,11 @@ TEST(Cemi, parse2) {
   
 }
 
-// only 4 bit data works, otherwise length wont be good
 TEST(Cemi, write) {
-  std::array<std::uint8_t, 1> value{0x01};
   GroupAddress ga{3,2,55};
   IndividualAddress source(0, 0, 0);
   Control control{KnxPrio::low, true};
-  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, value};
+  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, 0x01, true};
   TCPI tcpi{false, false, 0x00};
   NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
   Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),

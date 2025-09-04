@@ -53,3 +53,11 @@ void ByteBufferWriter::writeUint16(std::uint16_t value) {
   data.push_back(value  & 0xFF);
   data.push_back((value >> 8) & 0xFF);
 }
+
+void ByteBufferWriter::writeInt16(std::int16_t value) {
+  if constexpr (ByteBufferWriter::isNativeLittleEndian()) {
+    value = std::byteswap(value);
+  }
+  data.push_back(value  & 0xFF);
+  data.push_back((value >> 8) & 0xFF);
+}

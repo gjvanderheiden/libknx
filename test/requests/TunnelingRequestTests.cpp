@@ -100,12 +100,11 @@ TEST(TunnelingRequest, writeparse1) {
   const auto& acpi = cemi.getNPDU().getACPI();
   ASSERT_EQ(DataACPI::GROUP_VALUE_WRITE, acpi.getType());
   auto data = acpi.getData();
-    ASSERT_EQ(1, data.size());
+  ASSERT_EQ(1, data.size());
   ASSERT_EQ(0x00, data[0]);
 
   auto bytes = request.toBytes();
   // 4 less, no additional info supported yet
   ASSERT_EQ(test_frame1.size() - 4, bytes.size());
-
 }
 
