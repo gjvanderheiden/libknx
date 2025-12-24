@@ -13,6 +13,8 @@ using asio::awaitable;
 using asio::ip::tcp;
 using HandlerFunction =
     std::function<auto(std::vector<std::uint8_t>&& data)->void>;
+using SocketClosedFunction =
+    std::function<auto()->void>;
 using std::chrono::steady_clock;
 
 class UdpSocket {
@@ -20,6 +22,7 @@ public:
   UdpSocket(asio::io_context &ctx, std::string_view bindHost,
             unsigned short port);
   void setHandler(HandlerFunction &&function);
+  void setConnectionClosedHandler(SocketClosedFunction &&function);
   void start();
   void stop();
   void startMulticast(asio::ip::address multicastAddress);
@@ -41,6 +44,7 @@ private:
   asio::ip::udp::socket socket;
   asio::ip::udp::endpoint remoteEndpoint;
   HandlerFunction handlerFunction{nullptr};
+  SocketClosedFunction onSocketClosedFunction{nullptr};
 
 };
 

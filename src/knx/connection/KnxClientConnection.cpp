@@ -12,6 +12,8 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <iostream>
+
 namespace knx::connection {
 
 using namespace std::chrono_literals;
@@ -172,6 +174,8 @@ void KnxClientConnection::forEveryListener(
   for (auto listenerRef : connectionListeners) {
     if (auto listener = listenerRef.lock()) {
       doThis(listener.get());
+    } else {
+      std::cerr << "Lost a listener\n"; // prefectly normal actually, but need to test this.
     }
   }
 }

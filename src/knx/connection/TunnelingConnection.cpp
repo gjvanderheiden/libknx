@@ -15,6 +15,7 @@
 #include "knx/responses/TunnelAckResponse.h"
 #include <asio/as_tuple.hpp>
 #include <asio/awaitable.hpp>
+#include <asio/co_spawn.hpp>
 #include <asio/detached.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>
@@ -50,6 +51,19 @@ TunnelingConnection::TunnelingConnection(asio::io_context &ctx,
       std::bind_front(&TunnelingConnection::onReceiveData, this));
   controlSocket->setHandler(
       std::bind_front(&TunnelingConnection::onReceiveData, this));
+  dataSocket->setConnectionClosedHandler(
+      std::bind_front(&TunnelingConnection::onDataSocketClosed, this));
+  controlSocket->setConnectionClosedHandler(
+      std::bind_front(&TunnelingConnection::onControlSocketClosed, this));
+  listeners.emplace(
+      TunnelRequest::SERVICE_ID,
+      std::bind_front(&TunnelingConnection::onReceiveTunnelRequest, this));
+  listeners.emplace(
+      DisconnectRequest::SERVICE_ID,
+      std::bind_front(&TunnelingConnection::onReceiveDisconnectRequest, this));
+  listeners.emplace(
+      TunnelAckResponse::SERVICE_ID,
+      std::bind_front(&TunnelingConnection::onReceiveAckTunnelResponse, this));
 }
 
 TunnelingConnection::~TunnelingConnection() {
@@ -74,16 +88,6 @@ void TunnelingConnection::addListener(ConnectionListener &listener) {
 asio::awaitable<void> TunnelingConnection::start() {
   controlSocket->start();
   dataSocket->start();
-
-  listeners.emplace(
-      TunnelRequest::SERVICE_ID,
-      std::bind_front(&TunnelingConnection::onReceiveTunnelRequest, this));
-  listeners.emplace(
-      DisconnectRequest::SERVICE_ID,
-      std::bind_front(&TunnelingConnection::onReceiveDisconnectRequest, this));
-  listeners.emplace(
-      TunnelAckResponse::SERVICE_ID,
-      std::bind_front(&TunnelingConnection::onReceiveAckTunnelResponse, this));
 
   // send connect request
   auto controlHpai = createControlHPAI();
@@ -250,6 +254,13 @@ asio::awaitable<void> TunnelingConnection::printDescription() {
         return false;
       });
   auto [error] = co_await timer.async_wait(asio::as_tuple);
+}
+
+void TunnelingConnection::onControlSocketClosed() {
+  asio::co_spawn(ctx, this->close(false), asio::detached);
+}
+void TunnelingConnection::onDataSocketClosed() {
+  asio::co_spawn(ctx, this->close(true), asio::detached);
 }
 
 asio::awaitable<void> TunnelingConnection::close(bool needsDisconnectRequest) {

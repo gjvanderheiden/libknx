@@ -29,6 +29,10 @@ void UdpSocket::setHandler(HandlerFunction &&function) {
   this->handlerFunction = std::move(function);
 }
 
+void UdpSocket::setConnectionClosedHandler(SocketClosedFunction &&function) {
+  this->onSocketClosedFunction = std::move(function);
+}
+
 void UdpSocket::startMulticast(asio::ip::address multicastAddress) {
   socket.open(endpoint.protocol());
   socket.set_option(asio::ip::udp::socket::reuse_address(true));
@@ -72,6 +76,7 @@ awaitable<void> UdpSocket::readIncoming() {
       handlerFunction(std::move(data));
     }
   }
+  this->stop();
 }
 
 void UdpSocket::stop() {
@@ -83,9 +88,14 @@ void UdpSocket::stop() {
     std::cout << "Error cancelling socket: " << e.what() << "\n";
   }
   try {
-    socket.close();
+    if(socket.is_open()) {
+      socket.close();
+    }
   } catch (std::exception &e) {
     std::cout << "Error closing socket: " << e.what() << "\n";
+  }
+  if(this->onSocketClosedFunction) {
+    this->onSocketClosedFunction();
   }
 }
 

@@ -61,6 +61,9 @@ public:
 private:
   asio::awaitable<void> close(bool needsDisconnectRequest);
 
+  void onControlSocketClosed();
+  void onDataSocketClosed();
+
 private:
   using CallBackFunction = std::function<
       auto(KnxIpHeader &knxIpHeader, ByteBufferReader &reader)->bool>;
