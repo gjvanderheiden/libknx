@@ -86,6 +86,20 @@ void TunnelingConnection::addListener(ConnectionListener &listener) {
 }
 
 asio::awaitable<void> TunnelingConnection::start() {
+  if(!controlSocket) {
+  dataSocket =
+      std::make_unique<udp::UdpSocket>(ctx, localBindIp.to_string(), dataPort);
+  controlSocket =
+      std::make_unique<udp::UdpSocket>(ctx, localBindIp.to_string(), controlPort);
+  dataSocket->setHandler(
+      std::bind_front(&TunnelingConnection::onReceiveData, this));
+  controlSocket->setHandler(
+      std::bind_front(&TunnelingConnection::onReceiveData, this));
+  dataSocket->setConnectionClosedHandler(
+      std::bind_front(&TunnelingConnection::onDataSocketClosed, this));
+  controlSocket->setConnectionClosedHandler(
+      std::bind_front(&TunnelingConnection::onControlSocketClosed, this));
+  }
   controlSocket->start();
   dataSocket->start();
 
