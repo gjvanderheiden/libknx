@@ -41,6 +41,7 @@ void UdpSocket::startMulticast(asio::ip::address multicastAddress) {
   co_spawn(ctx, readIncoming(), asio::detached);
   open = true;
 }
+
 void UdpSocket::startMulticast(std::string_view multicastAddress) {
   startMulticast(asio::ip::make_address(multicastAddress));
 }
@@ -80,22 +81,24 @@ awaitable<void> UdpSocket::readIncoming() {
 }
 
 void UdpSocket::stop() {
-  open = false;
-  this->handlerFunction = nullptr;
-  try {
-    socket.cancel();
-  } catch (std::exception &e) {
-    std::cout << "Error cancelling socket: " << e.what() << "\n";
-  }
-  try {
-    if(socket.is_open()) {
-      socket.close();
+  if (open) {
+    open = false;
+    this->handlerFunction = nullptr;
+    try {
+      socket.cancel();
+    } catch (std::exception &e) {
+      std::cout << "Error cancelling socket: " << e.what() << "\n";
     }
-  } catch (std::exception &e) {
-    std::cout << "Error closing socket: " << e.what() << "\n";
-  }
-  if(this->onSocketClosedFunction) {
-    this->onSocketClosedFunction();
+    try {
+      if (socket.is_open()) {
+        socket.close();
+      }
+    } catch (std::exception &e) {
+      std::cout << "Error closing socket: " << e.what() << "\n";
+    }
+    if (this->onSocketClosedFunction) {
+      this->onSocketClosedFunction();
+    }
   }
 }
 

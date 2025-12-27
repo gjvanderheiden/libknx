@@ -86,19 +86,19 @@ void TunnelingConnection::addListener(ConnectionListener &listener) {
 }
 
 asio::awaitable<void> TunnelingConnection::start() {
-  if(!controlSocket) {
-  dataSocket =
-      std::make_unique<udp::UdpSocket>(ctx, localBindIp.to_string(), dataPort);
-  controlSocket =
-      std::make_unique<udp::UdpSocket>(ctx, localBindIp.to_string(), controlPort);
-  dataSocket->setHandler(
-      std::bind_front(&TunnelingConnection::onReceiveData, this));
-  controlSocket->setHandler(
-      std::bind_front(&TunnelingConnection::onReceiveData, this));
-  dataSocket->setConnectionClosedHandler(
-      std::bind_front(&TunnelingConnection::onDataSocketClosed, this));
-  controlSocket->setConnectionClosedHandler(
-      std::bind_front(&TunnelingConnection::onControlSocketClosed, this));
+  if (!controlSocket) {
+    dataSocket = std::make_unique<udp::UdpSocket>(ctx, localBindIp.to_string(),
+                                                  dataPort);
+    controlSocket = std::make_unique<udp::UdpSocket>(
+        ctx, localBindIp.to_string(), controlPort);
+    dataSocket->setHandler(
+        std::bind_front(&TunnelingConnection::onReceiveData, this));
+    controlSocket->setHandler(
+        std::bind_front(&TunnelingConnection::onReceiveData, this));
+    dataSocket->setConnectionClosedHandler(
+        std::bind_front(&TunnelingConnection::onDataSocketClosed, this));
+    controlSocket->setConnectionClosedHandler(
+        std::bind_front(&TunnelingConnection::onControlSocketClosed, this));
   }
   controlSocket->start();
   dataSocket->start();
@@ -274,7 +274,7 @@ void TunnelingConnection::onControlSocketClosed() {
   asio::co_spawn(ctx, this->close(false), asio::detached);
 }
 void TunnelingConnection::onDataSocketClosed() {
-  asio::co_spawn(ctx, this->close(true), asio::detached);
+  asio::co_spawn(ctx, this->close(false), asio::detached);
 }
 
 asio::awaitable<void> TunnelingConnection::close(bool needsDisconnectRequest) {
@@ -301,6 +301,7 @@ asio::awaitable<void> TunnelingConnection::close(bool needsDisconnectRequest) {
     dataSocket->stop();
     controlSocket.reset();
     dataSocket.reset();
+    closingDown = false;
     forEveryListener(
         [](ConnectionListener *listener) { listener->onDisconnect(); });
   }
