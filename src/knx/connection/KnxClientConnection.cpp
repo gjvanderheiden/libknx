@@ -21,7 +21,7 @@ using namespace std::chrono_literals;
 KnxClientConnection::KnxClientConnection(
     std::unique_ptr<TunnelingConnection> &&tunnelingConnection)
     : tunnelingConnection{std::move(tunnelingConnection)} {
-  tunnelingConnection->addListener(*this);
+  this->tunnelingConnection->addListener(*this);
 }
 
 void KnxClientConnection::addListener(
