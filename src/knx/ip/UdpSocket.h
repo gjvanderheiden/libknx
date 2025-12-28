@@ -40,6 +40,7 @@ private:
   std::string bindHost;
   unsigned short port;
   bool open{false};
+  bool reading{false};
   asio::ip::udp::endpoint endpoint;
   asio::ip::udp::socket socket;
   asio::ip::udp::endpoint remoteEndpoint;

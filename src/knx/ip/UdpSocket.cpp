@@ -64,12 +64,17 @@ void UdpSocket::start() {
  * Running a awaitable loop solves this.
  */
 awaitable<void> UdpSocket::readIncoming() {
-  bool keepRunning = true;
-  while (keepRunning) {
+  bool reading = true;
+  while (reading) {
     auto [error, size] = co_await socket.async_receive_from(
         asio::buffer(buffer), remoteEndpoint, use_nothrow_awaitable);
     if (error) {
-      keepRunning = false;
+      std::cerr << "Error reading socket " 
+                << port
+                << " : "
+                << error.message() 
+                << std::endl;
+      reading = false;
     } else if (size > 0 && this->handlerFunction) {
       std::vector<std::uint8_t> data;
       data.reserve(size);
@@ -84,10 +89,12 @@ void UdpSocket::stop() {
   if (open) {
     open = false;
     this->handlerFunction = nullptr;
-    try {
-      socket.cancel();
-    } catch (std::exception &e) {
-      std::cout << "Error cancelling socket: " << e.what() << "\n";
+    if (reading) {
+      try {
+        socket.cancel();
+      } catch (std::exception &e) {
+        std::cout << "Error cancelling socket: " << e.what() << "\n";
+      }
     }
     try {
       if (socket.is_open()) {
