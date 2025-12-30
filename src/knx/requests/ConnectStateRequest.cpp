@@ -9,6 +9,8 @@ std::vector<std::uint8_t> ConnectStateRequest::toBytes() {
   std::vector<std::uint8_t> bytes;
   ByteBufferWriter writer{bytes};
   KnxIpHeader{SERVICE_ID, 16}.write(writer);
+  writer.writeUint8(channelId);
+  writer.writeUint8(0x00);
   controlEndPoint.write(writer);
   return bytes;
 }

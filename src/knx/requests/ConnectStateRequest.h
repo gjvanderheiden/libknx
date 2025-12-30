@@ -13,6 +13,6 @@ public:
   std::vector<std::uint8_t> toBytes() override;
 
 private:
-  std::uint8_t channelId{};
-  HPAI controlEndPoint;
+  const HPAI controlEndPoint;
+  const std::uint8_t channelId;
 };
