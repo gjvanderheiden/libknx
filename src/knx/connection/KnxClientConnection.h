@@ -1,5 +1,6 @@
 #pragma once
 
+#include "knx/cemi/ACPI.h"
 #include "knx/headers/KnxAddress.h"
 #include "knx/connection/KnxConnectionListener.h"
 #include "knx/connection/TunnelingConnection.h"
@@ -50,10 +51,6 @@ public:
    */
   asio::awaitable<void> writeToGroup(GroupAddress &ga, std::uint8_t value, bool only6Bits = false);
 
-  /**
-   * Get the data of the specified group address
-   */
-  asio::awaitable<void> readGroup(const GroupAddress &ga);
 
   /**
    * I will send out a request to read, if a KNX device responds,
@@ -75,6 +72,8 @@ private:
   void onConnect() override;
   void onDisconnect() override;
   void onIncommingCemi(Cemi &cemi) override;
+
+  asio::awaitable<void> writeToGroup(GroupAddress &ga, DataACPI&& dataACPI);
 
 private:
   std::unique_ptr<TunnelingConnection> tunnelingConnection;

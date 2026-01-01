@@ -45,7 +45,6 @@ void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
   if (cemi.getMessageCode() == Cemi::L_DATA_IND) {
     switch (cemi.getNPDU().getACPI().getType()) {
     case DataACPI::GROUP_VALUE_READ:
-
       forEveryListener([cemi](KnxConnectionListener *listener) {
         listener->onGroupRead(cemi.getSource(),
                               std::get<GroupAddress>(cemi.getDestination()));
@@ -53,7 +52,6 @@ void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
       ;
       break;
     case DataACPI::GROUP_VALUE_RESPONSE:
-
       forEveryListener([cemi](KnxConnectionListener *listener) {
         auto data = cemi.getNPDU().getACPI().getData();
         listener->onGroupReadResponse(
@@ -81,71 +79,31 @@ void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
   }
 }
 
-Cemi createGroupWriteCemi(const GroupAddress &ga, const KnxPrio prio,
-                          std::vector<std::uint8_t> &&data) {
-  IndividualAddress source(0, 0, 0);
-  Control control{prio, true};
-  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, std::move(data)};
-  TCPI tcpi{false, false, 0x00};
-  NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
-  return Cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
-              std::variant<IndividualAddress, GroupAddress>(ga),
-              std::move(npduFrame)};
-}
-
 asio::awaitable<void> KnxClientConnection::writeToGroup(GroupAddress &ga,
                                                         std::uint8_t value,
                                                         bool only6Bits) {
-  IndividualAddress source(0, 0, 0);
-  Control control{KnxPrio::low, true};
   DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, value, only6Bits};
-  TCPI tcpi{false, false, 0x00};
-  NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
-  Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
-            std::variant<IndividualAddress, GroupAddress>(ga),
-            std::move(npduFrame)};
-  co_await this->tunnelingConnection->send(std::move(cemi));
-  /*
-  std::shared_ptr timer = std::make_shared<asio::steady_timer>(ctx);
-  this->waitingAcks[ga] = timer;
-  timer->expires_after(50ms);
-  auto [errorcode] = co_await timer->async_wait(asio::as_tuple);
-  if(!errorcode) {
-    std::cout << "o oh\n";
-  }
-  this->waitingAcks.erase(ga);
-  */
-
-  // Server should send a Cemi:L_DATA_CON (confirmation)
+  co_await writeToGroup(ga, std::move(dataAcpi));
 }
+
 asio::awaitable<void>
 KnxClientConnection::writeToGroup(GroupAddress &ga,
                                   std::span<const std::uint8_t> value) {
+  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, value};
+  co_await writeToGroup(ga, std::move(dataAcpi));
+}
+
+asio::awaitable<void> KnxClientConnection::writeToGroup(GroupAddress &ga,
+                                                        DataACPI &&dataACPI) {
   IndividualAddress source(0, 0, 0);
   Control control{KnxPrio::low, true};
-  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, value};
   TCPI tcpi{false, false, 0x00};
-  NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
+  NPDUFrame npduFrame{std::move(tcpi), std::move(dataACPI)};
   Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
             std::variant<IndividualAddress, GroupAddress>(ga),
             std::move(npduFrame)};
   co_await this->tunnelingConnection->send(std::move(cemi));
-  /*
-  std::shared_ptr timer = std::make_shared<asio::steady_timer>(ctx);
-  this->waitingAcks[ga] = timer;
-  timer->expires_after(50ms);
-  auto [errorcode] = co_await timer->async_wait(asio::as_tuple);
-  if(!errorcode) {
-    std::cout << "o oh\n";
-  }
-  this->waitingAcks.erase(ga);
-  */
-
   // Server should send a Cemi:L_DATA_CON (confirmation)
-}
-
-asio::awaitable<void> KnxClientConnection::readGroup(const GroupAddress &ga) {
-  co_await sendReadGroup(ga);
 }
 
 asio::awaitable<void>
