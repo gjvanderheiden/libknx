@@ -11,7 +11,7 @@ namespace udp {
 
 using asio::awaitable;
 using asio::ip::tcp;
-using HandlerFunction =
+using DataReceivedFunction =
     std::function<auto(std::vector<std::uint8_t>&& data)->void>;
 using SocketClosedFunction =
     std::function<auto()->void>;
@@ -21,10 +21,10 @@ class UdpSocket {
 public:
   UdpSocket(asio::io_context &ctx, std::string_view bindHost,
             unsigned short port);
-  void setHandler(HandlerFunction &&function);
+  void setHandler(DataReceivedFunction &&function);
   void setConnectionClosedHandler(SocketClosedFunction &&function);
   void start();
-  void stop();
+  void stop(bool resetHandler = false);
   void startMulticast(asio::ip::address multicastAddress);
   void startMulticast(std::string_view multicastAddress);
   void writeToSync(asio::ip::udp::endpoint address, ByteSpan data);
@@ -33,6 +33,8 @@ public:
 
 private:
   awaitable<void> readIncoming();
+  void receiveSome();
+  void reset();
 
 private:
   asio::io_context &ctx;
@@ -44,9 +46,8 @@ private:
   asio::ip::udp::endpoint endpoint;
   asio::ip::udp::socket socket;
   asio::ip::udp::endpoint remoteEndpoint;
-  HandlerFunction handlerFunction{nullptr};
+  DataReceivedFunction handlerFunction{nullptr};
   SocketClosedFunction onSocketClosedFunction{nullptr};
-
 };
 
 } // namespace udp

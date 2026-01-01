@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "knx/bytes/ByteBufferWriter.h"
 #include "knx/bytes/ByteBufferReader.h"
 #include "knx/cemi/TCPI.h"

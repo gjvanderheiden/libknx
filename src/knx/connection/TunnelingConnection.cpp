@@ -99,9 +99,22 @@ asio::awaitable<void> TunnelingConnection::start() {
         std::bind_front(&TunnelingConnection::onDataSocketClosed, this));
     controlSocket->setConnectionClosedHandler(
         std::bind_front(&TunnelingConnection::onControlSocketClosed, this));
+    listeners.clear();
+    listeners.emplace(
+        TunnelRequest::SERVICE_ID,
+        std::bind_front(&TunnelingConnection::onReceiveTunnelRequest, this));
+    listeners.emplace(
+        DisconnectRequest::SERVICE_ID,
+        std::bind_front(&TunnelingConnection::onReceiveDisconnectRequest,
+                        this));
+    listeners.emplace(
+        TunnelAckResponse::SERVICE_ID,
+        std::bind_front(&TunnelingConnection::onReceiveAckTunnelResponse,
+                        this));
   }
   controlSocket->start();
   dataSocket->start();
+  sequence = 0;
 
   // send connect request
   auto controlHpai = createControlHPAI();
@@ -128,14 +141,18 @@ asio::awaitable<void> TunnelingConnection::start() {
 asio::awaitable<void> TunnelingConnection::checkConnection() {
   bool keepGoing = true;
   while (keepGoing) {
-    checkConnectionTimer.expires_after(std::chrono::seconds(60));
+    checkConnectionTimer.expires_after(std::chrono::seconds(45));
     auto [errorcode] = co_await checkConnectionTimer.async_wait(asio::as_tuple);
     // if cancelled, stop
     if (errorcode) {
+      std::cout
+          << "TunnelingConnection::checkConnection() : Got an timer error ("
+          << errorcode << ") closing.\n";
       keepGoing = false;
       break;
     }
     // send a connect state request
+    std::cout << "Sending connect state request\n";
     ConnectStateRequest request{createControlHPAI(), channelId};
     auto bytes = request.toBytes();
     co_await sendRequest(
@@ -174,12 +191,17 @@ auto TunnelingConnection::onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
 auto TunnelingConnection::onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
                                                      ByteBufferReader &reader)
     -> bool {
+  std::cout << "Received disconnect request\n";
   const DisconnectRequest request = DisconnectRequest::parse(reader);
   if (request.getChannel() == channelId) {
     DisconnectResponse response{channelId};
     auto responseBytes = response.toBytes();
     controlSocket->writeToSync(remoteControlEndPoint, responseBytes);
-    co_spawn(ctx, this->close(false), asio::detached);
+    this->reset();
+
+    forEveryListener([](ConnectionListener *listener) {
+      listener->onDisconnect();
+    });
   }
   return true;
 }
@@ -277,6 +299,14 @@ void TunnelingConnection::onDataSocketClosed() {
   asio::co_spawn(ctx, this->close(false), asio::detached);
 }
 
+void TunnelingConnection::reset() {
+  checkConnectionTimer.cancel();
+  for (auto const &[key, sendTunnelingState] : this->sendItems) {
+    sendTunnelingState->cancel();
+  }
+  this->sendItems.clear();
+  this->sequence = 0;
+}
 asio::awaitable<void> TunnelingConnection::close(bool needsDisconnectRequest) {
   if (!closingDown) {
     closingDown = true;
@@ -296,11 +326,9 @@ asio::awaitable<void> TunnelingConnection::close(bool needsDisconnectRequest) {
           });
       auto [error] = co_await timer.async_wait(asio::as_tuple);
     }
-    checkConnectionTimer.cancel();
+    this->reset();
     controlSocket->stop();
     dataSocket->stop();
-    controlSocket.reset();
-    dataSocket.reset();
     closingDown = false;
     forEveryListener(
         [](ConnectionListener *listener) { listener->onDisconnect(); });

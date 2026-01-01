@@ -1,9 +1,9 @@
 #pragma once
 
 #include "knx/bytes/ByteBufferReader.h"
+#include "knx/connection/ConnectionListener.h"
 #include "knx/connection/SendTunnelingState.h"
 #include "knx/headers/HPAI.h"
-#include "knx/connection/ConnectionListener.h"
 #include "knx/headers/KnxIpHeader.h"
 #include "knx/ip/UdpSocket.h"
 #include <asio/awaitable.hpp>
@@ -20,8 +20,8 @@ namespace knx::connection {
  *
  * I deal with the KnxIpHeaders being received and send.
  *
- * Once in a while I'll send a ping to the server to see if we still have a good connection.
- * If can disconnect if:
+ * Once in a while I'll send a ping to the server to see if we still have a good
+ * connection. If can disconnect if:
  *  - a disconnect request is received
  *  - a timeout on a acknowlegde of a message expired
  *  - a error or wrong packet it received
@@ -29,15 +29,14 @@ namespace knx::connection {
  *
  * I initiate all te nessasary ports, gather all the nessasary objects together
  * to keep a sort of connection household. A facade if you like.
- *
  */
 class TunnelingConnection {
 
 public:
   TunnelingConnection(asio::io_context &ctx, std::string_view remoteIp,
-                  std::uint16_t remotePort, std::string_view localBindIp,
-                  std::uint16_t localDataPort,
-                  std::uint16_t localControlPort);
+                      std::uint16_t remotePort, std::string_view localBindIp,
+                      std::uint16_t localDataPort,
+                      std::uint16_t localControlPort);
 
   ~TunnelingConnection();
 
@@ -47,8 +46,8 @@ public:
    */
   asio::awaitable<void> start();
 
-  void addListener(ConnectionListener& listener);
-  asio::awaitable<void> send(Cemi&& cemi);
+  void addListener(ConnectionListener &listener);
+  asio::awaitable<void> send(Cemi &&cemi);
 
   /**
    * Does not comply to RAII, but need to figure this one out a bit. Get the
@@ -63,10 +62,16 @@ private:
 
   void onControlSocketClosed();
   void onDataSocketClosed();
+  void reset();
 
 private:
   using CallBackFunction = std::function<
       auto(KnxIpHeader &knxIpHeader, ByteBufferReader &reader)->bool>;
+
+  /**
+   * send request to KNX server (router).
+   * This should also do a timeout, which is currently doesn't do.
+   */
   asio::awaitable<void> sendRequest(std::vector<std::uint8_t> &request,
                                     std::uint16_t responseServiceId,
                                     CallBackFunction &&callBackFunction);
@@ -76,22 +81,43 @@ private:
    */
   asio::awaitable<void> checkConnection();
 
-  auto onReceiveData(std::vector<std::uint8_t>&& data) -> void;
+  /**
+   * Raw data from the UdpSocket. I will parse it and handle it
+   */
+  auto onReceiveData(std::vector<std::uint8_t> &&data) -> void;
 
+  /**
+   * Tunneling connection releated handler: a tunnel request
+   * This is called from onReceiveData (first registered as a listener)
+   * send an ACK back and check the cemi, inform listeners
+   */
   auto onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
                               ByteBufferReader &reader) -> bool;
 
+  /**
+   * Tunneling connection releated handler: disconnect request
+   * This is called from onReceiveData (first registered as a listener)
+   * Server want to kick us out: reset() and inform listeners
+   */
   auto onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
                                   ByteBufferReader &reader) -> bool;
 
+  /**
+   * Tunneling connection releated handler: a ack tunnel response
+   * This is called from onReceiveData (first registered as a listener)
+   * Server has received our tunneling packet.
+   * Check if it was send by me and inform send item handler
+   */
   auto onReceiveAckTunnelResponse(KnxIpHeader &knxIpHeader,
                                   ByteBufferReader &reader) -> bool;
 
   HPAI createDataHPAI();
   HPAI createControlHPAI();
 
-  void
-  forEveryListener(std::function<auto(ConnectionListener *)->void> doThis);
+  /**
+   * inform every ConnectionListener with whatever is in the lambda
+   */
+  void forEveryListener(std::function<auto(ConnectionListener *)->void> doThis);
 
 private:
   asio::io_context &ctx;
@@ -105,10 +131,10 @@ private:
   std::unique_ptr<udp::UdpSocket> controlSocket;
   std::unordered_map<std::uint16_t, CallBackFunction> listeners{};
   std::uint8_t channelId{0};
-  std::vector<ConnectionListener*> connectionListeners{};
+  std::vector<ConnectionListener *> connectionListeners{};
   bool closingDown{false};
   std::uint8_t sequence{0};
   std::map<std::uint8_t, std::unique_ptr<SendTunnelingState>> sendItems{};
 };
 
-} // namespace connection
+} // namespace knx::connection
