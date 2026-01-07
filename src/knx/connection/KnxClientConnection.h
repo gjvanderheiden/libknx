@@ -34,7 +34,15 @@ public:
    * KNX IP Router.
    */
   asio::awaitable<void> start();
+
   bool isOpen();
+
+  /**
+   * Does not comply to RAII, but need to figure this one out a bit. Get the
+   * project going.
+   */
+  asio::awaitable<void> close();
+
   asio::awaitable<void> printDescription();
 
   void addListener(std::weak_ptr<KnxConnectionListener> listener);
@@ -51,19 +59,12 @@ public:
    */
   asio::awaitable<void> writeToGroup(GroupAddress &ga, std::uint8_t value, bool only6Bits = false);
 
-
   /**
    * I will send out a request to read, if a KNX device responds,
    * it'll trigger a onGroupReadResponse on the listeners (KnxConnectionListener).
    * see addListener().
    */
   asio::awaitable<void> sendReadGroup(const GroupAddress &ga);
-
-  /**
-   * Does not comply to RAII, but need to figure this one out a bit. Get the
-   * project going.
-   */
-  asio::awaitable<void> close();
 
 private:
   void

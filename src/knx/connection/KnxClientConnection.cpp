@@ -37,9 +37,7 @@ asio::awaitable<void> KnxClientConnection::printDescription() {
   co_await tunnelingConnection->printDescription();
 }
 
-bool KnxClientConnection::isOpen() {
-  return tunnelingConnection.get() != nullptr;
-}
+bool KnxClientConnection::isOpen() { return tunnelingConnection != nullptr; }
 
 void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
   if (cemi.getMessageCode() == Cemi::L_DATA_IND) {
@@ -132,13 +130,17 @@ void KnxClientConnection::onDisconnect() {
 
 void KnxClientConnection::forEveryListener(
     std::function<auto(KnxConnectionListener *)->void> doThis) {
+  bool hasLoosListener;
   for (auto listenerRef : connectionListeners) {
     if (auto listener = listenerRef.lock()) {
       doThis(listener.get());
     } else {
-      std::cerr << "Lost a listener\n"; // prefectly normal actually, but need
-                                        // to test this.
+      hasLoosListener = true;
     }
+  }
+  if (hasLoosListener) {
+    std::erase_if(connectionListeners,
+                  [](auto &listenerRef) { return listenerRef.expired(); });
   }
 }
 

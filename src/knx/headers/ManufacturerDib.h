@@ -12,6 +12,4 @@ public:
 public:
   static ManufacturerDib parse(ByteBufferReader& reader);
   void write(ByteBufferWriter& writer) const override;
-
-private:
 };

@@ -21,5 +21,5 @@ public:
   void write(ByteBufferWriter &writer) const override;
 
 private:
-  std::uint8_t layer{TUNNELING_LINK_LAYER};
+  const std::uint8_t layer{TUNNELING_LINK_LAYER};
 };

@@ -3,7 +3,7 @@
 #include "NPDUFrame.h"
 
 
-Cemi::Cemi(std::uint8_t messageCode, Control&& control, IndividualAddress&& source, std::variant<IndividualAddress, GroupAddress>&& destination, NPDUFrame&& frame) :
+Cemi::Cemi(const std::uint8_t messageCode, Control&& control, IndividualAddress&& source, std::variant<IndividualAddress, GroupAddress>&& destination, NPDUFrame&& frame) :
   messageCode{messageCode},
   control{std::move(control)},
   source{std::move(source)},
@@ -24,7 +24,7 @@ Cemi Cemi::parse(ByteBufferReader& byteBuffer) {
      destination = IndividualAddress::parse(byteBuffer);
   }
   NPDUFrame npdu = NPDUFrame::parse(byteBuffer);
-  return {std::move(messageCode), std::move(control), std::move(source), std::move(destination), std::move(npdu)};
+  return {messageCode, std::move(control), std::move(source), std::move(destination), std::move(npdu)};
 }
 
 void Cemi::write(ByteBufferWriter &writer) const {
@@ -40,7 +40,7 @@ void Cemi::write(ByteBufferWriter &writer) const {
   npdu.write(writer);
 }
 
-std::uint8_t Cemi::getMessageCode() const {
+const std::uint8_t Cemi::getMessageCode() const {
   return messageCode;
 }
 
@@ -51,6 +51,7 @@ const Control& Cemi::getControl() const {
 const IndividualAddress& Cemi::getSource() const {
   return source;
 }
+
 const std::variant<IndividualAddress, GroupAddress>& Cemi::getDestination() const{
   return destination;
 }

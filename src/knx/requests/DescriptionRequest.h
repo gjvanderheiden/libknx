@@ -7,11 +7,11 @@ class DescriptionRequest final : public AbstractRequest {
 public:
   static constexpr std::uint16_t SERVICE_ID = 0x0203;
 
+public:
   explicit DescriptionRequest(HPAI&& controlEndPoint);
 
   std::vector<std::uint8_t> toBytes() override;
 
-
 private:
-  HPAI controlEndPoint;
+  const HPAI controlEndPoint;
 };

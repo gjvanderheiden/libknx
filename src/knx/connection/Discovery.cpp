@@ -8,22 +8,24 @@
 #include <asio.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>
-#include <functional>
 #include <chrono>
+#include <functional>
 
 namespace knx::connection {
 
 using namespace std::chrono_literals;
 constexpr short multicast_port = 3671;
+constexpr std::array<std::uint8_t, 4> multicast_address{244, 0, 23, 12};
 
 Discovery::Discovery(asio::io_context &ctx, std::chrono::duration<long> timeout)
     : ctx{ctx}, timeOut{timeout}, socket(ctx, "0.0.0.0", multicast_port),
-      multicastAddress(asio::ip::make_address_v4("224.0.23.12")),
-      timer{ctx}{}
+      multicastAddress(asio::ip::make_address_v4(multicast_address)),
+      timer{ctx} {}
 
 std::vector<uint8_t> makeSearchRequest() {
-  IpAddress ipAddress{224, 0, 23, 12};
-  HPAI local{ipAddress, 3671, HPAI::UDP};
+  IpAddress ipAddress{multicast_address[0], multicast_address[1],
+                      multicast_address[2], multicast_address[3]};
+  HPAI local{ipAddress, multicast_port, HPAI::UDP};
   SearchRequest searchRequest{std::move(local)};
   std::vector<byte> srBytes;
   ByteBufferWriter writer(srBytes);

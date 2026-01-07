@@ -28,8 +28,8 @@ public:
   [[nodiscard]] std::vector<byte> getData() const;
 
 private:
-  bool fits6Bits{false};
-  std::uint8_t type{0};
+  const bool fits6Bits{false};
+  const std::uint8_t type{0};
   std::vector<byte> data{};
 };
 
@@ -44,5 +44,5 @@ public:
   static ControlACPI parse(byte firstByte, byte length, ByteBufferReader &reader);
   [[nodiscard]] ControlType getControlType() const;
 private:
-  ControlType controlType;
+  const ControlType controlType;
 };

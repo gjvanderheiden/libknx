@@ -4,7 +4,6 @@
 #include "knx/bytes/ByteBufferReader.h"
 #include <cstdint>
 
-
 enum class ServiceFamilyType : std::uint8_t {
   KnxIpCore = 0x02,
   KnxNetDeviceMgmt = 0x03,

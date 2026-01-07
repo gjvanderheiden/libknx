@@ -1,7 +1,6 @@
 #pragma once
 
 #include "knx/headers/DeviceDib.h"
-#include "knx/headers/HPAI.h"
 #include "knx/bytes/ByteBufferReader.h"
 #include "knx/headers/SupportedServiceFamiliesDib.h"
 

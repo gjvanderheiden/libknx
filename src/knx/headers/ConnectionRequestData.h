@@ -19,5 +19,5 @@ public:
   const IndividualAddress& getAddress() const;
 
 private:
-  IndividualAddress address;
+  const IndividualAddress address;
 };

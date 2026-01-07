@@ -7,8 +7,10 @@
 
 class ConnectStateRequest final : public AbstractRequest {
 public:
-  ConnectStateRequest(HPAI&& controlEndPoint, std::uint8_t channelId);
   static constexpr std::uint16_t SERVICE_ID = 0x0207;
+
+public:
+  ConnectStateRequest(HPAI &&controlEndPoint, const std::uint8_t channelId);
 
   std::vector<std::uint8_t> toBytes() override;
 

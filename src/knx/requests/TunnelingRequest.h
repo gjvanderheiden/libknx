@@ -8,9 +8,10 @@
 
 class TunnelRequest final : public AbstractRequest {
 public:
-  TunnelRequest(ConnectionHeader&& connectionHeader,  Cemi&& cemi );
-
   static constexpr std::uint16_t SERVICE_ID = 0x0420;
+
+public:
+  TunnelRequest(ConnectionHeader&& connectionHeader,  Cemi&& cemi );
 
   static TunnelRequest parse(ByteBufferReader& reader);
   [[nodiscard]] const ConnectionHeader& getConnectionHeader() const;

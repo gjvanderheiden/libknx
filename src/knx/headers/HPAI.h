@@ -24,8 +24,8 @@ public:
   bool isTcp() const;
 
 private:
-  IpAddress address;
-  std::uint16_t port;
+  const IpAddress address;
+  const std::uint16_t port;
 };
 
 

@@ -199,9 +199,8 @@ auto TunnelingConnection::onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
     controlSocket->writeToSync(remoteControlEndPoint, responseBytes);
     this->reset();
 
-    forEveryListener([](ConnectionListener *listener) {
-      listener->onDisconnect();
-    });
+    forEveryListener(
+        [](ConnectionListener *listener) { listener->onDisconnect(); });
   }
   return true;
 }
@@ -219,6 +218,7 @@ auto TunnelingConnection::onReceiveAckTunnelResponse(KnxIpHeader &knxIpHeader,
   }
   return true;
 }
+
 void TunnelingConnection::onReceiveData(std::vector<std::uint8_t> &&data) {
   ByteBufferReader reader(data);
   KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader);
@@ -264,8 +264,6 @@ void TunnelingConnection::forEveryListener(
   }
 }
 
-asio::awaitable<void> TunnelingConnection::close() { return close(true); }
-
 asio::awaitable<void> TunnelingConnection::printDescription() {
   DescriptionRequest request{createControlHPAI()};
   auto requestBytes = request.toBytes();
@@ -295,6 +293,7 @@ asio::awaitable<void> TunnelingConnection::printDescription() {
 void TunnelingConnection::onControlSocketClosed() {
   asio::co_spawn(ctx, this->close(false), asio::detached);
 }
+
 void TunnelingConnection::onDataSocketClosed() {
   asio::co_spawn(ctx, this->close(false), asio::detached);
 }
@@ -307,6 +306,9 @@ void TunnelingConnection::reset() {
   this->sendItems.clear();
   this->sequence = 0;
 }
+
+asio::awaitable<void> TunnelingConnection::close() { return close(true); }
+
 asio::awaitable<void> TunnelingConnection::close(bool needsDisconnectRequest) {
   if (!closingDown) {
     closingDown = true;

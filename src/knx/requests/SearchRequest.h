@@ -18,5 +18,5 @@ public:
   void appendToByteWriter(ByteBufferWriter& writer) const;
 
 private:
-  HPAI hpaiLocal;
+  const HPAI hpaiLocal;
 };
