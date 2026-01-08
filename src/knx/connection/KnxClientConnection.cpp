@@ -11,7 +11,6 @@
 #include <asio/use_awaitable.hpp>
 #include <cstdint>
 #include <functional>
-#include <iostream>
 #include <memory>
 
 namespace knx::connection {

@@ -104,7 +104,6 @@ TEST(TunnelingRequest, writeparse1) {
   ASSERT_EQ(0x00, data[0]);
 
   auto bytes = request.toBytes();
-  // 4 less, no additional info supported yet
-  ASSERT_EQ(test_frame1.size() - 4, bytes.size());
+  ASSERT_EQ(test_frame1.size(), bytes.size());
 }
 

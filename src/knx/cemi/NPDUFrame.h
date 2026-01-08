@@ -18,5 +18,5 @@ public:
 
 private:
   TCPI tcpi;
-  DataACPI acpi;
+  DataACPI dataAcpi;
 };

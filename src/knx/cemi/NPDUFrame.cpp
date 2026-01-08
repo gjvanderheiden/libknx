@@ -1,7 +1,7 @@
 #include "knx/cemi/NPDUFrame.h"
 
 
-NPDUFrame::NPDUFrame(TCPI&& tcpi, DataACPI&& acpi) : tcpi{tcpi}, acpi{acpi}{
+NPDUFrame::NPDUFrame(TCPI&& tcpi, DataACPI&& acpi) : tcpi{tcpi}, dataAcpi{acpi}{
 }
 
 NPDUFrame NPDUFrame::parse(ByteBufferReader& bytebuffer) {
@@ -12,7 +12,7 @@ NPDUFrame NPDUFrame::parse(ByteBufferReader& bytebuffer) {
 
 void NPDUFrame::write(ByteBufferWriter& writer) const {
   byte firstByte = tcpi.toByte();
-  acpi.write(firstByte, writer);
+  dataAcpi.write(firstByte, writer);
 }
 
 const TCPI& NPDUFrame::getTCPI() const {
@@ -20,5 +20,5 @@ const TCPI& NPDUFrame::getTCPI() const {
 }
 
 const DataACPI& NPDUFrame::getACPI() const {
-  return acpi;
+  return dataAcpi;
 }

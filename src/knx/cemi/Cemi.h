@@ -1,5 +1,6 @@
 #pragma once
 
+#include "knx/cemi/AdditionalInformation.h"
 #include "knx/headers/KnxAddress.h"
 #include "knx/bytes/ByteBufferReader.h"
 #include "knx/bytes/ByteBufferWriter.h"
@@ -18,6 +19,9 @@ public:
        std::variant<IndividualAddress, GroupAddress> &&destination,
        NPDUFrame &&frame);
 
+  Cemi(const std::uint8_t messageCode, AdditionalInformation&& additionalInformation, Control &&control, IndividualAddress &&source,
+       std::variant<IndividualAddress, GroupAddress> &&destination,
+       NPDUFrame &&frame);
   static Cemi parse(ByteBufferReader &reader);
   void write(ByteBufferWriter &writer) const;
 
@@ -28,7 +32,8 @@ public:
   const NPDUFrame &getNPDU() const;
 
 private:
-  const std::uint8_t messageCode{0x29};
+  const std::uint8_t messageCode;
+  const AdditionalInformation additionalInformation{};
   const Control control;
   const IndividualAddress source;
   const std::variant<IndividualAddress, GroupAddress> destination;
