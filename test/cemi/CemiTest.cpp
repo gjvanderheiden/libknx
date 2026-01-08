@@ -1,6 +1,7 @@
 #include "knx/cemi/Cemi.h"
 #include "knx/bytes/ByteBufferReader.h"
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <ranges>
 
 static std::array<byte, 12> test_frame1 = {0x29, 0x00, 0xBC, 0xE0, 0x11, 0x09,
@@ -36,19 +37,32 @@ TEST(Cemi, parse2) {
   ASSERT_EQ(DataACPI::GROUP_VALUE_READ, acpi.getType());
 }
 
-TEST(Cemi, parse2AndWriteCompare) {
+void assert_eq(std::span<byte> expected, std::span<byte> actual) {
+  ASSERT_EQ(expected.size(), actual.size());
+  if (actual.size() == actual.size()) {
+    for (auto const &[idx, expectedValue] :
+         actual | std::ranges::views::enumerate) {
+      ASSERT_EQ(expectedValue, actual[idx]) << "index : " << idx << " not same";
+    }
+  }
+}
+
+TEST(Cemi, parse1AndWriteCompare) {
   ByteBufferReader byteBuffer{test_frame1};
   Cemi cemi = Cemi::parse(byteBuffer);
   std::vector<byte> testResult;
   ByteBufferWriter writer(testResult);
   cemi.write(writer);
-  ASSERT_EQ(test_frame1.size(), testResult.size());
-  if (test_frame1.size() == testResult.size()) {
-    for (auto const &[idx, expectedValue] :
-         test_frame1 | std::ranges::views::enumerate) {
-      ASSERT_EQ(expectedValue, testResult[idx] );
-    }
-  }
+  ASSERT_THAT(testResult, testing::ElementsAreArray(test_frame1));
+}
+
+TEST(Cemi, parse2AndWriteCompare) {
+  ByteBufferReader byteBuffer{test_frame2};
+  Cemi cemi = Cemi::parse(byteBuffer);
+  std::vector<byte> testResult;
+  ByteBufferWriter writer(testResult);
+  cemi.write(writer);
+  ASSERT_THAT(testResult, testing::ElementsAreArray(test_frame2));
 }
 
 TEST(Cemi, write) {
