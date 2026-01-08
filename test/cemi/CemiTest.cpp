@@ -37,16 +37,6 @@ TEST(Cemi, parse2) {
   ASSERT_EQ(DataACPI::GROUP_VALUE_READ, acpi.getType());
 }
 
-void assert_eq(std::span<byte> expected, std::span<byte> actual) {
-  ASSERT_EQ(expected.size(), actual.size());
-  if (actual.size() == actual.size()) {
-    for (auto const &[idx, expectedValue] :
-         actual | std::ranges::views::enumerate) {
-      ASSERT_EQ(expectedValue, actual[idx]) << "index : " << idx << " not same";
-    }
-  }
-}
-
 TEST(Cemi, parse1AndWriteCompare) {
   ByteBufferReader byteBuffer{test_frame1};
   Cemi cemi = Cemi::parse(byteBuffer);
