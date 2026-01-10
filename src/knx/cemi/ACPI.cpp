@@ -1,23 +1,14 @@
 #include "knx/cemi/ACPI.h"
 #include <cstdint>
-#include <iterator>
-#include <algorithm>
 
-DataACPI::DataACPI(const std::uint8_t type, std::vector<byte>&& data, bool fits6Bits) : type{type}, data{std::move(data)}, fits6Bits{fits6Bits}{}
+DataACPI::DataACPI(const std::uint8_t type, std::vector<byte>&& data, const bool fits6Bits) : type{type}, data{std::move(data)}, fits6Bits{fits6Bits}{}
 
-DataACPI::DataACPI(std::uint8_t type, byte byteData, bool fits6Bits):
-  type{type}, data{}, fits6Bits(fits6Bits)
-{
-  data.push_back(byteData);
+DataACPI::DataACPI(const std::uint8_t type, const byte byteData, const bool fits6Bits):
+  type{type}, data{byteData}, fits6Bits(fits6Bits){
 }
 
-DataACPI::DataACPI(const std::uint8_t type, std::span<const std::uint8_t> data)
-    : type{type}, data{} {
-  this->data.reserve(data.size());
-  std::ranges::copy(data, std::back_inserter(this->data));
-}
 
-DataACPI::DataACPI(const std::uint8_t type) : type{type}, data{} {}
+DataACPI::DataACPI(const std::uint8_t type) : type{type}, fits6Bits{true} {}
 
 DataACPI DataACPI::parse(const byte firstByte, const byte length,
                          ByteBufferReader &reader) {
@@ -36,7 +27,7 @@ DataACPI DataACPI::parse(const byte firstByte, const byte length,
   return DataACPI{type, std::move(data), fits6Bits};
 }
 
-void DataACPI::write(byte firstByte, ByteBufferWriter &writer) const {
+void DataACPI::write(byte firstByte, const ByteBufferWriter &writer) const {
   const bool oneByteData = fits6Bits  && data.size() == 1 && (data[0] & 0b11000000) == 0;
   const bool noData = data.empty();
   writer.writeUint8(oneByteData || noData ? 1 : data.size() + 1); // length
@@ -74,7 +65,7 @@ ControlType getType(const byte lastByte) {
 }
 
 ControlACPI ControlACPI::parse(const byte firstByte, byte length,
-                               ByteBufferReader &readerr) {
+                               ByteBufferReader &reader) {
   return ControlACPI{getType(firstByte)};
 }
 ControlType ControlACPI::getControlType() const { return controlType; }

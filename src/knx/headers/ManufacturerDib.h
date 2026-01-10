@@ -2,7 +2,6 @@
 
 #include "knx/headers/KnxStructure.h"
 #include "knx/bytes/ByteBufferReader.h"
-#include <cstdint>
 
 class ManufacturerDib final : public KnxStructure {
 public:

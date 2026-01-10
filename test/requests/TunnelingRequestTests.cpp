@@ -11,7 +11,8 @@ static std::array<byte, 0x19> test_frame1 = {
     0x06, 0x10, // knx ip header
     0x04, 0x20, // service type
     0x00, 0x19, // frame size
-                // Tunnel Request:
+
+    // Tunnel Request:
     // ConnectionHeader
     0x04, 0x01, 0x00, 0x00,
     // Cemi

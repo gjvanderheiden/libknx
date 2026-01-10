@@ -14,22 +14,22 @@ public:
   static constexpr std::uint8_t L_DATA_IND = 0x29;
   static constexpr std::uint8_t L_DATA_REQ = 0x11;
   static constexpr std::uint8_t L_DATA_CON = 0x2E;
-public:
-  Cemi(const std::uint8_t messageCode, Control &&control, IndividualAddress &&source,
+
+  Cemi(std::uint8_t messageCode, Control&& control, IndividualAddress &&source,
        std::variant<IndividualAddress, GroupAddress> &&destination,
        NPDUFrame &&frame);
 
-  Cemi(const std::uint8_t messageCode, AdditionalInformation&& additionalInformation, Control &&control, IndividualAddress &&source,
+  Cemi(std::uint8_t messageCode, AdditionalInformation&& additionalInformation, Control&& control, IndividualAddress &&source,
        std::variant<IndividualAddress, GroupAddress> &&destination,
        NPDUFrame &&frame);
   static Cemi parse(ByteBufferReader &reader);
   void write(ByteBufferWriter &writer) const;
 
-  const std::uint8_t getMessageCode() const;
-  const Control &getControl() const;
-  const IndividualAddress &getSource() const;
-  const std::variant<IndividualAddress, GroupAddress> &getDestination() const;
-  const NPDUFrame &getNPDU() const;
+  [[nodiscard]] std::uint8_t getMessageCode() const;
+  [[nodiscard]] const Control &getControl() const;
+  [[nodiscard]] const IndividualAddress &getSource() const;
+  [[nodiscard]] const std::variant<IndividualAddress, GroupAddress> &getDestination() const;
+  [[nodiscard]] const NPDUFrame &getNPDU() const;
 
 private:
   const std::uint8_t messageCode;

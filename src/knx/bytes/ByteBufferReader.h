@@ -19,7 +19,7 @@
 class ByteBufferReader {
 
 public:
-  explicit ByteBufferReader(const std::span<const byte> data);
+  explicit ByteBufferReader(std::span<const byte> data);
 
   /**
    * Just skip numberOfBytes, call this when bytes are reserved / unknown or
@@ -41,7 +41,7 @@ public:
   /**
    * Read numberOfBytes and creates a _reference_ to the buffer data.
    */
-  std::span<const byte> readByteSpan(const int numberOfBytes);
+  std::span<const byte> readByteSpan(int numberOfBytes);
 
   std::array<const byte, 4> get4BytesCopy();
   /**
@@ -79,7 +79,7 @@ public:
     return std::endian::native == std::endian::little;
   }
 
-  std::size_t bytesLeft() const;
+  [[nodiscard]] std::size_t bytesLeft() const;
 
 private:
   const std::span<const byte> data;

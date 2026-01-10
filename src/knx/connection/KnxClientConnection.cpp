@@ -2,14 +2,8 @@
 #include "knx/cemi/ACPI.h"
 #include "knx/cemi/Control.h"
 #include "knx/headers/KnxAddress.h"
-#include <asio/as_tuple.hpp>
 #include <asio/awaitable.hpp>
-#include <asio/detached.hpp>
-#include <asio/io_context.hpp>
-#include <asio/ip/address_v4.hpp>
 #include <asio/steady_timer.hpp>
-#include <asio/use_awaitable.hpp>
-#include <cstdint>
 #include <functional>
 #include <memory>
 
@@ -25,18 +19,18 @@ KnxClientConnection::KnxClientConnection(
 
 void KnxClientConnection::addListener(
     std::weak_ptr<KnxConnectionListener> listener) {
-  connectionListeners.push_back(listener);
+  connectionListeners.push_back(std::move(listener));
 }
 
-asio::awaitable<void> KnxClientConnection::start() {
+asio::awaitable<void> KnxClientConnection::start() const {
   co_await tunnelingConnection->start();
 }
 
-asio::awaitable<void> KnxClientConnection::printDescription() {
+asio::awaitable<void> KnxClientConnection::printDescription() const {
   co_await tunnelingConnection->printDescription();
 }
 
-bool KnxClientConnection::isOpen() { return tunnelingConnection != nullptr; }
+bool KnxClientConnection::isOpen() const { return tunnelingConnection != nullptr; }
 
 void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
   if (cemi.getMessageCode() == Cemi::L_DATA_IND) {
@@ -46,7 +40,6 @@ void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
         listener->onGroupRead(cemi.getSource(),
                               std::get<GroupAddress>(cemi.getDestination()));
       });
-      ;
       break;
     case DataACPI::GROUP_VALUE_RESPONSE:
       forEveryListener([cemi](KnxConnectionListener *listener) {
@@ -55,7 +48,6 @@ void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
             cemi.getSource(), std::get<GroupAddress>(cemi.getDestination()),
             data);
       });
-      ;
       break;
     case DataACPI::GROUP_VALUE_WRITE:
       forEveryListener([cemi](KnxConnectionListener *listener) {
@@ -64,7 +56,6 @@ void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
                                std::get<GroupAddress>(cemi.getDestination()),
                                data);
       });
-      ;
       break;
     case DataACPI::INDIVIDUAL_ADDRESS_READ:
       break;
@@ -77,23 +68,26 @@ void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
 }
 
 asio::awaitable<void> KnxClientConnection::writeToGroup(GroupAddress &ga,
-                                                        std::uint8_t value,
-                                                        bool only6Bits) {
+                                                        const std::uint8_t value,
+                                                        const bool only6Bits) const {
   DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, value, only6Bits};
   co_await writeToGroup(ga, std::move(dataAcpi));
 }
 
 asio::awaitable<void>
 KnxClientConnection::writeToGroup(GroupAddress &ga,
-                                  std::span<const std::uint8_t> value) {
-  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, value};
+                                  const std::span<const std::uint8_t> value) const {
+  std::vector<byte> data;
+  data.reserve(value.size());
+  std::ranges::copy(value, std::back_inserter(data));
+  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, std::move(data)};
   co_await writeToGroup(ga, std::move(dataAcpi));
 }
 
 asio::awaitable<void> KnxClientConnection::writeToGroup(GroupAddress &ga,
-                                                        DataACPI &&dataACPI) {
-  IndividualAddress source(0, 0, 0);
+                                                        DataACPI &&dataACPI) const {
   Control control{KnxPrio::low, true};
+  IndividualAddress source(0, 0, 0);
   TCPI tcpi{false, false, 0x00};
   NPDUFrame npduFrame{std::move(tcpi), std::move(dataACPI)};
   Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
@@ -104,9 +98,9 @@ asio::awaitable<void> KnxClientConnection::writeToGroup(GroupAddress &ga,
 }
 
 asio::awaitable<void>
-KnxClientConnection::sendReadGroup(const GroupAddress &ga) {
-  IndividualAddress source(0, 0, 0);
+KnxClientConnection::sendReadGroup(const GroupAddress &ga) const {
   Control control{KnxPrio::low, true};
+  IndividualAddress source(0, 0, 0);
   DataACPI dataAcpi{DataACPI::GROUP_VALUE_READ};
   TCPI tcpi{false, false, 0x00};
   NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
@@ -128,9 +122,9 @@ void KnxClientConnection::onDisconnect() {
 }
 
 void KnxClientConnection::forEveryListener(
-    std::function<auto(KnxConnectionListener *)->void> doThis) {
-  bool hasLoosListener;
-  for (auto listenerRef : connectionListeners) {
+    std::function<auto(KnxConnectionListener *)->void>&& doThis) {
+  bool hasLoosListener = false;
+  for (const auto& listenerRef : connectionListeners) {
     if (auto listener = listenerRef.lock()) {
       doThis(listener.get());
     } else {

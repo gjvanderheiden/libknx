@@ -4,15 +4,13 @@
 #include "knx/bytes/ByteBufferReader.h"
 #include <cstdint>
 #include <vector>
-#include <span>
 
 
 class DataACPI {
 public:
   DataACPI(std::uint8_t type, std::vector<byte>&& data, bool fits6Bits = false);
-  DataACPI(std::uint8_t type, std::span<const byte> data);
   DataACPI(std::uint8_t type, byte byteData, bool fits6Bits);
-  DataACPI(std::uint8_t type);
+  explicit DataACPI(std::uint8_t type);
 
   static constexpr std::uint8_t GROUP_VALUE_READ = 0b0000;
   static constexpr std::uint8_t INDIVIDUAL_ADDRESS_READ = 0b0100;
@@ -22,15 +20,15 @@ public:
   static constexpr std::uint8_t GROUP_VALUE_WRITE = 0b0010;
 
   static DataACPI parse(byte firstByte, byte length, ByteBufferReader &reader);
-  void write(byte firstByte, ByteBufferWriter &writer) const;
+  void write(byte firstByte, const ByteBufferWriter &writer) const;
 
   [[nodiscard]] std::uint8_t getType() const;
   [[nodiscard]] std::vector<byte> getData() const;
 
 private:
-  const bool fits6Bits{false};
-  const std::uint8_t type{0};
-  std::vector<byte> data{};
+  const std::uint8_t type;
+  const std::vector<byte> data;
+  const bool fits6Bits;
 };
 
 enum class ControlType {

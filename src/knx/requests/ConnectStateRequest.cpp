@@ -1,7 +1,7 @@
 #include "knx/requests/ConnectStateRequest.h"
 #include "knx/headers/KnxIpHeader.h"
 
-ConnectStateRequest::ConnectStateRequest(HPAI&& controlEndPoint, std::uint8_t channelId) :
+ConnectStateRequest::ConnectStateRequest(HPAI&& controlEndPoint, const std::uint8_t channelId) :
   controlEndPoint{std::move(controlEndPoint)}, channelId{channelId} {
 }
 

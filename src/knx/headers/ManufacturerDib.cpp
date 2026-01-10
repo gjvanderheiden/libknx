@@ -10,7 +10,7 @@ ManufacturerDib ManufacturerDib::parse(ByteBufferReader &reader) {
   return {};
 }
 
-void ManufacturerDib::write(ByteBufferWriter &data) const {
+void ManufacturerDib::write(ByteBufferWriter &writer) const {
 
 }
 

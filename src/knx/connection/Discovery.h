@@ -2,7 +2,6 @@
 
 #include <asio/io_context.hpp>
 #include <asio/steady_timer.hpp>
-#include <cstdint>
 #include <string>
 #include <vector>
 #include <asio.hpp>
@@ -20,7 +19,7 @@ using namespace std::chrono_literals;
 
 class Discovery {
 public:
-  Discovery(asio::io_context& ctx, std::chrono::duration<long> timeOut = 2s);
+  explicit Discovery(asio::io_context& ctx, std::chrono::duration<long> timeOut = 2s);
   // no time out implemented
   void lookAround(int maxResults = 1);
   std::vector<KnxIp>& result();

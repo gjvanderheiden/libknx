@@ -8,7 +8,6 @@
 #include "knx/ip/UdpSocket.h"
 #include <asio/awaitable.hpp>
 #include <asio/io_context.hpp>
-#include <cstdint>
 #include <map>
 #include <string_view>
 #include <vector>

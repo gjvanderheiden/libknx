@@ -173,12 +173,15 @@ asio::awaitable<void> TunnelingConnection::checkConnection() {
 auto TunnelingConnection::onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
                                                  ByteBufferReader &reader)
     -> bool {
-  // send a acknowlegde
   const TunnelRequest request = TunnelRequest::parse(reader);
-  ConnectionHeader header{request.getConnectionHeader()};
-  TunnelAckResponse response{std::move(header)};
-  auto tunnelResponseBytes = response.toBytes();
-  controlSocket->writeToSync(remoteControlEndPoint, tunnelResponseBytes);
+
+  // send an acknowlegde
+  {
+    ConnectionHeader header{request.getConnectionHeader()};
+    TunnelAckResponse response{std::move(header)};
+    auto tunnelResponseBytes = response.toBytes();
+    controlSocket->writeToSync(remoteControlEndPoint, tunnelResponseBytes);
+  }
 
   Cemi cemi = request.getCemi();
   forEveryListener([&cemi](ConnectionListener *listener) {

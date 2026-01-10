@@ -1,3 +1,5 @@
+#pragma once
+
 #include "knx/headers/KnxAddress.h"
 #include <cstdint>
 

@@ -2,7 +2,7 @@
 #include "NPDUFrame.h"
 #include "knx/headers/KnxAddress.h"
 
-Cemi::Cemi(const std::uint8_t messageCode, Control &&control,
+Cemi::Cemi(const std::uint8_t messageCode, Control&& control,
            IndividualAddress &&source,
            std::variant<IndividualAddress, GroupAddress> &&destination,
            NPDUFrame &&frame)
@@ -20,18 +20,18 @@ Cemi::Cemi(const std::uint8_t messageCode,
       control{std::move(control)}, source{std::move(source)},
       destination{std::move(destination)}, npdu{std::move(frame)} {}
 
-Cemi Cemi::parse(ByteBufferReader &byteBuffer) {
-  std::uint8_t messageCode = byteBuffer.readUint8();
-  AdditionalInformation addInfo = AdditionalInformation::parse(byteBuffer);
-  Control control = Control::parse(byteBuffer);
-  IndividualAddress source = IndividualAddress::parse(byteBuffer);
+Cemi Cemi::parse(ByteBufferReader &reader) {
+  std::uint8_t messageCode = reader.readUint8();
+  AdditionalInformation addInfo = AdditionalInformation::parse(reader);
+  Control control = Control::parse(reader);
+  IndividualAddress source = IndividualAddress::parse(reader);
   std::variant<IndividualAddress, GroupAddress> destination;
   if (control.isDestinationGroupAddress()) {
-    destination = GroupAddress::parse(byteBuffer);
+    destination = GroupAddress::parse(reader);
   } else {
-    destination = IndividualAddress::parse(byteBuffer);
+    destination = IndividualAddress::parse(reader);
   }
-  NPDUFrame npdu = NPDUFrame::parse(byteBuffer);
+  NPDUFrame npdu = NPDUFrame::parse(reader);
   return {messageCode, std::move(addInfo), std::move(control), std::move(source),
           std::move(destination), std::move(npdu)};
 }
@@ -49,7 +49,7 @@ void Cemi::write(ByteBufferWriter &writer) const {
   npdu.write(writer);
 }
 
-const std::uint8_t Cemi::getMessageCode() const { return messageCode; }
+std::uint8_t Cemi::getMessageCode() const { return messageCode; }
 
 const Control &Cemi::getControl() const { return control; }
 

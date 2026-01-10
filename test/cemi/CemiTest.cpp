@@ -58,9 +58,9 @@ TEST(Cemi, parse2AndWriteCompare) {
 TEST(Cemi, write) {
   GroupAddress ga{3, 2, 55};
   IndividualAddress source(0, 0, 0);
-  Control control{KnxPrio::low, true};
   DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, 0x01, true};
   TCPI tcpi{false, false, 0x00};
+  Control control{KnxPrio::low, true};
   NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
   Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
             std::variant<IndividualAddress, GroupAddress>(ga),
@@ -72,13 +72,14 @@ TEST(Cemi, write) {
 }
 
 TEST(Cemi, write2) {
-  std::array<std::uint8_t, 2> value{0x00};
-  value[1] = 0x02;
-  value[1] = 0x01;
+  std::vector<std::uint8_t> value{};
+  value.reserve(2);
+  value.push_back(0x02);
+  value.push_back(0x01);
   GroupAddress ga{3, 2, 55};
   IndividualAddress source(0, 0, 0);
   Control control{KnxPrio::low, true};
-  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, value};
+  DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, std::move(value), false};
   TCPI tcpi{false, false, 0x00};
   NPDUFrame npduFrame{std::move(tcpi), std::move(dataAcpi)};
   Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),

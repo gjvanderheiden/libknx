@@ -33,9 +33,9 @@ public:
    * I will start up everything that is needed to maintain a connection with a
    * KNX IP Router.
    */
-  asio::awaitable<void> start();
+  asio::awaitable<void> start() const;
 
-  bool isOpen();
+  bool isOpen() const;
 
   /**
    * Does not comply to RAII, but need to figure this one out a bit. Get the
@@ -43,7 +43,7 @@ public:
    */
   asio::awaitable<void> close();
 
-  asio::awaitable<void> printDescription();
+  asio::awaitable<void> printDescription() const;
 
   void addListener(std::weak_ptr<KnxConnectionListener> listener);
 
@@ -51,30 +51,30 @@ public:
    * I'll send out a message to the IP KNX Router to send the value to the KNX
    * network
    */
-  asio::awaitable<void> writeToGroup(GroupAddress &ga, std::span<const std::uint8_t> value);
+  asio::awaitable<void> writeToGroup(GroupAddress &ga, std::span<const std::uint8_t> value) const;
 
   /**
    * I'll send out a message to the IP KNX Router to send the value to the KNX
    * network
    */
-  asio::awaitable<void> writeToGroup(GroupAddress &ga, std::uint8_t value, bool only6Bits = false);
+  asio::awaitable<void> writeToGroup(GroupAddress &ga, std::uint8_t value, bool only6Bits = false) const;
 
   /**
    * I will send out a request to read, if a KNX device responds,
    * it'll trigger a onGroupReadResponse on the listeners (KnxConnectionListener).
    * see addListener().
    */
-  asio::awaitable<void> sendReadGroup(const GroupAddress &ga);
+  asio::awaitable<void> sendReadGroup(const GroupAddress &ga) const;
 
 private:
   void
-  forEveryListener(std::function<auto(KnxConnectionListener *)->void> doThis);
+  forEveryListener(std::function<auto(KnxConnectionListener *)->void>&& doThis);
 
   void onConnect() override;
   void onDisconnect() override;
   void onIncommingCemi(Cemi &cemi) override;
 
-  asio::awaitable<void> writeToGroup(GroupAddress &ga, DataACPI&& dataACPI);
+  asio::awaitable<void> writeToGroup(GroupAddress &ga, DataACPI&& dataACPI) const;
 
 private:
   std::unique_ptr<TunnelingConnection> tunnelingConnection;
