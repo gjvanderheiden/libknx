@@ -10,6 +10,19 @@
 
 namespace knx::connection {
 
+static std::uint32_t toMapKey(const Cemi &cemi, const GroupAddress &ga) {
+  std::uint32_t key{0};
+  std::uint8_t type = cemi.getNPDU().getACPI().getType();
+  std::uint8_t high = ga.getHigh();
+  std::uint8_t middle = ga.getMiddle();
+  std::uint8_t low = ga.getLow();
+  key = type;
+  key |= high << 8;
+  key |= middle << 16;
+  key |= low << 24;
+  return key;
+}
+
 using namespace std::chrono_literals;
 
 KnxClientConnection::KnxClientConnection(
@@ -36,30 +49,24 @@ bool KnxClientConnection::isOpen() const {
   return tunnelingConnection != nullptr;
 }
 
-void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
-  if (cemi.getMessageCode() == Cemi::L_DATA_IND) {
-    onLDataIndCemi(cemi);
-  } else if (cemi.getMessageCode() == Cemi::L_DATA_CON &&
-             cemi.getNPDU().getACPI().getType() ==
-                 DataACPI::GROUP_VALUE_WRITE) {
-    std::cout << "Got a group value write confirmation\n";
-    if (cemi.getSource() == this->tunnelingConnection->getKnxAddress()) {
-      GroupAddress ga = std::get<GroupAddress>(cemi.getDestination());
-      if (this->requests.contains(ga)) {
-        std::cout << "Confirmed\n";
-        this->requests[ga]->onResponse(true);
-      } else {
-        std::cout << "confirmation for " << ga << "not on the list\n";
-      }
-    } else {
-      std::cout << "Got a source " << cemi.getSource()
-                << " but tunneling has address "
-                << tunnelingConnection->getKnxAddress() << std::endl;
+void KnxClientConnection::checkForConfirm(Cemi &cemi) {
+  if (cemi.getMessageCode() != Cemi::L_DATA_CON)
+    return;
+  if (cemi.getSource() == this->tunnelingConnection->getKnxAddress()) {
+    GroupAddress ga = std::get<GroupAddress>(cemi.getDestination());
+    const auto key = toMapKey(cemi, ga);
+    if (this->requests.contains(key)) {
+      this->requests[key]->onResponse(true);
     }
   }
 }
 
-void KnxClientConnection::onLDataIndCemi(Cemi &cemi) {
+void KnxClientConnection::onIncommingCemi(Cemi &cemi) {
+  checkForConfirm(cemi);
+  checkForUpdateListener(cemi);
+}
+
+void KnxClientConnection::checkForUpdateListener(Cemi &cemi) {
   if (cemi.getMessageCode() != Cemi::L_DATA_IND)
     return;
   switch (cemi.getNPDU().getACPI().getType()) {
@@ -112,6 +119,21 @@ KnxClientConnection::writeToGroup(GroupAddress &ga,
   co_await writeToGroup(ga, std::move(dataAcpi));
 }
 
+asio::awaitable<void> KnxClientConnection::sendCemi(Cemi &cemi) {
+  auto dest = std::get<GroupAddress>(cemi.getDestination());
+  const auto key = toMapKey(cemi, dest);
+  this->requests[key] = std::make_unique<SendTunnelingState>(
+      ctx, [&cemi, this]() -> asio::awaitable<void> {
+        co_await tunnelingConnection->send(Cemi{cemi});
+      });
+  co_await this->requests[key]->send();
+  std::cout << (this->requests[key]->getState() == SendTunnelingState::State::ok
+                    ? "ok"
+                    : "error")
+            << " sending cemi.\n";
+  this->requests.erase(key);
+}
+
 asio::awaitable<void> KnxClientConnection::writeToGroup(GroupAddress &ga,
                                                         DataACPI &&dataACPI) {
   Control control{KnxPrio::low, true};
@@ -121,16 +143,7 @@ asio::awaitable<void> KnxClientConnection::writeToGroup(GroupAddress &ga,
   Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
             std::variant<IndividualAddress, GroupAddress>(ga),
             std::move(npduFrame)};
-  this->requests[ga] = std::make_unique<SendTunnelingState>(
-      ctx, [&cemi, this]() -> asio::awaitable<void> {
-        co_await tunnelingConnection->send(Cemi{cemi});
-      });
-  co_await this->requests[ga]->send();
-  std::cout << (this->requests[ga]->getState() == SendTunnelingState::State::ok
-                    ? "ok"
-                    : "error")
-            << " sending write to group.\n";
-  this->requests.erase(ga);
+  co_await sendCemi(cemi);
 }
 
 asio::awaitable<void>
@@ -143,7 +156,7 @@ KnxClientConnection::sendReadGroup(const GroupAddress &ga) {
   Cemi cemi{Cemi::L_DATA_REQ, std::move(control), std::move(source),
             std::variant<IndividualAddress, GroupAddress>(ga),
             std::move(npduFrame)};
-  co_await this->tunnelingConnection->send(std::move(cemi));
+  co_await this->sendCemi(cemi);
   // group value response?
 }
 

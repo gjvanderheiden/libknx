@@ -74,15 +74,17 @@ private:
   void onConnect() override;
   void onDisconnect() override;
   void onIncommingCemi(Cemi &cemi) override;
-  void onLDataIndCemi(Cemi &cemi);
+  void checkForUpdateListener(Cemi &cemi);
+  void checkForConfirm(Cemi& cemi);
 
   asio::awaitable<void> writeToGroup(GroupAddress &ga, DataACPI&& dataACPI);
+  asio::awaitable<void> sendCemi(Cemi& cemi);
 
 private:
   asio::io_context& ctx;
   std::unique_ptr<TunnelingConnection> tunnelingConnection;
   std::vector<std::weak_ptr<KnxConnectionListener>> connectionListeners{};
-  std::map<GroupAddress, std::unique_ptr<SendTunnelingState>> requests{};
+  std::map<std::uint32_t, std::unique_ptr<SendTunnelingState>> requests{};
 };
 
 } // namespace connection
