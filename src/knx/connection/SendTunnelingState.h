@@ -23,7 +23,7 @@ public:
   using SendMethod = std::function<asio::awaitable<void>(ByteSpan)>;
 
 public:
-  SendTunnelingState(Cemi && cemi, std::uint8_t channelId, std::uint8_t sequence, asio::io_context &ctx, SendMethod sendMethod);
+  SendTunnelingState(Cemi && cemi, std::uint8_t channelId, std::uint8_t sequence, asio::io_context &ctx, SendMethod&& sendMethod);
 
   [[nodiscard]] std::uint8_t getSequence() const;
   [[nodiscard]] State getState() const;

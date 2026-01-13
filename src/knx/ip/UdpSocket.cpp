@@ -34,7 +34,7 @@ void UdpSocket::setConnectionClosedHandler(SocketClosedFunction &&function) {
   this->onSocketClosedFunction = std::move(function);
 }
 
-void UdpSocket::startMulticast(asio::ip::address multicastAddress) {
+void UdpSocket::startMulticast(const asio::ip::address &multicastAddress) {
   socket.open(endpoint.protocol());
   socket.set_option(asio::ip::udp::socket::reuse_address(true));
   socket.bind(endpoint);
@@ -43,7 +43,7 @@ void UdpSocket::startMulticast(asio::ip::address multicastAddress) {
   open = true;
 }
 
-void UdpSocket::startMulticast(std::string_view multicastAddress) {
+void UdpSocket::startMulticast(const std::string_view multicastAddress) {
   startMulticast(asio::ip::make_address(multicastAddress));
 }
 
@@ -52,7 +52,7 @@ void UdpSocket::start() {
     socket.open(endpoint.protocol());
     socket.set_option(asio::ip::udp::socket::reuse_address(true));
     socket.bind(endpoint);
-    this->receiveSome();
+    co_spawn(ctx, readIncoming(), asio::detached);
     open = true;
   }
 }
@@ -139,7 +139,6 @@ void UdpSocket::writeToSync(asio::ip::udp::endpoint address, ByteSpan data) {
 awaitable<void> UdpSocket::writeTo(const asio::ip::udp::endpoint &address,
                                    ByteSpan data) {
   co_await socket.async_send_to(asio::buffer(data), address,
-
                                 asio::use_awaitable);
 }
 

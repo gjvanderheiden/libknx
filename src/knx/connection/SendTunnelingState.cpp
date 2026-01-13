@@ -7,8 +7,6 @@
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>
 #include <asio/steady_timer.hpp>
-#include <asio/use_awaitable.hpp>
-#include <cstdint>
 
 namespace knx::connection {
 
@@ -17,10 +15,10 @@ using namespace std::chrono_literals;
 SendTunnelingState::SendTunnelingState(Cemi &&cemi, std::uint8_t channelId,
                                        std::uint8_t sequence,
                                        asio::io_context &ctx,
-                                       SendMethod sendMethod)
-    : data{TunnelRequest{{channelId, sequence, 0x00}, std::move(cemi)}
-               .toBytes()},
-      sequence{sequence}, sendTimer{ctx}, sendMethod{sendMethod} {}
+                                       SendMethod&& sendMethod)
+    : sequence{sequence},
+      sendTimer{ctx}, sendMethod{std::move(sendMethod)}, data{TunnelRequest{{channelId, sequence, 0x00}, std::move(cemi)}
+        .toBytes()} {}
 
 void SendTunnelingState::onReceiveAckTunnelResponse(
     const ConnectionHeader &connectionHeader) {

@@ -123,9 +123,9 @@ public:
       m_data[1] = data[1];
       if((data[0] & 0x80) == 0x80) {
         m_data[0] |= 0x78;
-      } 
-      double m = static_cast<double>(ByteBufferReader(m_data).readInt16());
-      std::uint8_t e = (data[0] >> 3) & 0x0F;
+      }
+      const double m = static_cast<double>(ByteBufferReader(m_data).readInt16());
+      const std::uint8_t e = (data[0] >> 3) & 0x0F;
       return 0.01 * m * pow(2.0, e);
     } else {
       return 0;

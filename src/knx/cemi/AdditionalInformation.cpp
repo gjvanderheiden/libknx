@@ -4,9 +4,9 @@ AdditionalInformation AdditionalInformation::parse(ByteBufferReader &reader) {
   AdditionalInformation result;
   std::uint8_t remainingLength = reader.readUint8();
   while (remainingLength > 0) {
-    AdditionalInformationType infoType =
+    auto infoType =
         static_cast<AdditionalInformationType>(reader.readUint8());
-    std::uint8_t elementLength = reader.readUint8();
+    const std::uint8_t elementLength = reader.readUint8();
     std::vector<byte> data;
     data.reserve(elementLength);
     data.resize(elementLength);
@@ -36,4 +36,4 @@ void AdditionalInformation::write(ByteBufferWriter &writer) const {
   for (auto const &element : this->elements) {
     element.write(writer);
   }
-};
+}

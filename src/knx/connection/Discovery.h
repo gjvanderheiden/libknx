@@ -30,11 +30,11 @@ private:
   asio::awaitable<void> runTimeOut();
 
 private:
+  asio::io_context& ctx;
   udp::UdpSocket socket;
   std::chrono::duration<long> timeOut;
-  asio::io_context& ctx;
   asio::ip::udp::endpoint senderEndpoint;
-  std::array<std::uint8_t, 1024> data;
+  std::array<std::uint8_t, 1024> data{};
   asio::ip::address multicastAddress;
   std::vector<KnxIp> foundKnxIps{};
   int maxResults{0};

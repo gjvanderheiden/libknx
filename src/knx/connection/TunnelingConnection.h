@@ -110,13 +110,13 @@ private:
   auto onReceiveAckTunnelResponse(KnxIpHeader &knxIpHeader,
                                   ByteBufferReader &reader) -> bool;
 
-  HPAI createDataHPAI();
-  HPAI createControlHPAI();
+  HPAI createDataHPAI() const;
+  HPAI createControlHPAI() const;
 
   /**
    * inform every ConnectionListener with whatever is in the lambda
    */
-  void forEveryListener(std::function<auto(ConnectionListener *)->void> doThis);
+  void forEveryListener(const std::function<auto(ConnectionListener *)->void>& doThis) const;
 
 private:
   asio::io_context &ctx;

@@ -71,8 +71,8 @@ TEST(ByteBufferReader, readByteSpan) {
 TEST(ByteBufferReader, copyToByteSpan) {
   std::array<byte, 8> testData = { 0x01, 0x00, 0xFF, 0xF0, 0x00, 0x00, 0x00, 0x01};
   ByteBufferReader byteBuffer{testData};
-  std::array<byte, 2> resultArray;
-  ByteSpan result{resultArray};
+  std::array<byte, 2> resultArray{};
+  const ByteSpan result{resultArray};
   byteBuffer.copyToSpan(result);
   ASSERT_EQ(2, result.size());
   ASSERT_EQ(0x01, result[0]);

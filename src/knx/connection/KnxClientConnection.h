@@ -79,7 +79,6 @@ private:
 private:
   std::unique_ptr<TunnelingConnection> tunnelingConnection;
   std::vector<std::weak_ptr<KnxConnectionListener>> connectionListeners{};
-  friend class Listener;
 };
 
 } // namespace connection

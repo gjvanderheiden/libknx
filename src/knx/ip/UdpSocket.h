@@ -25,7 +25,7 @@ public:
   void setConnectionClosedHandler(SocketClosedFunction &&function);
   void start();
   void stop(bool resetHandler = false);
-  void startMulticast(asio::ip::address multicastAddress);
+  void startMulticast(const asio::ip::address &multicastAddress);
   void startMulticast(std::string_view multicastAddress);
   void writeToSync(asio::ip::udp::endpoint address, ByteSpan data);
   awaitable<void> writeTo(const asio::ip::udp::endpoint &address,

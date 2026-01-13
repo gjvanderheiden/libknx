@@ -27,6 +27,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <ranges>
 
 namespace knx::connection {
 
@@ -77,8 +78,10 @@ asio::awaitable<void>
 TunnelingConnection::sendRequest(std::vector<std::uint8_t> &request,
                                  const std::uint16_t responseServiceId,
                                  CallBackFunction &&callBackFunction) {
+  std::cout << "TunnelingConnection::sendRequest() serviceId = " << responseServiceId << "\n";
   listeners[responseServiceId] = std::move(callBackFunction);
   co_await controlSocket->writeTo(remoteControlEndPoint, request);
+  std::cout << "TunnelingConnection::sendRequest() : done\n";
 }
 
 void TunnelingConnection::addListener(ConnectionListener &listener) {
@@ -126,6 +129,7 @@ asio::awaitable<void> TunnelingConnection::start() {
   co_await sendRequest(
       bytes, knx::requestresponse::ConnectResponse::SERVICE_ID,
       [this](KnxIpHeader &, ByteBufferReader &data) {
+       std::cout << "got a connect response\n";
         const ConnectResponse connectResponse = ConnectResponse::parse(data);
         channelId = connectResponse.getChannelId();
         auto ip = connectResponse.getDataEndPoint().getAddress().asString();
@@ -136,6 +140,7 @@ asio::awaitable<void> TunnelingConnection::start() {
             [](ConnectionListener *listener) { listener->onConnect(); });
         return false;
       });
+   std::cout << "Tunneling started\n";
 }
 
 asio::awaitable<void> TunnelingConnection::checkConnection() {
@@ -177,8 +182,7 @@ auto TunnelingConnection::onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
 
   // send an acknowlegde
   {
-    ConnectionHeader header{request.getConnectionHeader()};
-    TunnelAckResponse response{std::move(header)};
+    TunnelAckResponse response{ConnectionHeader{request.getConnectionHeader()}};
     auto tunnelResponseBytes = response.toBytes();
     controlSocket->writeToSync(remoteControlEndPoint, tunnelResponseBytes);
   }
@@ -223,8 +227,11 @@ auto TunnelingConnection::onReceiveAckTunnelResponse(KnxIpHeader &knxIpHeader,
 }
 
 void TunnelingConnection::onReceiveData(std::vector<std::uint8_t> &&data) {
+  std::cout << "TunnelingConnection::onReceiveData(std::vector<std::uint8_t> &&data)\n";
   ByteBufferReader reader(data);
   KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader);
+
+  std::cout << "TunnelingConnection::onReceiveData() : service type =  " << knxIpHeader.getServiceType() << "\n";
   if (this->listeners.contains(knxIpHeader.getServiceType())) {
     const bool keep =
         this->listeners.at(knxIpHeader.getServiceType())(knxIpHeader, reader);
@@ -236,12 +243,11 @@ void TunnelingConnection::onReceiveData(std::vector<std::uint8_t> &&data) {
 
 asio::awaitable<void> TunnelingConnection::send(Cemi &&cemi) {
   std::uint8_t sequenceSend = sequence++;
-  static SendTunnelingState::SendMethod sendMethod =
-      [this](ByteSpan data) -> asio::awaitable<void> {
-    co_await this->dataSocket->writeTo(this->remoteDataEndPoint, data);
-  };
   sendItems[sequenceSend] = std::make_unique<SendTunnelingState>(
-      std::move(cemi), channelId, sequenceSend, ctx, sendMethod);
+      std::move(cemi), channelId, sequenceSend, ctx,
+      [this](ByteSpan data) -> asio::awaitable<void> {
+        co_await this->dataSocket->writeTo(this->remoteDataEndPoint, data);
+      });
   co_await sendItems[sequenceSend]->send();
   sendItems.erase(sequenceSend);
 }
@@ -252,17 +258,17 @@ static IpAddress toIpAddress(const asio::ip::address_v4 &address) {
   return {reader.get4BytesCopy()};
 }
 
-HPAI TunnelingConnection::createDataHPAI() {
+HPAI TunnelingConnection::createDataHPAI() const {
   return {toIpAddress(this->localBindIp), this->dataPort, HPAI::UDP};
 }
 
-HPAI TunnelingConnection::createControlHPAI() {
+HPAI TunnelingConnection::createControlHPAI() const {
   return {toIpAddress(this->localBindIp), this->controlPort, HPAI::UDP};
-};
+}
 
 void TunnelingConnection::forEveryListener(
-    std::function<auto(ConnectionListener *)->void> doThis) {
-  for (auto listenerRef : connectionListeners) {
+    const std::function<auto(ConnectionListener *)->void> &doThis) const {
+  for (const auto listenerRef : connectionListeners) {
     doThis(listenerRef);
   }
 }
@@ -276,9 +282,9 @@ asio::awaitable<void> TunnelingConnection::printDescription() {
   timer.expires_after(std::chrono::milliseconds(400));
   co_await sendRequest(
       requestBytes, DescriptionResponse::SERVICE_ID,
-      [this, &timer](KnxIpHeader &knxIpHeader, ByteBufferReader &reader) {
+      [&timer](KnxIpHeader &knxIpHeader, ByteBufferReader &reader) {
         timer.cancel();
-        auto response = DescriptionResponse::parse(reader);
+        const auto response = DescriptionResponse::parse(reader);
         std::cout << "supported service families ("
                   << response.getSupportedServiceFamiliesDib()
                          .getServiceFamilies()
@@ -294,16 +300,18 @@ asio::awaitable<void> TunnelingConnection::printDescription() {
 }
 
 void TunnelingConnection::onControlSocketClosed() {
+  std::cerr << "control socket closed\n";
   asio::co_spawn(ctx, this->close(false), asio::detached);
 }
 
 void TunnelingConnection::onDataSocketClosed() {
+  std::cerr << "data socket closed\n";
   asio::co_spawn(ctx, this->close(false), asio::detached);
 }
 
 void TunnelingConnection::reset() {
   checkConnectionTimer.cancel();
-  for (auto const &[key, sendTunnelingState] : this->sendItems) {
+  for (const auto &sendTunnelingState : this->sendItems | std::views::values) {
     sendTunnelingState->cancel();
   }
   this->sendItems.clear();
@@ -323,12 +331,11 @@ asio::awaitable<void> TunnelingConnection::close(bool needsDisconnectRequest) {
 
       asio::steady_timer timer(ctx);
       timer.expires_after(std::chrono::milliseconds(400));
-      co_await sendRequest(
-          requestBytes, DisconnectResponse::SERVICE_ID,
-          [this, &timer](KnxIpHeader &knxIpHeader, ByteBufferReader &reader) {
-            timer.cancel();
-            return false;
-          });
+      co_await sendRequest(requestBytes, DisconnectResponse::SERVICE_ID,
+                           [&timer](KnxIpHeader &, ByteBufferReader &) {
+                             timer.cancel();
+                             return false;
+                           });
       auto [error] = co_await timer.async_wait(asio::as_tuple);
     }
     this->reset();

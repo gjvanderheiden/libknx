@@ -17,8 +17,8 @@ using namespace std::chrono_literals;
 constexpr short multicast_port = 3671;
 constexpr std::array<std::uint8_t, 4> multicast_address{244, 0, 23, 12};
 
-Discovery::Discovery(asio::io_context &ctx, std::chrono::duration<long> timeout)
-    : ctx{ctx}, timeOut{timeout}, socket(ctx, "0.0.0.0", multicast_port),
+Discovery::Discovery(asio::io_context &ctx, const std::chrono::duration<long> timeOut)
+    : ctx{ctx}, socket(ctx, "0.0.0.0", multicast_port), timeOut{timeOut},
       multicastAddress(asio::ip::make_address_v4(multicast_address)),
       timer{ctx} {}
 

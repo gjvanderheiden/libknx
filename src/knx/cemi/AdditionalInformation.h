@@ -21,7 +21,7 @@ enum class AdditionalInformationType : std::uint8_t {
 class AdditionalInformationElement {
 public:
   void write(ByteBufferWriter &writer) const;
-  std::uint8_t frameSize() const;
+  [[nodiscard]] std::uint8_t frameSize() const;
 
   AdditionalInformationType type;
   std::vector<byte> data;
