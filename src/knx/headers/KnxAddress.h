@@ -30,6 +30,11 @@ public:
   static IndividualAddress parse(ByteBufferReader& reader);
   void write(ByteBufferWriter& writer) const;
 
+  std::size_t operator()(const IndividualAddress& key) const;
+  bool operator==(const IndividualAddress& otherGroupAddress) const;
+  bool operator<(const IndividualAddress& otherGroupAddress) const;
+  bool operator>(const IndividualAddress& otherGroupAddress) const;
+
   [[nodiscard]] std::uint8_t getArea() const;
   [[nodiscard]] std::uint8_t getLine() const;
   [[nodiscard]] std::uint8_t getDevice() const;

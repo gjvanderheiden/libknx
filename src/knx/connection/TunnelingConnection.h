@@ -56,6 +56,8 @@ public:
 
   asio::awaitable<void> printDescription();
 
+  const IndividualAddress& getKnxAddress();
+
 private:
   asio::awaitable<void> close(bool needsDisconnectRequest);
 
@@ -134,6 +136,7 @@ private:
   bool closingDown{false};
   std::uint8_t sequence{0};
   std::map<std::uint8_t, std::unique_ptr<SendTunnelingState>> sendItems{};
+  IndividualAddress knxAddress;
 };
 
 } // namespace knx::connection

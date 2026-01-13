@@ -1,6 +1,7 @@
 #include "knx/connection/TunnelingConnection.h"
 #include "knx/bytes/ByteBufferReader.h"
 #include "knx/headers/ConnectionRequestInformation.h"
+#include "knx/headers/KnxAddress.h"
 #include "knx/headers/KnxIpHeader.h"
 #include "knx/ip/UdpSocket.h"
 #include "knx/requests//DisconnectRequest.h"
@@ -136,6 +137,7 @@ asio::awaitable<void> TunnelingConnection::start() {
         auto port = connectResponse.getDataEndPoint().getPort();
         remoteDataEndPoint = {asio::ip::make_address_v4(ip), port};
         asio::co_spawn(ctx, checkConnection(), asio::detached);
+        knxAddress = connectResponse.getCRD().getAddress();
         forEveryListener(
             [](ConnectionListener *listener) { listener->onConnect(); });
         return false;
@@ -243,12 +245,16 @@ void TunnelingConnection::onReceiveData(std::vector<std::uint8_t> &&data) {
 
 asio::awaitable<void> TunnelingConnection::send(Cemi &&cemi) {
   std::uint8_t sequenceSend = sequence++;
+  ConnectionHeader conectionHeader{channelId, sequenceSend};
+  TunnelRequest tr{std::move(conectionHeader), std::move(cemi)};
+  auto bytes = tr.toBytes();
   sendItems[sequenceSend] = std::make_unique<SendTunnelingState>(
-      std::move(cemi), channelId, sequenceSend, ctx,
-      [this](ByteSpan data) -> asio::awaitable<void> {
-        co_await this->dataSocket->writeTo(this->remoteDataEndPoint, data);
+       ctx,
+      [this, &bytes]() -> asio::awaitable<void> {
+        co_await this->dataSocket->writeTo(this->remoteDataEndPoint, bytes);
       });
   co_await sendItems[sequenceSend]->send();
+
   sendItems.erase(sequenceSend);
 }
 
@@ -316,6 +322,11 @@ void TunnelingConnection::reset() {
   }
   this->sendItems.clear();
   this->sequence = 0;
+  this->knxAddress = {0,0,0};
+}
+
+const IndividualAddress& TunnelingConnection::getKnxAddress() {
+  return knxAddress;
 }
 
 asio::awaitable<void> TunnelingConnection::close() { return close(true); }

@@ -27,9 +27,44 @@ std::uint8_t IndividualAddress::getArea() const { return getHigh(); }
 std::uint8_t IndividualAddress::getLine() const { return getMiddle(); }
 std::uint8_t IndividualAddress::getDevice() const { return getLow(); }
 
+std::size_t IndividualAddress::operator()(const IndividualAddress &key) const {
+  return (std::hash<std::uint8_t>()(getLow()) << 16) ^
+         (std::hash<std::uint8_t>()(getMiddle()) << 8) ^
+         (std::hash<std::uint8_t>()(getHigh()));
+}
+
+bool IndividualAddress::operator==(const IndividualAddress &otherGroupAddress) const {
+  return this->getHigh() == otherGroupAddress.getHigh() &&
+         this->getMiddle() == otherGroupAddress.getMiddle() &&
+         this->getLow() == otherGroupAddress.getLow();
+}
+
+bool IndividualAddress::operator<(const IndividualAddress &otherGroupAddress) const {
+  if ((*this) == otherGroupAddress) {
+    return false;
+  }
+  return (otherGroupAddress > (*this));
+}
+
+bool IndividualAddress::operator>(const IndividualAddress &otherGroupAddress) const {
+  if (getHigh() > otherGroupAddress.getHigh()) {
+    return true;
+  }
+  if (getHigh() == otherGroupAddress.getHigh()) {
+    if (getMiddle() > otherGroupAddress.getMiddle()) {
+      return true;
+    }
+    if (getMiddle() == otherGroupAddress.getMiddle()) {
+      return getLow() > otherGroupAddress.getLow();
+    }
+  }
+  return false;
+}
+
 GroupAddress::GroupAddress(std::uint8_t high, std::uint8_t middle,
                            std::uint8_t low)
     : KnxAddress{high, middle, low} {}
+
 
 GroupAddress GroupAddress::parse(ByteBufferReader &reader) {
   std::span<const byte> address = reader.readByteSpan(2);

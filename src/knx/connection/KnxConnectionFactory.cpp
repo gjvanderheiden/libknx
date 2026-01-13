@@ -8,7 +8,7 @@ KnxClientConnection KnxConnectionFactory::createTunnelingClient(asio::io_context
                   std::uint16_t localDataPort,
                   std::uint16_t localControlPort) {
   auto tunnelingConnection = std::make_unique<TunnelingConnection>(ctx,remoteIp, remotePort, localBindIp, localDataPort, localControlPort);
-  return KnxClientConnection{std::move(tunnelingConnection)};
+  return KnxClientConnection{ctx, std::move(tunnelingConnection)};
 }
 
 } // namespace connection
