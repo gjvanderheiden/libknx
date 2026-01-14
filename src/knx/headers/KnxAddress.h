@@ -6,9 +6,14 @@
 #include <iostream>
 
 class KnxAddress {
-public:
+protected:
   KnxAddress() = default;
   KnxAddress(std::uint8_t high, std::uint8_t middle, std::uint8_t low);
+  KnxAddress(const KnxAddress &) = default;
+  KnxAddress(KnxAddress &&) = default;
+  KnxAddress &operator=(const KnxAddress &) = default;
+  KnxAddress &operator=(KnxAddress &&) = default;
+public:
   virtual ~KnxAddress() = default;
   [[nodiscard]] std::uint8_t getHigh() const;
   [[nodiscard]] std::uint8_t getMiddle() const;

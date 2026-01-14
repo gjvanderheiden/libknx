@@ -133,9 +133,9 @@ asio::awaitable<void> TunnelingConnection::start() {
        std::cout << "got a connect response\n";
         const ConnectResponse connectResponse = ConnectResponse::parse(data);
         channelId = connectResponse.getChannelId();
-        auto ip = connectResponse.getDataEndPoint().getAddress().asString();
+        auto remoteIp = connectResponse.getDataEndPoint().getAddress().asString();
         auto port = connectResponse.getDataEndPoint().getPort();
-        remoteDataEndPoint = {asio::ip::make_address_v4(ip), port};
+        remoteDataEndPoint = {asio::ip::make_address_v4(remoteIp), port};
         asio::co_spawn(ctx, checkConnection(), asio::detached);
         knxAddress = connectResponse.getCRD().getAddress();
         forEveryListener(
@@ -167,7 +167,7 @@ asio::awaitable<void> TunnelingConnection::checkConnection() {
         [this, &keepGoing](KnxIpHeader &, ByteBufferReader &data) {
           ConnectStateResponse response = ConnectStateResponse::parse(data);
           if (response.getStatus()) {
-            std::cout << "Got an error (" << (int)response.getStatus()
+            std::cout << "Got an error (" << static_cast<int>(response.getStatus())
                       << ") closing.\n";
             co_spawn(ctx, this->close(), asio::detached);
             keepGoing = false;
@@ -177,7 +177,7 @@ asio::awaitable<void> TunnelingConnection::checkConnection() {
   }
 }
 
-auto TunnelingConnection::onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
+auto TunnelingConnection::onReceiveTunnelRequest(KnxIpHeader & /*knxIpHeader*/,
                                                  ByteBufferReader &reader)
     -> bool {
   const TunnelRequest request = TunnelRequest::parse(reader);
@@ -197,7 +197,7 @@ auto TunnelingConnection::onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
   return true;
 }
 
-auto TunnelingConnection::onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
+auto TunnelingConnection::onReceiveDisconnectRequest(KnxIpHeader & /*knxIpHeader*/,
                                                      ByteBufferReader &reader)
     -> bool {
   std::cout << "Received disconnect request\n";
@@ -214,7 +214,7 @@ auto TunnelingConnection::onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
   return true;
 }
 
-auto TunnelingConnection::onReceiveAckTunnelResponse(KnxIpHeader &knxIpHeader,
+auto TunnelingConnection::onReceiveAckTunnelResponse(KnxIpHeader & /*knxIpHeader*/,
                                                      ByteBufferReader &reader)
     -> bool {
   const TunnelAckResponse response = TunnelAckResponse::parse(reader);
@@ -246,8 +246,8 @@ void TunnelingConnection::onReceiveData(std::vector<std::uint8_t> &&data) {
 asio::awaitable<void> TunnelingConnection::send(Cemi &&cemi) {
   std::uint8_t sequenceSend = sequence++;
   ConnectionHeader conectionHeader{channelId, sequenceSend};
-  TunnelRequest tr{std::move(conectionHeader), std::move(cemi)};
-  auto bytes = tr.toBytes();
+  TunnelRequest tunnelRequest{std::move(conectionHeader), std::move(cemi)};
+  auto bytes = tunnelRequest.toBytes();
   sendItems[sequenceSend] = std::make_unique<SendTunnelingState>(
        ctx,
       [this, &bytes]() -> asio::awaitable<void> {
@@ -257,13 +257,13 @@ asio::awaitable<void> TunnelingConnection::send(Cemi &&cemi) {
 
   sendItems.erase(sequenceSend);
 }
-
-static IpAddress toIpAddress(const asio::ip::address_v4 &address) {
-  auto to_bytes = address.to_bytes();
-  ByteBufferReader reader{to_bytes};
+namespace{
+IpAddress toIpAddress(const asio::ip::address_v4 &address) {
+  auto toBytes = address.to_bytes();
+  ByteBufferReader reader{toBytes};
   return {reader.get4BytesCopy()};
 }
-
+}
 HPAI TunnelingConnection::createDataHPAI() const {
   return {toIpAddress(this->localBindIp), this->dataPort, HPAI::UDP};
 }
@@ -274,7 +274,7 @@ HPAI TunnelingConnection::createControlHPAI() const {
 
 void TunnelingConnection::forEveryListener(
     const std::function<auto(ConnectionListener *)->void> &doThis) const {
-  for (const auto listenerRef : connectionListeners) {
+  for (const auto& listenerRef : connectionListeners) {
     doThis(listenerRef);
   }
 }
@@ -288,7 +288,7 @@ asio::awaitable<void> TunnelingConnection::printDescription() {
   timer.expires_after(std::chrono::milliseconds(400));
   co_await sendRequest(
       requestBytes, DescriptionResponse::SERVICE_ID,
-      [&timer](KnxIpHeader &knxIpHeader, ByteBufferReader &reader) {
+      [&timer](KnxIpHeader & /*knxIpHeader*/, ByteBufferReader &reader) {
         timer.cancel();
         const auto response = DescriptionResponse::parse(reader);
         std::cout << "supported service families ("
@@ -298,7 +298,7 @@ asio::awaitable<void> TunnelingConnection::printDescription() {
                   << "):\n";
         for (auto fam :
              response.getSupportedServiceFamiliesDib().getServiceFamilies()) {
-          std::cout << fam.toString() << std::endl;
+          std::cout << fam.toString() << '\n';
         }
         return false;
       });

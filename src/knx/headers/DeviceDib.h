@@ -13,22 +13,25 @@ public:
    static constexpr std::uint8_t TYPE = 0x01;
 
    static constexpr std::uint8_t PROGRAMMING_MODE_STATUS = 0x01;
+   static constexpr std::uint8_t MAX_LENGTH_DEVICE_NAME = 30;
+   static constexpr std::uint8_t LENGTH_SERIAL_NUMBER = 6;
+   static constexpr std::uint8_t LENGTH_MAC_ADDRESS = 6;
 
 public:
-  std::string_view getDeviceName() const;
-  std::span<const std::uint8_t> getSerialNumber() const;
+  [[nodiscard]] std::string_view getDeviceName() const;
+  [[nodiscard]] std::span<const std::uint8_t> getSerialNumber() const;
 
   static DeviceDib parse(ByteBufferReader& reader);
   void write(ByteBufferWriter& writer) const override;
 
 private:
-  DeviceDib(IpAddress&& ipAddress);
+  explicit DeviceDib(IpAddress&& ipAddress);
   IndividualAddress individualAddress;
   std::string deviceName;
-  std::array<std::uint8_t, 6> serialNumber;
+  std::array<std::uint8_t, LENGTH_SERIAL_NUMBER> serialNumber;
   std::uint8_t knxMedium;
   std::uint8_t deviceStatus;
   std::uint16_t projectInstallationIdentifier;
-  const IpAddress multicastAddress;
-  std::array<std::uint8_t, 6> macAddress;
+  IpAddress multicastAddress;
+  std::array<std::uint8_t, LENGTH_MAC_ADDRESS> macAddress;
 };

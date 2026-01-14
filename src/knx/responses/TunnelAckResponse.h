@@ -8,13 +8,14 @@ namespace knx::requestresponse {
 class TunnelAckResponse {
 public:
   static constexpr std::uint16_t SERVICE_ID = 0x0421;
+  static constexpr std::uint16_t LENGTH = 10;
 public:
-  TunnelAckResponse(ConnectionHeader&& connectionHeader);
+  explicit TunnelAckResponse(ConnectionHeader&& connectionHeader);
 
   static TunnelAckResponse parse(ByteBufferReader& reader);
-  std::vector<byte> toBytes() const;
+  [[nodiscard]] std::vector<byte> toBytes() const;
 
-  const ConnectionHeader& getConnectionHeader() const;
+  [[nodiscard]] const ConnectionHeader& getConnectionHeader() const;
 
 private:
   ConnectionHeader connectionHeader;

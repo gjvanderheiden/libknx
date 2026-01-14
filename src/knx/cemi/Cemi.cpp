@@ -2,7 +2,7 @@
 #include "NPDUFrame.h"
 #include "knx/headers/KnxAddress.h"
 
-Cemi::Cemi(const std::uint8_t messageCode, Control&& control,
+Cemi::Cemi(const std::uint8_t messageCode, Control &&control,
            IndividualAddress &&source,
            std::variant<IndividualAddress, GroupAddress> &&destination,
            NPDUFrame &&frame)
@@ -32,8 +32,8 @@ Cemi Cemi::parse(ByteBufferReader &reader) {
     destination = IndividualAddress::parse(reader);
   }
   NPDUFrame npdu = NPDUFrame::parse(reader);
-  return {messageCode, std::move(addInfo), std::move(control), std::move(source),
-          std::move(destination), std::move(npdu)};
+  return {messageCode,       std::move(addInfo),     std::move(control),
+          std::move(source), std::move(destination), std::move(npdu)};
 }
 
 void Cemi::write(ByteBufferWriter &writer) const {

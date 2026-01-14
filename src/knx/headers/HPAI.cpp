@@ -8,7 +8,7 @@ HPAI::HPAI(IpAddress address, int port, std::uint8_t protocolCode)
 }
 
 void HPAI::write(ByteBufferWriter& writer) const {
-  writer.writeUint8(8);
+  writer.writeUint8(SIZE);
   writer.writeUint8(getProtocol());
   address.write(writer);
   writer.writeUint16(getPort());

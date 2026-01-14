@@ -14,32 +14,35 @@
 namespace knx::connection {
 
 using namespace std::chrono_literals;
-constexpr short multicast_port = 3671;
-constexpr std::array<std::uint8_t, 4> multicast_address{244, 0, 23, 12};
+constexpr short MULTICAST_PORT = 3671;
+constexpr std::array<std::uint8_t, 4> MULTICAST_ADDRESS{244, 0, 23, 12};
 
-Discovery::Discovery(asio::io_context &ctx, const std::chrono::duration<long> timeOut)
-    : ctx{ctx}, socket(ctx, "0.0.0.0", multicast_port), timeOut{timeOut},
-      multicastAddress(asio::ip::make_address_v4(multicast_address)),
+Discovery::Discovery(asio::io_context &ctx,
+                     const std::chrono::duration<long> timeOut)
+    : ctx{ctx}, socket(ctx, "0.0.0.0", MULTICAST_PORT), timeOut{timeOut},
+      multicastAddress(asio::ip::make_address_v4(MULTICAST_ADDRESS)),
       timer{ctx} {}
 
+namespace {
 std::vector<uint8_t> makeSearchRequest() {
-  IpAddress ipAddress{multicast_address[0], multicast_address[1],
-                      multicast_address[2], multicast_address[3]};
-  HPAI local{ipAddress, multicast_port, HPAI::UDP};
+  IpAddress ipAddress{MULTICAST_ADDRESS[0], MULTICAST_ADDRESS[1],
+                      MULTICAST_ADDRESS[2], MULTICAST_ADDRESS[3]};
+  HPAI local{ipAddress, MULTICAST_PORT, HPAI::UDP};
   SearchRequest searchRequest{std::move(local)};
   std::vector<byte> srBytes;
   ByteBufferWriter writer(srBytes);
   searchRequest.appendToByteWriter(writer);
   return srBytes;
 }
-
+} // namespace
+  
 void Discovery::lookAround(int maxResults) {
   this->maxResults = maxResults;
 
-  socket.setHandler(std::bind_front(&Discovery::do_receive, this));
+  socket.setHandler(std::bind_front(&Discovery::doReceive, this));
   socket.startMulticast(multicastAddress);
 
-  asio::ip::udp::endpoint endpoint{multicastAddress, multicast_port};
+  asio::ip::udp::endpoint endpoint{multicastAddress, MULTICAST_PORT};
   auto searchRequest = makeSearchRequest();
   socket.writeToSync(endpoint, searchRequest);
   co_spawn(ctx, runTimeOut(), asio::detached);
@@ -51,8 +54,8 @@ asio::awaitable<void> Discovery::runTimeOut() {
   socket.stop();
 }
 
-void Discovery::do_receive(std::vector<std::uint8_t> &&data) {
-  ByteBufferReader reader{data};
+void Discovery::doReceive(std::vector<std::uint8_t> &&data) {
+  ByteBufferReader reader{std::move(data)};
   KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader);
   if (knxIpHeader.getServiceType() ==
       knx::requestresponse::SearchResponse::SERVICE_ID) {

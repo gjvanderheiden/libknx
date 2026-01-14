@@ -7,20 +7,25 @@ namespace knx::connection {
 
 class KnxConnectionListener {
 public:
-  KnxConnectionListener() = default;
+  KnxConnectionListener(const KnxConnectionListener &) = delete;
+  KnxConnectionListener(KnxConnectionListener &&) = delete;
+  KnxConnectionListener &operator=(const KnxConnectionListener &) = delete;
+  KnxConnectionListener &operator=(KnxConnectionListener &&) = delete;
+
   virtual ~KnxConnectionListener() = default;
+
   virtual void onConnect() = 0;
   virtual void onDisconnect() = 0;
 
   virtual void onGroupRead(const IndividualAddress &source,
-                           const GroupAddress &ga) = 0;
+                           const GroupAddress &groupAddress) = 0;
 
   virtual void onGroupReadResponse(const IndividualAddress &source,
-                                   const GroupAddress &ga,
+                                   const GroupAddress &groupAddress,
                                    std::span<const std::uint8_t> data) = 0;
 
   virtual void onGroupWrite(const IndividualAddress &source,
-                            const GroupAddress &ga,
+                            const GroupAddress &groupAddress,
                             std::span<const std::uint8_t> data) = 0;
 };
 

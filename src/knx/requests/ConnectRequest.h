@@ -7,6 +7,7 @@
 class ConnectRequest final : public AbstractRequest {
 public:
   static constexpr std::uint16_t SERVICE_ID = 0x0205;
+  static constexpr std::uint16_t SIZE = 26;
 
 public:
   explicit ConnectRequest(HPAI&& controlEndPoint, HPAI&& dataEndPoint, ConnectionRequestInformation&& cri);
@@ -14,7 +15,7 @@ public:
   std::vector<std::uint8_t> toBytes() override;
 
 private:
-  const HPAI controlEndPoint;
-  const HPAI dataEndPoint;
-  const ConnectionRequestInformation cri;
+  HPAI controlEndPoint;
+  HPAI dataEndPoint;
+  ConnectionRequestInformation cri;
 };

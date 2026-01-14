@@ -1,15 +1,15 @@
 #include "SupportedServiceFamiliesDib.h"
 #include "KnxStructure.h"
 #include <cstdint>
-#include <iostream>
+#include <utility>
 
 SupportedServiceFamiliesDib::SupportedServiceFamiliesDib()
-    : KnxStructure(SupportedServiceFamiliesDib::TYPE), serviceFamilies{} {}
+    : KnxStructure(SupportedServiceFamiliesDib::TYPE) {}
 
 SupportedServiceFamiliesDib::SupportedServiceFamiliesDib(
     std::vector<ServiceFamily> serviceFamilies)
     : KnxStructure(SupportedServiceFamiliesDib::TYPE),
-      serviceFamilies{serviceFamilies} {}
+      serviceFamilies{std::move(serviceFamilies)} {}
 
 std::string ServiceFamily::toString() const {
   std::string result{};
@@ -36,8 +36,8 @@ std::string ServiceFamily::toString() const {
   result += ", version: " + std::to_string(version);
   return result;
 }
-
-static ServiceFamilyType toEnum(std::uint8_t value) {
+namespace {
+ServiceFamilyType toEnum(std::uint8_t value) {
   switch (value) {
   case static_cast<std::uint8_t>(ServiceFamilyType::KnxIpCore):
     return ServiceFamilyType::KnxIpCore;
@@ -53,6 +53,7 @@ static ServiceFamilyType toEnum(std::uint8_t value) {
     return ServiceFamilyType::Unknown;
   }
 }
+} // namespace
 
 void SupportedServiceFamiliesDib::write(ByteBufferWriter &writer) const {}
 

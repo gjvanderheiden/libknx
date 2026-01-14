@@ -3,16 +3,16 @@
 #include "KnxAddress.h"
 
 
-ConnectionRequestData::ConnectionRequestData(std::uint8_t type, IndividualAddress&& address) : KnxStructure{type}, address{address}{};
+ConnectionRequestData::ConnectionRequestData(std::uint8_t type, IndividualAddress&& address) : KnxStructure{type}, address{std::move(address)}{};
 
 ConnectionRequestData ConnectionRequestData::parse(ByteBufferReader &reader) {
   auto [length, type] = KnxStructure::parse(reader);
   return ConnectionRequestData{type, IndividualAddress::parse(reader)};
 }
 
-void ConnectionRequestData::write(ByteBufferWriter &data) const {
-  writeKnxStructure(data, 4);
-  address.write(data);
+void ConnectionRequestData::write(ByteBufferWriter &writer) const {
+  writeKnxStructure(writer, 4);
+  address.write(writer);
 }
 
 const IndividualAddress& ConnectionRequestData::getAddress() const {

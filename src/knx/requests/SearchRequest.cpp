@@ -13,7 +13,7 @@ std::vector<std::uint8_t> SearchRequest::toBytes() {
   return result;
 }
 void SearchRequest::appendToByteWriter(ByteBufferWriter& writer) const {
-  KnxIpHeader{SERVICE_ID, 14}.write(writer);
+  KnxIpHeader{SERVICE_ID, SIZE}.write(writer);
   hpaiLocal.write(writer);
 }
 

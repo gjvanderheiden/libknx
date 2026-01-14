@@ -26,7 +26,7 @@ public:
 
 
 private:
-  void do_receive(std::vector<std::uint8_t>&& data);
+  void doReceive(std::vector<std::uint8_t>&& data);
   asio::awaitable<void> runTimeOut();
 
 private:

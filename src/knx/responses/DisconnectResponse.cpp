@@ -1,5 +1,6 @@
 #include "knx/responses/DisconnectResponse.h"
 #include "knx/bytes/ByteBufferWriter.h"
+#include "knx/headers/KnxIpHeader.h"
 
 namespace knx::requestresponse {
 
@@ -12,12 +13,9 @@ DisconnectResponse DisconnectResponse::parse(ByteBufferReader &reader) {
 
 std::vector<std::uint8_t> DisconnectResponse::toBytes() const {
   std::vector<byte> bytes;
+  bytes.reserve(LENGTH);
   ByteBufferWriter writer(bytes);
-  writer.writeUint8(0x06);
-  writer.writeUint8(0x10);
-  writer.writeUint16(SERVICE_ID);
-  writer.writeUint8(0x00);
-  writer.writeUint8(8);
+  KnxIpHeader::write(writer, SERVICE_ID, LENGTH);
   writer.writeUint8(channel);
   writer.writeUint8(status);
   return bytes;

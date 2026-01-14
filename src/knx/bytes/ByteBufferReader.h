@@ -82,6 +82,6 @@ public:
   [[nodiscard]] std::size_t bytesLeft() const;
 
 private:
-  const std::span<const byte> data;
-  int index{0};
+  std::span<const byte> data;
+  size_t index{0};
 };

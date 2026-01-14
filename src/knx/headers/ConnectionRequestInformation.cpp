@@ -1,5 +1,6 @@
 #include "ConnectionRequestInformation.h"
 #include "KnxStructure.h"
+#include <cstdint>
 
 ConnectionRequestInformation::ConnectionRequestInformation(
     std::uint8_t connectionType, std::uint8_t layer)
@@ -11,7 +12,9 @@ ConnectionRequestInformation ConnectionRequestInformation::newTunneling() {
 
 ConnectionRequestInformation ConnectionRequestInformation::parse(ByteBufferReader& reader) {
   auto [length, type] = KnxStructure::parse(reader);
-  return ConnectionRequestInformation{type, reader.readBoolFromByte()};
+  std::uint8_t layer = reader.readUint8();
+  reader.skip(1); // reserved
+  return ConnectionRequestInformation{type, layer};
 }
 
 void ConnectionRequestInformation::write(ByteBufferWriter &writer) const {

@@ -14,24 +14,23 @@ namespace knx::datapoint {
 
 class BooleanFormat {
 public:
-  static const bool FITS_IN_6BITS{true};
+  static constexpr bool FITS_IN_6BITS{true};
 
 public:
-  static constexpr std::array<const std::uint8_t, 1> off{0x00};
-
-  static constexpr std::array<const std::uint8_t, 1> on{0x01};
+  static constexpr std::array<const std::uint8_t, 1> OFF{0x00};
+  static constexpr std::array<const std::uint8_t, 1> ON{0x01};
 
   static std::array<const std::uint8_t, 1> toData(bool value) {
     return value ? on : off;
   }
 
   static bool toValue(std::span<const std::uint8_t> data) {
-    return data.size() == 1 & data[0] != 0x00;
+    return data.size() == 1 & (data[0] != 0x00;
   }
 };
 
 class StringFormat {
-  static const bool FITS_IN_6BITS{false};
+  static constexpr bool FITS_IN_6BITS{false};
 
 public:
   static auto toData(std::string_view value, const std::size_t size)
@@ -49,7 +48,7 @@ public:
 };
 
 class UInt8Format {
-  static const bool FITS_IN_6BITS{false};
+  static constexpr bool FITS_IN_6BITS{false};
 
 public:
   static auto toData(std::uint8_t value) -> std::array<std::uint8_t, 1> {

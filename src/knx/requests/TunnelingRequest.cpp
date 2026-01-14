@@ -13,7 +13,7 @@ std::vector<std::uint8_t> TunnelRequest::toBytes() {
   std::vector<std::uint8_t> bytes;
   ByteBufferWriter writer{bytes};
   KnxIpHeader ipHeader{SERVICE_ID,
-                       static_cast<std::uint16_t>(requestBytes.size() + 6)};
+                       static_cast<std::uint16_t>(requestBytes.size() + KnxIpHeader::SIZE_HEADER)};
   ipHeader.write(writer);
   writer.writeVector(requestBytes);
 

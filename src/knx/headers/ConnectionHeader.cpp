@@ -24,4 +24,3 @@ std::uint8_t ConnectionHeader::getSequence() const { return sequence; }
 
 std::uint8_t ConnectionHeader::getStatus() const { return status; }
 std::uint8_t ConnectionHeader::getChannel() const { return getType(); }
-// ConnectionHeader::

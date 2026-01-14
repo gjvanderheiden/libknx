@@ -8,6 +8,7 @@
 class DisconnectRequest final : public AbstractRequest {
 public:
   static constexpr std::uint16_t SERVICE_ID = 0x0209;
+  static constexpr std::uint16_t SIZE = 16;
 
 public:
   DisconnectRequest(std::uint8_t channel, HPAI &&hpai);
@@ -20,5 +21,5 @@ public:
 
 private:
   std::uint8_t channel{0};
-  const HPAI controlEndpoint;
+  HPAI controlEndpoint;
 };

@@ -6,6 +6,7 @@
 class DescriptionRequest final : public AbstractRequest {
 public:
   static constexpr std::uint16_t SERVICE_ID = 0x0203;
+  static constexpr std::uint16_t SIZE = 14;
 
 public:
   explicit DescriptionRequest(HPAI&& controlEndPoint);

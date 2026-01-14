@@ -6,12 +6,12 @@ IpAddress::IpAddress(const std::uint8_t byte1, const std::uint8_t byte2, const s
 IpAddress::IpAddress(std::array<const uint8_t, 4> &&asArray)
     : address{std::move(asArray)} {}
 
-IpAddress IpAddress::parse(ByteBufferReader &byteBuffer) {
-  return {byteBuffer.get4BytesCopy()};
+IpAddress IpAddress::parse(ByteBufferReader &reader) {
+  return {reader.get4BytesCopy()};
 }
 
-void IpAddress::write(ByteBufferWriter &data) const {
-  data.writeByteSpan(address);
+void IpAddress::write(ByteBufferWriter &writer) const {
+  writer.writeByteSpan(address);
 }
 
 std::string IpAddress::asString() {

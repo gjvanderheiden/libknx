@@ -78,7 +78,7 @@ void GroupAddress::toBytes(ByteBufferWriter &writer) const {
   writer.writeUint8(getLow());
 }
 
-std::size_t GroupAddress::operator()(const GroupAddress &key) const {
+std::size_t GroupAddress::operator()(const GroupAddress & /*key*/) const {
   return (std::hash<std::uint8_t>()(getLow()) << 16) ^
          (std::hash<std::uint8_t>()(getMiddle()) << 8) ^
          (std::hash<std::uint8_t>()(getHigh()));

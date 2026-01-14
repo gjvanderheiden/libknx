@@ -8,8 +8,9 @@ DescriptionRequest::DescriptionRequest(HPAI &&controlEndPoint)
 
 std::vector<std::uint8_t> DescriptionRequest::toBytes() {
   std::vector<std::uint8_t> bytes;
+  bytes.reserve(SIZE);
   ByteBufferWriter writer{bytes};
-  KnxIpHeader{SERVICE_ID, 14}.write(writer);
+  KnxIpHeader{SERVICE_ID, SIZE}.write(writer);
   controlEndPoint.write(writer);
   return bytes;
 }

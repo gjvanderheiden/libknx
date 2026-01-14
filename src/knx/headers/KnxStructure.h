@@ -28,5 +28,6 @@ protected:
   void writeKnxStructure(ByteBufferWriter& data, std::uint16_t length) const;
 
 private:
-  const std::uint8_t type{0};
+  static constexpr std::uint8_t MAX_SIZE = 255;
+  std::uint8_t type{0};
 };

@@ -27,7 +27,7 @@ public:
   void stop(bool resetHandler = false);
   void startMulticast(const asio::ip::address &multicastAddress);
   void startMulticast(std::string_view multicastAddress);
-  void writeToSync(asio::ip::udp::endpoint address, ByteSpan data);
+  void writeToSync(const asio::ip::udp::endpoint& address, ByteSpan data);
   awaitable<void> writeTo(const asio::ip::udp::endpoint &address,
                           ByteSpan data);
 

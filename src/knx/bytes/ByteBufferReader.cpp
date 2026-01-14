@@ -9,7 +9,7 @@ ByteBufferReader::ByteBufferReader(const std::span<const byte> data) : data{data
 
 std::uint32_t ByteBufferReader::readUint32() {
   std::uint32_t value{0};
-  memcpy(&value, data.data() + index, sizeof(std::uint32_t));
+  memcpy(&value, data.subspan(index, sizeof(std::uint32_t)).data(), sizeof(std::uint32_t));
   index += sizeof(std::uint32_t);
   if constexpr (ByteBufferReader::isNativeLittleEndian()) {
     value = std::byteswap(value);
@@ -35,7 +35,7 @@ std::string ByteBufferReader::readTerminatedString(const int maxLength) {
     if(byte == 0x00) {
       break;
     }
-    knxString.push_back(byte);
+    knxString.push_back(std::bit_cast<char>(byte));
   }
   return knxString;
 }
@@ -50,7 +50,7 @@ std::span<const byte> ByteBufferReader::readByteSpan(const int numberOfBytes) {
 }
 
 void ByteBufferReader::copyToSpan(std::span<byte> destination) {
-  memcpy(destination.data(), data.data() + index, destination.size());
+  memcpy(destination.data(), data.subspan(index, destination.size()).data(), destination.size());
   index += destination.size();
 }
 
@@ -60,23 +60,24 @@ std::uint8_t ByteBufferReader::readUint8() { return data[index++]; }
 
 std::int16_t ByteBufferReader::readInt16() {
   if  constexpr (ByteBufferReader::isNativeLittleEndian()) {
-    std::int16_t value = data[index++] << 8;
-    value |= data[index++];
+    auto value = static_cast<std::int16_t>(data[index++] << BYTE_SIZE);
+    value =  static_cast<std::int16_t>(value | data[index++]);
     return value;
   } else {
     std::int16_t value = data[index++];
-    value |= data[index++] << 8;
+    value = static_cast<std::int16_t>(value | data[index++] << BYTE_SIZE);
     return value;
   }
 }
+
 std::uint16_t ByteBufferReader::readUint16() {
   if  constexpr (ByteBufferReader::isNativeLittleEndian()) {
-    std::uint16_t value = data[index++] << 8;
+    std::uint16_t value = data[index++] << BYTE_SIZE;
     value |= data[index++];
     return value;
   } else {
     std::uint16_t value = data[index++];
-    value |= data[index++] << 8;
+    value |= data[index++] << BYTE_SIZE;
     return value;
   }
 }

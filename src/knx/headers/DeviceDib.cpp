@@ -14,7 +14,7 @@ DeviceDib DeviceDib::parse(ByteBufferReader &reader) {
   auto deviceStatus = reader.readUint8();
   auto individualAddress = IndividualAddress::parse(reader);
   auto projectInstallationIdentifier = reader.readUint16();
-  std::array<std::uint8_t, 6> serialNumber;
+  std::array<std::uint8_t, LENGTH_SERIAL_NUMBER> serialNumber{0};
   reader.copyToSpan(serialNumber);
   auto multicastAddress = IpAddress::parse(reader);
   DeviceDib result{std::move(multicastAddress)};
@@ -24,11 +24,11 @@ DeviceDib DeviceDib::parse(ByteBufferReader &reader) {
   result.individualAddress = individualAddress;
   result.projectInstallationIdentifier = projectInstallationIdentifier;
   result.serialNumber = serialNumber;
-  result.deviceName = reader.readTerminatedString(30);
+  result.deviceName = reader.readTerminatedString(MAX_LENGTH_DEVICE_NAME);
   return result;
 }
 
-void DeviceDib::write(ByteBufferWriter &data) const {
+void DeviceDib::write(ByteBufferWriter &writer) const {
 
 }
 

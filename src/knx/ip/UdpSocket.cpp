@@ -101,11 +101,11 @@ awaitable<void> UdpSocket::readIncoming() {
     auto [error, size] = co_await socket.async_receive_from(
         asio::buffer(buffer), remoteEndpoint, use_nothrow_awaitable);
     if (error == asio::error::operation_aborted) {
-      std::cerr << "Abort on socket read" << std::endl;
+      std::cerr << "Abort on socket read\n";
       co_return;
     } else if (error) {
       std::cout << "Error reading socket " << port << " : " << error.message()
-                << std::endl;
+                << '\n';
       reading = false;
     } else if (size > 0 && this->handlerFunction) {
       std::vector<std::uint8_t> data;
@@ -113,7 +113,7 @@ awaitable<void> UdpSocket::readIncoming() {
       std::copy_n(buffer.begin(), size, std::back_inserter(data));
       handlerFunction(std::move(data));
     } else if (size == 0) {
-      std::cerr << "Received 0 bytes packet on socket " << port << std::endl;
+      std::cerr << "Received 0 bytes packet on socket " << port << '\n';
     }
   }
   open = false;
@@ -132,7 +132,7 @@ void UdpSocket::stop(bool resetHandler) {
   }
 }
 
-void UdpSocket::writeToSync(asio::ip::udp::endpoint address, ByteSpan data) {
+void UdpSocket::writeToSync(const asio::ip::udp::endpoint& address, ByteSpan data) {
   socket.send_to(asio::buffer(data), address);
 }
 

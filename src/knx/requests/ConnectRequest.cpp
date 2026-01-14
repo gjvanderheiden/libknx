@@ -12,8 +12,9 @@ ConnectRequest::ConnectRequest(HPAI &&controlEndPoint,
 
 std::vector<std::uint8_t> ConnectRequest::toBytes() {
   std::vector<std::uint8_t> bytes;
+  bytes.reserve(SIZE);
   ByteBufferWriter writer{bytes};
-  KnxIpHeader{SERVICE_ID, 26}.write(writer);
+  KnxIpHeader{SERVICE_ID, SIZE}.write(writer);
   controlEndPoint.write(writer);
   dataEndPoint.write(writer);
   cri.write(writer);
