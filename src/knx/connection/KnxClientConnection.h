@@ -68,7 +68,7 @@ public:
 
 private:
   void
-  forEveryListener(std::function<auto(KnxConnectionListener *)->void>&& doThis);
+  forEveryListener(const std::function<auto(KnxConnectionListener *)->void>& doThis);
 
   void onConnect() override;
   void onDisconnect() override;

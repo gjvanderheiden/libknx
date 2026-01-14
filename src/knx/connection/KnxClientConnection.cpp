@@ -173,7 +173,7 @@ void KnxClientConnection::onDisconnect() {
 }
 
 void KnxClientConnection::forEveryListener(
-    std::function<auto(KnxConnectionListener *)->void> doThis) {
+    const std::function<auto(KnxConnectionListener *)->void>& doThis) {
   bool hasLoosListener = false;
   for (const auto &listenerRef : connectionListeners) {
     if (auto listener = listenerRef.lock()) {

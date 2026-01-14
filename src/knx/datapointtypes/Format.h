@@ -21,11 +21,11 @@ public:
   static constexpr std::array<const std::uint8_t, 1> ON{0x01};
 
   static std::array<const std::uint8_t, 1> toData(bool value) {
-    return value ? on : off;
+    return value ? ON : OFF;
   }
 
   static bool toValue(std::span<const std::uint8_t> data) {
-    return data.size() == 1 & (data[0] != 0x00;
+    return data.size() == 1 && data[0] != 0x00;
   }
 };
 
