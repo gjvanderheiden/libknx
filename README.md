@@ -58,7 +58,7 @@ My setup runs on Arch Linux, I don't have an automated setup (yet). So I just re
 ## High level overview KNX IP protocol
 In order to interact with an IP router the clients needs to have a data UDP port and a control UDP port. Frames over this line are as follows:
 
-Top level is a KNX IP header, followed by a Response or a Request. 
+Top level is a KNX IP header, followed by a Response or a Request. An request is used to wrap KNX Cemi packets.
 
 ### Connection
 Connection interaction goes like this:
@@ -81,7 +81,7 @@ Contains functionality to parse and create network frames. The objects here focu
 Contains classes to parse and create cemi frames.
 
 ### src/connection
-User side (API) objects for discovery and create a connection to an IP router.
+User side (API) objects for discovery and create a connection to an IP router. KnxClientConnection handles Cemi level and KnxTunnelingConnection handles Knx ip level (knx ip header and Request, Responses).
 
 ### src/headers
 Headers / frames that are used in the protocol. The objects in this directory can parse and create them. The objects in this directory use ByteBuffer from src/bytes.
@@ -95,12 +95,12 @@ Contains objects that are send between libknx and a KNX IP router. These objects
 ## ToDo list
 ### Code
 - I would like to use Cpp Modules, need to see how that works with cmake install
+- Clang-tidy rules
+- Check closures with coroutines
+- Rename and refactor TunnelingSendRequest to be more abstract and reusable for KnxClientConnection sending Cemi messages.
 ### Functional
 First focus points:
 - KnxConnection readGroup with a return value, waiting on con and response from KNX
-- DataPointType parsing
-  - length data in Cemi is 2 bytes fixed, should be a vector
-  - bool type
-  - string type 
-  - uint8, uint16 and uint32 
-  - float
+### Testing
+- Unit test "TunnelingRequest" after rename and better api
+
