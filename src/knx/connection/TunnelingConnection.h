@@ -6,6 +6,7 @@
 #include "knx/headers/HPAI.h"
 #include "knx/headers/KnxIpHeader.h"
 #include "knx/ip/UdpSocket.h"
+#include "knx/requests/AbstractRequest.h"
 #include <asio/awaitable.hpp>
 #include <asio/io_context.hpp>
 #include <map>
@@ -30,8 +31,15 @@ namespace knx::connection {
  * to keep a sort of connection household. A facade if you like.
  */
 class TunnelingConnection {
+public:
+  static constexpr int TIME_BETWEEN_CHECK_CONNECTION = 45;
 
 public:
+  TunnelingConnection(const TunnelingConnection &) = delete;
+  TunnelingConnection(TunnelingConnection &&) = delete;
+  TunnelingConnection &operator=(const TunnelingConnection &) = delete;
+  TunnelingConnection &operator=(TunnelingConnection &&) = delete;
+
   TunnelingConnection(asio::io_context &ctx, std::string_view remoteIp,
                       std::uint16_t remotePort, std::string_view localBindIp,
                       std::uint16_t localDataPort,
@@ -56,7 +64,7 @@ public:
 
   asio::awaitable<void> printDescription();
 
-  const IndividualAddress& getKnxAddress();
+  const IndividualAddress &getKnxAddress();
 
 private:
   asio::awaitable<void> close(bool needsDisconnectRequest);
@@ -73,7 +81,7 @@ private:
    * send request to KNX server (router).
    * This should also do a timeout, which is currently doesn't do.
    */
-  asio::awaitable<void> sendRequest(std::vector<std::uint8_t> &request,
+  asio::awaitable<void> sendRequest(AbstractRequest &request,
                                     std::uint16_t responseServiceId,
                                     CallBackFunction &&callBackFunction);
   /**
@@ -118,7 +126,8 @@ private:
   /**
    * inform every ConnectionListener with whatever is in the lambda
    */
-  void forEveryListener(const std::function<auto(ConnectionListener *)->void>& doThis) const;
+  void forEveryListener(
+      const std::function<auto(ConnectionListener *)->void> &doThis) const;
 
 private:
   asio::io_context &ctx;

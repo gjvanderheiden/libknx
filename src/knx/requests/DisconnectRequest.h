@@ -3,7 +3,6 @@
 #include "knx/bytes/ByteBufferReader.h"
 #include "knx/headers/HPAI.h"
 #include "knx/requests/AbstractRequest.h"
-#include <vector>
 
 class DisconnectRequest final : public AbstractRequest {
 public:
@@ -14,7 +13,7 @@ public:
   DisconnectRequest(std::uint8_t channel, HPAI &&hpai);
 
   static DisconnectRequest parse(ByteBufferReader &reader);
-  std::vector<std::uint8_t> toBytes() override;
+  void write(ByteBufferWriter &writer) override;
 
   [[nodiscard]] std::uint8_t getChannel() const;
   [[nodiscard]] const HPAI &getControlEndpoint() const;

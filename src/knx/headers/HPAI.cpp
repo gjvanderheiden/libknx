@@ -1,7 +1,6 @@
 #include "HPAI.h"
 #include "IpAddress.h"
 #include "KnxStructure.h"
-#include <cstdint>
 
 HPAI::HPAI(IpAddress address, int port, std::uint8_t protocolCode)
     : KnxStructure(protocolCode), address(std::move(address)), port(port) {

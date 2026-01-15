@@ -108,7 +108,6 @@ asio::awaitable<void>
 KnxClientConnection::writeToGroup(GroupAddress &groupAddress, const std::uint8_t value,
                                   const bool only6Bits) {
   DataACPI dataAcpi{DataACPI::GROUP_VALUE_WRITE, value, only6Bits};
-
   co_await writeToGroup(groupAddress, std::move(dataAcpi));
 }
 

@@ -11,8 +11,8 @@ public:
 public:
   explicit DescriptionRequest(HPAI&& controlEndPoint);
 
-  std::vector<std::uint8_t> toBytes() override;
-
+  void write(ByteBufferWriter &writer) override;
+  static DescriptionRequest parse(ByteBufferReader& reader);
 private:
-  const HPAI controlEndPoint;
+  HPAI controlEndPoint;
 };

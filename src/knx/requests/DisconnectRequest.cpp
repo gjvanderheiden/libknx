@@ -4,15 +4,11 @@
 DisconnectRequest::DisconnectRequest(const std::uint8_t channel, HPAI&& hpai) : channel{channel}, controlEndpoint{std::move(hpai)} {
 }
 
-std::vector<std::uint8_t> DisconnectRequest::toBytes() {
-  std::vector<std::uint8_t> bytes;
-  bytes.reserve(SIZE);
-  ByteBufferWriter writer{bytes};
+void DisconnectRequest::write(ByteBufferWriter& writer) {
   KnxIpHeader{SERVICE_ID, SIZE}.write(writer);
   writer.writeUint8(channel);
   writer.writeUint8(0x00);
   controlEndpoint.write(writer);
-  return bytes;
 }
 
 DisconnectRequest DisconnectRequest::parse(ByteBufferReader& reader) {

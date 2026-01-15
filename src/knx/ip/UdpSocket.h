@@ -34,7 +34,6 @@ public:
 private:
   awaitable<void> readIncoming();
   void receiveSome();
-  void reset();
 
 private:
   asio::io_context &ctx;

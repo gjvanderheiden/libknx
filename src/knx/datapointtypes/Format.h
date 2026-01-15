@@ -65,7 +65,7 @@ public:
 };
 
 class UInt16Format {
-  static const bool FITS_IN_6BITS{false};
+  static constexpr bool FITS_IN_6BITS{false};
 
 public:
   static auto toData(std::uint8_t value) -> std::array<std::uint8_t, 1> {
@@ -97,7 +97,6 @@ public:
 
     number = (number * 100);
 
-    std::uint8_t sign = 0;
     std::uint8_t exponent = 0;
     double mantisse = number;
 
@@ -107,7 +106,7 @@ public:
     }
     std::vector<std::uint8_t> mantisseBytes;
     mantisseBytes.reserve(2);
-    ByteBufferWriter writer(mantisseBytes);
+    const ByteBufferWriter writer(mantisseBytes);
     writer.writeInt16(static_cast<std::int16_t>(mantisse));
     data[0] = exponent << 3 | (mantisseBytes[0] &0x87);
     data[1] = mantisseBytes[1];
@@ -117,15 +116,15 @@ public:
   static double toValue(std::span<const std::uint8_t> data) {
 
     if (data.size() == 2) {
-      std::uint8_t m_data[2];
-      m_data[0] = data[0] & 0x87;
-      m_data[1] = data[1];
+      std::array<std::uint8_t,2> mData;
+      mData[0] = data[0] & 0x87;
+      mData[1] = data[1];
       if((data[0] & 0x80) == 0x80) {
-        m_data[0] |= 0x78;
+        mData[0] |= 0x78;
       }
-      const double m = static_cast<double>(ByteBufferReader(m_data).readInt16());
-      const std::uint8_t e = (data[0] >> 3) & 0x0F;
-      return 0.01 * m * pow(2.0, e);
+      const double mantisse = static_cast<double>(ByteBufferReader(mData).readInt16());
+      const std::uint8_t exp = (data[0] >> 3) & 0x0F;
+      return 0.01 * mantisse * pow(2.0, exp);
     } else {
       return 0;
     }

@@ -31,7 +31,7 @@ std::vector<uint8_t> makeSearchRequest() {
   SearchRequest searchRequest{std::move(local)};
   std::vector<byte> srBytes;
   ByteBufferWriter writer(srBytes);
-  searchRequest.appendToByteWriter(writer);
+  searchRequest.write(writer);
   return srBytes;
 }
 } // namespace
@@ -56,11 +56,9 @@ asio::awaitable<void> Discovery::runTimeOut() {
 
 void Discovery::doReceive(std::vector<std::uint8_t> &&data) {
   ByteBufferReader reader{std::move(data)};
-  KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader);
-  if (knxIpHeader.getServiceType() ==
-      knx::requestresponse::SearchResponse::SERVICE_ID) {
-    ByteBufferReader bytebuffer{this->data};
-    knx::requestresponse::SearchResponse sr =
+  if (const KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader); knxIpHeader.getServiceType() ==
+                                                                  knx::requestresponse::SearchResponse::SERVICE_ID) {
+    const knx::requestresponse::SearchResponse sr =
         knx::requestresponse::SearchResponse::parse(reader);
     foundKnxIps.emplace_back(std::string{sr.getDeviceDib().getDeviceName()},
                              sr.getControlEndPoint().getAddress().asString(),

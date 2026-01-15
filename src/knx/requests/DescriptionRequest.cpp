@@ -5,12 +5,11 @@ DescriptionRequest::DescriptionRequest(HPAI &&controlEndPoint)
     : controlEndPoint{std::move(controlEndPoint)} {
 }
 
-
-std::vector<std::uint8_t> DescriptionRequest::toBytes() {
-  std::vector<std::uint8_t> bytes;
-  bytes.reserve(SIZE);
-  ByteBufferWriter writer{bytes};
+void DescriptionRequest::write(ByteBufferWriter& writer) {
   KnxIpHeader{SERVICE_ID, SIZE}.write(writer);
   controlEndPoint.write(writer);
-  return bytes;
+}
+
+DescriptionRequest DescriptionRequest::parse(ByteBufferReader& reader) {
+  return DescriptionRequest{HPAI::parse(reader)};
 }

@@ -26,7 +26,8 @@ class KnxClientConnection final : ConnectionListener {
 public:
   KnxClientConnection(asio::io_context& ctx, std::unique_ptr<TunnelingConnection> &&tunnelingConnection);
   ~KnxClientConnection() override = default;
-  KnxClientConnection(KnxClientConnection&& other) noexcept = default;
+
+  KnxClientConnection(KnxClientConnection&& other) noexcept = delete;
   KnxClientConnection& operator=(KnxClientConnection&& other) noexcept =  delete;
 
   /**

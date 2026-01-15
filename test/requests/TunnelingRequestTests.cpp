@@ -103,5 +103,9 @@ TEST(TunnelingRequest, parse1ToBytes) {
   ASSERT_EQ(1, data.size());
   ASSERT_EQ(0x00, data[0]);
 
-  ASSERT_THAT(request.toBytes(), testing::ElementsAreArray(test_frame1));
+  std::vector<std::uint8_t> testResult;
+  ByteBufferWriter writer{testResult};
+  request.write(writer);
+
+  ASSERT_THAT(testResult, testing::ElementsAreArray(test_frame1));
 }

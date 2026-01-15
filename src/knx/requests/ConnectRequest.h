@@ -3,6 +3,7 @@
 #include "knx/requests/AbstractRequest.h"
 #include "knx/headers/ConnectionRequestInformation.h"
 #include "knx/headers/HPAI.h"
+#include "knx/bytes/ByteBufferReader.h"
 
 class ConnectRequest final : public AbstractRequest {
 public:
@@ -12,7 +13,8 @@ public:
 public:
   explicit ConnectRequest(HPAI&& controlEndPoint, HPAI&& dataEndPoint, ConnectionRequestInformation&& cri);
 
-  std::vector<std::uint8_t> toBytes() override;
+  void write(ByteBufferWriter &writer) override;
+  static ConnectRequest parse(ByteBufferReader reader);
 
 private:
   HPAI controlEndPoint;

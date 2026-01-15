@@ -1,11 +1,10 @@
 #pragma once
 
-#include <cstdint>
-#include <vector>
+#include "knx/bytes/ByteBufferWriter.h"
 
 class AbstractRequest {
 public:
   virtual ~AbstractRequest() = default;
 
-  virtual std::vector<std::uint8_t> toBytes() = 0;
+  virtual void write(ByteBufferWriter &writer) = 0;
 };

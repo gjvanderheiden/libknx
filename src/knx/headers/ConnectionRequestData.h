@@ -16,7 +16,7 @@ public:
   static ConnectionRequestData parse(ByteBufferReader &reader);
   void write(ByteBufferWriter &writer) const override;
 
-  const IndividualAddress& getAddress() const;
+  [[nodiscard]] const IndividualAddress& getAddress() const;
 
 private:
   const IndividualAddress address;

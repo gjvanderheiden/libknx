@@ -18,6 +18,9 @@ public:
   [[nodiscard]] std::uint8_t getHigh() const;
   [[nodiscard]] std::uint8_t getMiddle() const;
   [[nodiscard]] std::uint8_t getLow() const;
+  bool operator==(const KnxAddress& otherGroupAddress) const = default;
+  bool operator<(const KnxAddress& otherGroupAddress) const;
+  bool operator>(const KnxAddress& otherGroupAddress) const;
 private:
   std::uint8_t high{0}, middle{0}, low{0};
 };
@@ -35,10 +38,9 @@ public:
   static IndividualAddress parse(ByteBufferReader& reader);
   void write(ByteBufferWriter& writer) const;
 
-  std::size_t operator()(const IndividualAddress& key) const;
-  bool operator==(const IndividualAddress& otherGroupAddress) const;
-  bool operator<(const IndividualAddress& otherGroupAddress) const;
-  bool operator>(const IndividualAddress& otherGroupAddress) const;
+  bool operator==(const IndividualAddress& otherIndividualAddress) const = default;
+  bool operator<(const IndividualAddress& otherIndividualAddress) const;
+  bool operator>(const IndividualAddress& otherIndividualAddress) const;
 
   [[nodiscard]] std::uint8_t getArea() const;
   [[nodiscard]] std::uint8_t getLine() const;
@@ -58,8 +60,7 @@ public:
   static GroupAddress parse(ByteBufferReader& reader);
   void toBytes(ByteBufferWriter& writer) const;
 
-  std::size_t operator()(const GroupAddress& key) const;
-  bool operator==(const GroupAddress& otherGroupAddress) const;
+  bool operator==(const GroupAddress& otherGroupAddress) const = default;
   bool operator<(const GroupAddress& otherGroupAddress) const;
   bool operator>(const GroupAddress& otherGroupAddress) const;
 };

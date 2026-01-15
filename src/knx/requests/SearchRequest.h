@@ -13,11 +13,9 @@ public:
   explicit SearchRequest(HPAI&& hpaiLocal);
   static SearchRequest newDefault();
 
-
-  std::vector<std::uint8_t> toBytes() override;
-
-  void appendToByteWriter(ByteBufferWriter& writer) const;
+  void write(ByteBufferWriter& writer) override;
+  static SearchRequest parse(ByteBufferReader& reader);
 
 private:
-  const HPAI hpaiLocal;
+  HPAI hpaiLocal;
 };

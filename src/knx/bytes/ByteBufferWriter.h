@@ -30,7 +30,7 @@ public:
   /**
    * I will return a string with specified number of bytes.
    */
-  void writeString(std::string_view string) const;
+  void writeString(std::string_view aString) const;
 
   /**
    * I will return a string with specified max length. If there is a 0x00, in the byte array
@@ -42,7 +42,7 @@ public:
   /**
    * write the span to the buffer
    */
-  void writeByteSpan(ByteSpan span) const;
+  void writeByteSpan(ByteSpan byteSpan) const;
 
   void writeVector(const std::vector<uint8_t>& vector) const;
   /**

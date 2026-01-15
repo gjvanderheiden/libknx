@@ -4,20 +4,17 @@
 TunnelRequest::TunnelRequest(ConnectionHeader &&connectionHeader, Cemi &&cemi)
     : connectionHeader{std::move(connectionHeader)}, cemi{std::move(cemi)} {}
 
-std::vector<std::uint8_t> TunnelRequest::toBytes() {
+void TunnelRequest::write(ByteBufferWriter &writer) {
   std::vector<std::uint8_t> requestBytes;
   ByteBufferWriter requestWriter{requestBytes};
   connectionHeader.write(requestWriter);
   cemi.write(requestWriter);
 
-  std::vector<std::uint8_t> bytes;
-  ByteBufferWriter writer{bytes};
   KnxIpHeader ipHeader{SERVICE_ID,
-                       static_cast<std::uint16_t>(requestBytes.size() + KnxIpHeader::SIZE_HEADER)};
+                       static_cast<std::uint16_t>(requestBytes.size() +
+                                                  KnxIpHeader::SIZE_HEADER)};
   ipHeader.write(writer);
   writer.writeVector(requestBytes);
-
-  return bytes;
 }
 
 TunnelRequest TunnelRequest::parse(ByteBufferReader &reader) {

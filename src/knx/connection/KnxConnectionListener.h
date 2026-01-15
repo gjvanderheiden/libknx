@@ -12,7 +12,8 @@ public:
   KnxConnectionListener &operator=(const KnxConnectionListener &) = delete;
   KnxConnectionListener &operator=(KnxConnectionListener &&) = delete;
 
-  virtual ~KnxConnectionListener() = default;
+  KnxConnectionListener() = default;
+  virtual ~KnxConnectionListener() = default; 
 
   virtual void onConnect() = 0;
   virtual void onDisconnect() = 0;

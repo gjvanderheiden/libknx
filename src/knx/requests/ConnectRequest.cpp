@@ -6,17 +6,19 @@ ConnectRequest::ConnectRequest(HPAI &&controlEndPoint,
                                      ConnectionRequestInformation &&cri)
     : controlEndPoint{std::move(controlEndPoint)},
       dataEndPoint{std::move(dataEndPoint)}, 
-      cri{std::move(cri)} {
+      cri{std::move(cri)} {}
+
+
+ConnectRequest ConnectRequest::parse(ByteBufferReader reader) {
+  auto controlEndPoint = HPAI::parse(reader);
+  auto dataEndPoint = HPAI::parse(reader);
+  auto cri = ConnectionRequestInformation::parse(reader);
+  return ConnectRequest{std::move(controlEndPoint), std::move(dataEndPoint), std::move(cri)};
 }
 
-
-std::vector<std::uint8_t> ConnectRequest::toBytes() {
-  std::vector<std::uint8_t> bytes;
-  bytes.reserve(SIZE);
-  ByteBufferWriter writer{bytes};
+void ConnectRequest::write(ByteBufferWriter& writer) {
   KnxIpHeader{SERVICE_ID, SIZE}.write(writer);
   controlEndPoint.write(writer);
   dataEndPoint.write(writer);
   cri.write(writer);
-  return bytes;
 }

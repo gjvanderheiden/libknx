@@ -15,13 +15,13 @@ void ByteBufferWriter::writeUint32(std::uint32_t value) const {
 }
 
 void ByteBufferWriter::writeZeros(const std::uint32_t numberOfBytes) const {
-  for (int i = 0; i < numberOfBytes; i++) {
+  for (std::uint32_t i = 0; i < numberOfBytes; i++) {
     data.push_back(0x00);
   }
 }
 
 void ByteBufferWriter::writeString(const std::string_view aString) const {
-  std::copy(aString.begin(), aString.end(), std::back_inserter(data));
+  std::ranges::copy(aString, std::back_inserter(data));
 }
 
 void ByteBufferWriter::writeTerminatedString(const std::string_view aString,
@@ -31,16 +31,16 @@ void ByteBufferWriter::writeTerminatedString(const std::string_view aString,
 }
 
 void ByteBufferWriter::writeByteSpan(const std::span<const std::uint8_t> byteSpan) const {
-  std::copy(byteSpan.begin(), byteSpan.end(), std::back_inserter(data));
+  std::ranges::copy(byteSpan, std::back_inserter(data));
 }
 void ByteBufferWriter::writeByteSpan(const ByteSpan byteSpan) const {
-  std::copy(byteSpan.begin(), byteSpan.end(), std::back_inserter(data));
+  std::ranges::copy(byteSpan, std::back_inserter(data));
 }
 
 void ByteBufferWriter::writeVector(const std::vector<uint8_t>& vector) const {
   std::ranges::copy(vector, std::back_inserter(data));
 }
-void ByteBufferWriter::writeBoolAsByte(const bool value) const { this->writeUint8(value); }
+void ByteBufferWriter::writeBoolAsByte(const bool value) const { this->writeUint8(static_cast<std::uint8_t>(value)); }
 
 void ByteBufferWriter::writeUint8(const std::uint8_t value) const { data.push_back(value); }
 
