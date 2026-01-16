@@ -11,6 +11,12 @@ public:
   static constexpr std::uint16_t SIZE = 16;
 
 public:
+  ConnectStateRequest(const ConnectStateRequest &) = default;
+  ConnectStateRequest(ConnectStateRequest &&) = delete;
+  ConnectStateRequest &operator=(const ConnectStateRequest &) = delete;
+  ConnectStateRequest &operator=(ConnectStateRequest &&) = delete;
+
+public:
   ConnectStateRequest(HPAI &&controlEndPoint, std::uint8_t channelId);
   ~ConnectStateRequest() override = default;
  

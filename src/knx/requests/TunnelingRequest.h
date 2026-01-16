@@ -10,14 +10,19 @@ public:
   static constexpr std::uint16_t SERVICE_ID = 0x0420;
 
 public:
-  TunnelRequest(ConnectionHeader&& connectionHeader,  Cemi&& cemi );
+  TunnelRequest(const TunnelRequest &) = default;
+  TunnelRequest(TunnelRequest &&) = delete;
+  TunnelRequest &operator=(const TunnelRequest &) = delete;
+  TunnelRequest &operator=(TunnelRequest &&) = delete;
+  ~TunnelRequest() override = default;
 
+public:
+  TunnelRequest(ConnectionHeader &&connectionHeader, Cemi &&cemi);
   void write(ByteBufferWriter& writer) override;
   static TunnelRequest parse(ByteBufferReader& reader);
 
   [[nodiscard]] const ConnectionHeader& getConnectionHeader() const;
   [[nodiscard]] const Cemi& getCemi() const;
-
 
 private:
   ConnectionHeader connectionHeader;

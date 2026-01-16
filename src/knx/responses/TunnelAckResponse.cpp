@@ -9,6 +9,10 @@ TunnelAckResponse TunnelAckResponse::parse(ByteBufferReader& reader) {
   return TunnelAckResponse{ConnectionHeader::parse(reader)};
 }
 
+void TunnelAckResponse::write(ByteBufferWriter &writer) {
+  connectionHeader.write(writer);
+} 
+
 std::vector<byte> TunnelAckResponse::toBytes() const {
   std::vector<byte> bytes;
   bytes.reserve(LENGTH);

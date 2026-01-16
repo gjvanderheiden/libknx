@@ -10,7 +10,13 @@ public:
   static constexpr std::uint16_t SIZE = 14;
 
 public:
-  explicit SearchRequest(HPAI&& hpaiLocal);
+  SearchRequest(const SearchRequest &) = default;
+  SearchRequest(SearchRequest &&) = default;
+  SearchRequest &operator=(const SearchRequest &) = delete;
+  SearchRequest &operator=(SearchRequest &&) = delete;
+  ~SearchRequest() override = default; 
+public:
+  explicit SearchRequest(HPAI &&hpaiLocal);
   static SearchRequest newDefault();
 
   void write(ByteBufferWriter& writer) override;

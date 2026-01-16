@@ -11,6 +11,11 @@ DisconnectResponse DisconnectResponse::parse(ByteBufferReader &reader) {
   return DisconnectResponse{reader.readUint8(), reader.readUint8()};
 }
 
+void DisconnectResponse::write(ByteBufferWriter &writer) {
+  writer.writeUint8(channel);
+  writer.writeUint8(status);
+}
+
 std::vector<std::uint8_t> DisconnectResponse::toBytes() const {
   std::vector<byte> bytes;
   bytes.reserve(LENGTH);

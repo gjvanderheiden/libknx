@@ -7,7 +7,7 @@ IpAddress::IpAddress(std::array<const uint8_t, 4> &&asArray)
     : address{std::move(asArray)} {}
 
 IpAddress IpAddress::parse(ByteBufferReader &reader) {
-  return {reader.get4BytesCopy()};
+  return IpAddress{reader.get4BytesCopy()};
 }
 
 void IpAddress::write(ByteBufferWriter &writer) const {

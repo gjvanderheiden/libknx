@@ -3,7 +3,7 @@
 KnxStructure::KnxStructure(std::uint8_t type) : type{type} {
 }
 
-KnxStructure::pr KnxStructure::parse(ByteBufferReader& byteBuffer) {
+KnxStructure::ParseResult KnxStructure::parse(ByteBufferReader& byteBuffer) {
   std::uint16_t length = byteBuffer.readUint8();
   if (length == MAX_SIZE) {
     length = byteBuffer.readUint16();

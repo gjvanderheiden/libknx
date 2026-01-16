@@ -9,7 +9,14 @@ public:
   static constexpr std::uint16_t SIZE = 14;
 
 public:
-  explicit DescriptionRequest(HPAI&& controlEndPoint);
+  DescriptionRequest(const DescriptionRequest &) = default;
+  DescriptionRequest(DescriptionRequest &&) = delete;
+  DescriptionRequest &operator=(const DescriptionRequest &) = delete;
+  DescriptionRequest &operator=(DescriptionRequest &&) = delete;
+  ~DescriptionRequest() override = default;
+
+public:
+  explicit DescriptionRequest(HPAI &&controlEndPoint);
 
   void write(ByteBufferWriter &writer) override;
   static DescriptionRequest parse(ByteBufferReader& reader);

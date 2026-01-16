@@ -6,14 +6,21 @@
 #include <asio/awaitable.hpp>
 #include <cstdint>
 
-class HPAI final: KnxStructure {
+class HPAI final : public  KnxStructure {
 public:
   static constexpr uint8_t UDP = 0x01;
   static constexpr uint8_t TCP = 0x02;
   static constexpr uint8_t SIZE = 8;
 
 public:
+  HPAI() = delete;
   HPAI(IpAddress address, int port, std::uint8_t protocolCode);
+  ~HPAI() override = default;
+
+  HPAI(const HPAI &) = default;
+  HPAI(HPAI &&) = default;
+  HPAI &operator=(const HPAI &) = delete;
+  HPAI &operator=(HPAI &&) = delete;
 
   void write(ByteBufferWriter& writer) const override;
   static HPAI parse(ByteBufferReader& reader);
@@ -26,7 +33,7 @@ public:
 
 private:
   IpAddress address;
-  std::uint16_t port;
+  std::uint16_t port{0};
 };
 
 

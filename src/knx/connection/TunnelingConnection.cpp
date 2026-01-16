@@ -267,7 +267,7 @@ namespace {
 IpAddress toIpAddress(const asio::ip::address_v4 &address) {
   auto toBytes = address.to_bytes();
   ByteBufferReader reader{toBytes};
-  return {reader.get4BytesCopy()};
+  return IpAddress{reader.get4BytesCopy()};
 }
 } // namespace
   

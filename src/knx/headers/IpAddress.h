@@ -6,8 +6,9 @@
 
 class IpAddress {
 public:
+  IpAddress() = default;
   IpAddress(std::uint8_t byte1, std::uint8_t byte2, std::uint8_t byte3, std::uint8_t byte4);
-  IpAddress(std::array<const std::uint8_t,4>&& asArray);
+  explicit IpAddress(std::array<const std::uint8_t,4>&& asArray);
 
   static IpAddress parse(ByteBufferReader& reader);
   void write(ByteBufferWriter& writer) const;
@@ -15,6 +16,6 @@ public:
   std::string asString();
 
 private:
-  const std::array<const std::uint8_t,4> address{0};
+  std::array<const std::uint8_t,4> address{0};
 };
 

@@ -29,7 +29,14 @@ DeviceDib DeviceDib::parse(ByteBufferReader &reader) {
 }
 
 void DeviceDib::write(ByteBufferWriter &writer) const {
-
+  writeKnxStructure(writer, 2);
+  writer.writeUint8(knxMedium);
+  writer.writeUint8(deviceStatus);
+  individualAddress.write(writer);
+  writer.writeUint16(projectInstallationIdentifier);
+  writer.writeByteSpan(serialNumber);
+  multicastAddress.write(writer);
+  writer.writeByteSpan(macAddress);
 }
 
 std::string_view DeviceDib::getDeviceName() const { return deviceName; }

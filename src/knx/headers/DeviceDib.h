@@ -11,6 +11,7 @@
 class DeviceDib final : public KnxStructure {
 public:
    static constexpr std::uint8_t TYPE = 0x01;
+   static constexpr std::uint8_t SIZE = 20;
 
    static constexpr std::uint8_t PROGRAMMING_MODE_STATUS = 0x01;
    static constexpr std::uint8_t MAX_LENGTH_DEVICE_NAME = 30;
@@ -28,10 +29,10 @@ private:
   explicit DeviceDib(IpAddress&& ipAddress);
   IndividualAddress individualAddress;
   std::string deviceName;
-  std::array<std::uint8_t, LENGTH_SERIAL_NUMBER> serialNumber;
-  std::uint8_t knxMedium;
-  std::uint8_t deviceStatus;
-  std::uint16_t projectInstallationIdentifier;
+  std::array<std::uint8_t, LENGTH_SERIAL_NUMBER> serialNumber{0};
+  std::uint8_t knxMedium{0};
+  std::uint8_t deviceStatus{0};
+  std::uint16_t projectInstallationIdentifier{0};
   IpAddress multicastAddress;
-  std::array<std::uint8_t, LENGTH_MAC_ADDRESS> macAddress;
+  std::array<std::uint8_t, LENGTH_MAC_ADDRESS> macAddress{0};
 };

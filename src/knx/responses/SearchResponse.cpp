@@ -25,6 +25,12 @@ const DeviceDib &SearchResponse::getDeviceDib() const {
   return this->deviceDib;
 }
 
+void SearchResponse::write(ByteBufferWriter &writer) {
+  controlEndPoint.write(writer);
+  deviceDib.write(writer);
+  supportedServiceFamiliesDib.write(writer);
+}
+
 SearchResponse SearchResponse::parse(ByteBufferReader &reader) {
   return {HPAI::parse(reader), DeviceDib::parse(reader),
           SupportedServiceFamiliesDib::parse(reader)};

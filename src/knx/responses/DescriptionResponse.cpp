@@ -24,4 +24,9 @@ DescriptionResponse DescriptionResponse::parse(ByteBufferReader &reader) {
   return {DeviceDib::parse(reader), SupportedServiceFamiliesDib::parse(reader)};
 }
 
+void DescriptionResponse::write(ByteBufferWriter &writer) {
+  deviceDib.write(writer);
+  supportedServiceFamiliesDib.write(writer);
+}
+
 } // namespace knx::requestresponse

@@ -55,13 +55,12 @@ ServiceFamilyType toEnum(std::uint8_t value) {
 }
 } // namespace
 
-void SupportedServiceFamiliesDib::write(ByteBufferWriter &writer) const {}
 
 SupportedServiceFamiliesDib
 SupportedServiceFamiliesDib::parse(ByteBufferReader &reader) {
   auto [length, type] = KnxStructure::parse(reader);
   SupportedServiceFamiliesDib result{};
-  auto size = length / 2;
+  auto size = (length - 1) / 2;
   result.serviceFamilies.reserve(size);
   for (int i = 0; i < size; i++) {
     auto serviceType = toEnum(reader.readUint8());
@@ -69,6 +68,13 @@ SupportedServiceFamiliesDib::parse(ByteBufferReader &reader) {
     result.serviceFamilies.emplace_back(serviceType, version);
   }
   return result;
+}
+void SupportedServiceFamiliesDib::write(ByteBufferWriter &writer) const {
+  writeKnxStructure(writer, (serviceFamilies.size() * 2) + 2);
+  for(auto const &serviceFamily : serviceFamilies) {
+    writer.writeUint8(static_cast<std::uint8_t>(serviceFamily.type));
+    writer.writeUint8(serviceFamily.version);
+  }
 }
 
 std::vector<ServiceFamily>

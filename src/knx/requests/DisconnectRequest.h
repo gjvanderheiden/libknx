@@ -10,6 +10,13 @@ public:
   static constexpr std::uint16_t SIZE = 16;
 
 public:
+  DisconnectRequest(const DisconnectRequest &) = default;
+  DisconnectRequest(DisconnectRequest &&) = delete;
+  DisconnectRequest &operator=(const DisconnectRequest &) = delete;
+  DisconnectRequest &operator=(DisconnectRequest &&) = delete;
+  ~DisconnectRequest() override = default;
+
+public:
   DisconnectRequest(std::uint8_t channel, HPAI &&hpai);
 
   static DisconnectRequest parse(ByteBufferReader &reader);

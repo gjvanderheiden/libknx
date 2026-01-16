@@ -4,25 +4,36 @@
 #include "knx/headers/HPAI.h"
 #include "knx/bytes/ByteBufferReader.h"
 #include "knx/headers/SupportedServiceFamiliesDib.h"
+#include "knx/responses/AbstractResponse.h"
 
 namespace knx::requestresponse {
 
-class SearchResponse {
+class SearchResponse final : public AbstractResponse {
 public:
   static constexpr std::uint16_t SERVICE_ID = 0x0202;
-public:
-  SearchResponse(HPAI &&controlEndPoint, DeviceDib && deviceDib, SupportedServiceFamiliesDib&& supportedServiceFamiliesDib);
 
+public:
+  SearchResponse(const SearchResponse &) = default;
+  SearchResponse(SearchResponse &&) = delete;
+  SearchResponse &operator=(const SearchResponse &) = delete;
+  SearchResponse &operator=(SearchResponse &&) = delete;
+  ~SearchResponse() override = default;
+
+public:
+  SearchResponse(HPAI &&controlEndPoint, DeviceDib &&deviceDib,
+                 SupportedServiceFamiliesDib &&supportedServiceFamiliesDib);
+
+  void write(ByteBufferWriter &writer) override;
   static SearchResponse parse(ByteBufferReader& reader);
 
-  const HPAI& getControlEndPoint() const;
-  const DeviceDib& getDeviceDib() const;
-  const SupportedServiceFamiliesDib& getSupportedServiceFamiliesDib() const;
+  [[nodiscard]] const HPAI& getControlEndPoint() const;
+  [[nodiscard]] const DeviceDib& getDeviceDib() const;
+  [[nodiscard]] const SupportedServiceFamiliesDib& getSupportedServiceFamiliesDib() const;
 
 private:
-  const HPAI controlEndPoint;
-  const DeviceDib deviceDib;
-  const SupportedServiceFamiliesDib supportedServiceFamiliesDib;
+  HPAI controlEndPoint;
+  DeviceDib deviceDib;
+  SupportedServiceFamiliesDib supportedServiceFamiliesDib;
 };
 
 }

@@ -10,6 +10,11 @@ ConnectStateResponse ConnectStateResponse::parse(ByteBufferReader &buffer) {
   return {buffer.readUint8(), buffer.readUint8()};
 }
 
+void ConnectStateResponse::write(ByteBufferWriter &writer) {
+  writer.writeUint8(channelId);
+  writer.writeUint8(status);
+}  
+
 std::uint8_t ConnectStateResponse::getChannelId() const {
   return channelId;
 }

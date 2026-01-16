@@ -11,7 +11,8 @@ public:
   static constexpr std::uint8_t OBJECT_SERVER_CONNECTION_TYPE = 0x08;
 
   static constexpr std::uint8_t TUNNELING_LINK_LAYER = 0x02;
-  
+protected: 
+  ConnectionRequestInformation() = default;
 public:
   ConnectionRequestInformation(std::uint8_t connectionType, std::uint8_t layer);
   static ConnectionRequestInformation newTunneling();
@@ -20,5 +21,5 @@ public:
   void write(ByteBufferWriter &writer) const override;
 
 private:
-  const std::uint8_t layer{TUNNELING_LINK_LAYER};
+  std::uint8_t layer{TUNNELING_LINK_LAYER};
 };

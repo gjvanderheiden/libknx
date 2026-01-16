@@ -17,6 +17,6 @@ public:
   [[nodiscard]] std::uint8_t getStatus() const;
 
 private:
-  const std::uint8_t sequence;
-  const std::uint8_t status;
+  std::uint8_t sequence;
+  std::uint8_t status;
 };

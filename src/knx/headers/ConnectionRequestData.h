@@ -19,5 +19,5 @@ public:
   [[nodiscard]] const IndividualAddress& getAddress() const;
 
 private:
-  const IndividualAddress address;
+  IndividualAddress address;
 };

@@ -11,7 +11,17 @@ public:
   static constexpr std::uint16_t SIZE = 26;
 
 public:
-  explicit ConnectRequest(HPAI&& controlEndPoint, HPAI&& dataEndPoint, ConnectionRequestInformation&& cri);
+  ConnectRequest() = delete;
+  ConnectRequest(const ConnectRequest &) = default;
+  ConnectRequest(ConnectRequest &&) = default;
+
+  ConnectRequest &operator=(const ConnectRequest &) = delete;
+  ConnectRequest &operator=(ConnectRequest &&) = delete;
+
+  ~ConnectRequest() override = default;
+public:
+  explicit ConnectRequest(HPAI &&controlEndPoint, HPAI &&dataEndPoint,
+                          ConnectionRequestInformation &&cri);
 
   void write(ByteBufferWriter &writer) override;
   static ConnectRequest parse(ByteBufferReader reader);

@@ -4,14 +4,11 @@
 
 ConnectionHeader::ConnectionHeader(std::uint8_t channel, std::uint8_t sequence,
                                    std::uint8_t status)
-    : KnxStructure{channel}, sequence{sequence}, status{status} {
-    }
+    : KnxStructure{channel}, sequence{sequence}, status{status} {}
 
 ConnectionHeader ConnectionHeader::parse(ByteBufferReader &reader) {
   auto [length, type] = KnxStructure::parse(reader);
-  return {type, 
-                         reader.readUint8(), 
-                         reader.readUint8()};
+  return {type, reader.readUint8(), reader.readUint8()};
 }
 
 void ConnectionHeader::write(ByteBufferWriter &writer) const {

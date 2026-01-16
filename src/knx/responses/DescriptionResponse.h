@@ -3,23 +3,34 @@
 #include "knx/headers/DeviceDib.h"
 #include "knx/bytes/ByteBufferReader.h"
 #include "knx/headers/SupportedServiceFamiliesDib.h"
+#include "knx/responses/AbstractResponse.h"
 
 namespace knx::requestresponse {
 
-class DescriptionResponse {
+class DescriptionResponse final : public AbstractResponse {
 public:
   static constexpr std::uint16_t SERVICE_ID = 0x0204;
 public:
-  DescriptionResponse(DeviceDib && deviceDib, SupportedServiceFamiliesDib&& supportedServiceFamiliesDib);
+  DescriptionResponse(const DescriptionResponse &) = default;
+  DescriptionResponse(DescriptionResponse &&) = delete;
+  DescriptionResponse &operator=(const DescriptionResponse &) = delete;
+  DescriptionResponse &operator=(DescriptionResponse &&) = delete;
+  ~DescriptionResponse() override = default;
+
+public:
+  DescriptionResponse(
+      DeviceDib &&deviceDib,
+      SupportedServiceFamiliesDib &&supportedServiceFamiliesDib);
 
   static DescriptionResponse parse(ByteBufferReader& reader);
+  void write(ByteBufferWriter &writer) override;
 
-  const DeviceDib& getDeviceDib() const;
-  const SupportedServiceFamiliesDib& getSupportedServiceFamiliesDib() const;
+  [[nodiscard]] const DeviceDib& getDeviceDib() const;
+  [[nodiscard]] const SupportedServiceFamiliesDib& getSupportedServiceFamiliesDib() const;
 
 private:
-  const DeviceDib deviceDib;
-  const SupportedServiceFamiliesDib supportedServiceFamiliesDib;
+  DeviceDib deviceDib;
+  SupportedServiceFamiliesDib supportedServiceFamiliesDib;
 };
 
 }

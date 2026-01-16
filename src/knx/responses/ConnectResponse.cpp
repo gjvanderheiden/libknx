@@ -15,6 +15,12 @@ ConnectResponse ConnectResponse::parse(ByteBufferReader &buffer) {
                          ConnectionRequestData::parse(buffer)};
 }
 
+void ConnectResponse::write(ByteBufferWriter &writer) {
+  writer.writeUint8(channelId);
+  writer.writeUint8(status);
+  dataEndPoint.write(writer);
+}
+
 std::uint8_t ConnectResponse::getChannelId() const { return channelId; }
 
 std::uint8_t ConnectResponse::getStatus() const { return status; }
