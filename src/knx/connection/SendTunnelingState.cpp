@@ -11,7 +11,8 @@ namespace knx::connection {
 using namespace std::chrono_literals;
 
 SendTunnelingState::SendTunnelingState(asio::io_context &ctx,
-                                       SendMethod&& sendMethod)
+                                       SendMethod &&sendMethod)
+
     : sendTimer{ctx}, sendMethod{std::move(sendMethod)} {}
 
 void SendTunnelingState::onReceiveAckTunnelResponse(
@@ -20,7 +21,7 @@ void SendTunnelingState::onReceiveAckTunnelResponse(
 }
 
 void SendTunnelingState::onResponse(bool okStatus) {
-  if(okStatus) {
+  if (okStatus) {
     state = State::ok;
   } else {
     state = State::error;
@@ -28,9 +29,7 @@ void SendTunnelingState::onResponse(bool okStatus) {
   sendTimer.cancel();
 }
 
-SendTunnelingState::State SendTunnelingState::getState() const {
-  return state;
-}
+SendTunnelingState::State SendTunnelingState::getState() const { return state; }
 
 void SendTunnelingState::cancel() {
   state = State::canceled;
@@ -48,9 +47,9 @@ asio::awaitable<void> SendTunnelingState::send(const unsigned int attempts) {
     } else {
       state = State::timeout;
     }
-  } else if(error != asio::error::operation_aborted) {
-      state = State::error;
-  } 
+  } else if (error != asio::error::operation_aborted) {
+    state = State::error;
+  }
 }
 
 } // namespace knx::connection

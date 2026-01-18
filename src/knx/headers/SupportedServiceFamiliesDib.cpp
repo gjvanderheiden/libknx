@@ -69,6 +69,7 @@ SupportedServiceFamiliesDib::parse(ByteBufferReader &reader) {
   }
   return result;
 }
+
 void SupportedServiceFamiliesDib::write(ByteBufferWriter &writer) const {
   writeKnxStructure(writer, (serviceFamilies.size() * 2) + 2);
   for(auto const &serviceFamily : serviceFamilies) {

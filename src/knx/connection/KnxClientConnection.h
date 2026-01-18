@@ -52,20 +52,20 @@ public:
    * I'll send out a message to the IP KNX Router to send the value to the KNX
    * network
    */
-  [[nodiscard]] asio::awaitable<void> writeToGroup(GroupAddress &groupAddress, std::span<const std::uint8_t> value);
+  [[nodiscard]] asio::awaitable<void> writeToGroup(GroupAddress groupAddress, std::span<const std::uint8_t> value);
 
   /**
    * I'll send out a message to the IP KNX Router to send the value to the KNX
    * network
    */
-  asio::awaitable<void> writeToGroup(GroupAddress &groupAddress, std::uint8_t value, bool only6Bits = false);
+  asio::awaitable<void> writeToGroup(GroupAddress groupAddress, std::uint8_t value, bool only6Bits = false);
 
   /**
    * I will send out a request to read, if a KNX device responds,
    * it'll trigger a onGroupReadResponse on the listeners (KnxConnectionListener).
    * see addListener().
    */
-  asio::awaitable<void> sendReadGroup(const GroupAddress &groupAddress);
+  asio::awaitable<void> sendReadGroup(const GroupAddress groupAddress);
 
 private:
   void
@@ -77,10 +77,10 @@ private:
   void checkForUpdateListener(Cemi &cemi);
   void checkForConfirm(Cemi& cemi);
 
-  // members:
-  asio::awaitable<void> writeToGroup(GroupAddress &groupAddress, DataACPI&& dataACPI);
+  asio::awaitable<void> writeToGroup(GroupAddress groupAddress, DataACPI&& dataACPI);
   asio::awaitable<void> sendCemi(Cemi& cemi);
 
+private:
   asio::io_context& ctx;
   std::unique_ptr<TunnelingConnection> tunnelingConnection;
   std::vector<std::weak_ptr<KnxConnectionListener>> connectionListeners;

@@ -23,8 +23,8 @@ public:
   explicit ConnectRequest(HPAI &&controlEndPoint, HPAI &&dataEndPoint,
                           ConnectionRequestInformation &&cri);
 
-  void write(ByteBufferWriter &writer) override;
   static ConnectRequest parse(ByteBufferReader reader);
+  void write(ByteBufferWriter &writer) override;
 
 private:
   HPAI controlEndPoint;

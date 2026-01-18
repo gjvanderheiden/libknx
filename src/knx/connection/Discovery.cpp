@@ -6,20 +6,21 @@
 #include "knx/requests/SearchRequest.h"
 #include "knx/responses/SearchResponse.h"
 #include <asio.hpp>
+#include <asio/detached.hpp>
 #include <asio/io_context.hpp>
 #include <asio/ip/address_v4.hpp>
 #include <chrono>
-#include <functional>
+#include <cstdint>
+#include <utility>
 
 namespace knx::connection {
 
 using namespace std::chrono_literals;
 constexpr short MULTICAST_PORT = 3671;
-constexpr std::array<std::uint8_t, 4> MULTICAST_ADDRESS{244, 0, 23, 12};
+constexpr std::array<std::uint8_t, 4> MULTICAST_ADDRESS{224, 0, 23, 12};
 
-Discovery::Discovery(asio::io_context &ctx,
-                     const std::chrono::duration<long> timeOut)
-    : ctx{ctx}, socket(ctx, "0.0.0.0", MULTICAST_PORT), timeOut{timeOut},
+Discovery::Discovery(const std::chrono::duration<long> timeOut)
+    : socket(ctx, "0.0.0.0", MULTICAST_PORT), timeOut{timeOut},
       multicastAddress(asio::ip::make_address_v4(MULTICAST_ADDRESS)),
       timer{ctx} {}
 
@@ -35,40 +36,50 @@ std::vector<uint8_t> makeSearchRequest() {
   return srBytes;
 }
 } // namespace
-  
-void Discovery::lookAround(int maxResults) {
-  this->maxResults = maxResults;
 
-  socket.setHandler(std::bind_front(&Discovery::doReceive, this));
+std::vector<KnxIp> Discovery::lookAround(int maxResults) {
+  std::vector<KnxIp> result;
+  lookAround([maxResults, &result, this](KnxIp &knxIp) {
+    result.push_back(knxIp);
+    if (result.size() >= maxResults) {
+      timer.cancel();
+    }
+  });
+  return result;
+}
+
+void Discovery::lookAround(DiscoveryCallback &&callback) {
+  co_spawn(ctx, startScanning(std::move(callback)), asio::detached);
+  ctx.run();
+}
+
+asio::awaitable<void> Discovery::startScanning(DiscoveryCallback &&callback) {
+  DiscoveryCallback cb = std::move(callback);
+  timer.expires_after(timeOut);
+  socket.setHandler(
+      [&cb](std::vector<byte> &&data) { doReceive(std::move(data), cb); });
   socket.startMulticast(multicastAddress);
 
   asio::ip::udp::endpoint endpoint{multicastAddress, MULTICAST_PORT};
   auto searchRequest = makeSearchRequest();
   socket.writeToSync(endpoint, searchRequest);
-  co_spawn(ctx, runTimeOut(), asio::detached);
-}
-
-asio::awaitable<void> Discovery::runTimeOut() {
-  timer.expires_after(timeOut);
   co_await timer.async_wait();
   socket.stop();
 }
 
-void Discovery::doReceive(std::vector<std::uint8_t> &&data) {
+void Discovery::doReceive(std::vector<std::uint8_t> &&data,
+                          DiscoveryCallback &callback) {
   ByteBufferReader reader{std::move(data)};
-  if (const KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader); knxIpHeader.getServiceType() ==
-                                                                  knx::requestresponse::SearchResponse::SERVICE_ID) {
-    const knx::requestresponse::SearchResponse sr =
+  if (const KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader);
+      knxIpHeader.getServiceType() ==
+      knx::requestresponse::SearchResponse::SERVICE_ID) {
+    const knx::requestresponse::SearchResponse searchResp =
         knx::requestresponse::SearchResponse::parse(reader);
-    foundKnxIps.emplace_back(std::string{sr.getDeviceDib().getDeviceName()},
-                             sr.getControlEndPoint().getAddress().asString(),
-                             sr.getControlEndPoint().getPort());
-    if (foundKnxIps.size() == maxResults) {
-      timer.cancel();
-      socket.stop();
-    }
+    KnxIp knxIp{.name = std::string{searchResp.getDeviceDib().getDeviceName()},
+                .ip = searchResp.getControlEndPoint().getAddress().asString(),
+                .port = searchResp.getControlEndPoint().getPort()};
+    callback(knxIp);
   }
 }
 
-std::vector<KnxIp> &Discovery::result() { return foundKnxIps; }
 } // namespace knx::connection

@@ -12,19 +12,22 @@ namespace knx::connection {
  */
 class SendTunnelingState {
 public:
-
-  enum class State{
-    initial, ok, sending, timeout, canceled, error
+  enum class State : std::uint8_t {
+    initial,
+    ok,
+    sending,
+    timeout,
+    canceled,
+    error
   };
-  
 
   using SendMethod = std::function<asio::awaitable<void>()>;
 
 public:
-  SendTunnelingState(asio::io_context &ctx, SendMethod&& sendMethod);
+  SendTunnelingState(asio::io_context &ctx, SendMethod &&sendMethod);
 
   [[nodiscard]] State getState() const;
-  void onReceiveAckTunnelResponse(const ConnectionHeader& connectionHeader);
+  void onReceiveAckTunnelResponse(const ConnectionHeader &connectionHeader);
   void onResponse(bool okStatus);
   asio::awaitable<void> send(unsigned int attempts = 2);
   void cancel();
@@ -35,4 +38,4 @@ private:
   SendMethod sendMethod;
 };
 
-} // namespace connection
+} // namespace knx::connection

@@ -7,6 +7,8 @@
 #include <asio.hpp>
 #include <knx/ip/UdpSocket.h>
 #include <chrono>
+#include <functional>
+
 namespace knx::connection {
 
 struct KnxIp {
@@ -16,29 +18,27 @@ struct KnxIp {
 };
 using namespace std::chrono_literals;
 
+using DiscoveryCallback = std::function<void(KnxIp& found)>;
 
 class Discovery {
 public:
-  explicit Discovery(asio::io_context& ctx, std::chrono::duration<long> timeOut = 2s);
-  // no time out implemented
-  void lookAround(int maxResults = 1);
-  std::vector<KnxIp>& result();
+  explicit Discovery(std::chrono::duration<long> timeOut = 2s);
+  std::vector<KnxIp> lookAround(int maxResults = 1);
+  void lookAround(DiscoveryCallback&& callback);
 
 
 private:
-  void doReceive(std::vector<std::uint8_t>&& data);
-  asio::awaitable<void> runTimeOut();
+  static void doReceive(std::vector<std::uint8_t>&& data, DiscoveryCallback& callback);
+  asio::awaitable<void> startScanning(DiscoveryCallback&& callback);
 
 private:
-  asio::io_context& ctx;
+  asio::io_context ctx;
+  asio::steady_timer timer{ctx};
   udp::UdpSocket socket;
   std::chrono::duration<long> timeOut;
   asio::ip::udp::endpoint senderEndpoint;
-  std::array<std::uint8_t, 1024> data{};
+  std::array<std::uint8_t, 100> data{0};
   asio::ip::address multicastAddress;
-  std::vector<KnxIp> foundKnxIps{};
-  int maxResults{0};
-  asio::steady_timer timer;
 };
 
 }

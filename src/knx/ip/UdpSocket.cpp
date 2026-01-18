@@ -77,7 +77,7 @@ void UdpSocket::receiveSome() {
           }
           receiveSome();
         } else {
-        this->stop(false);
+          this->stop(false);
         }
       });
 }
@@ -132,7 +132,8 @@ void UdpSocket::stop(bool resetHandler) {
   }
 }
 
-void UdpSocket::writeToSync(const asio::ip::udp::endpoint& address, ByteSpan data) {
+void UdpSocket::writeToSync(const asio::ip::udp::endpoint &address,
+                            ByteSpan data) {
   socket.send_to(asio::buffer(data), address);
 }
 
