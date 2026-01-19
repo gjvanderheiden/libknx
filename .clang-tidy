@@ -1,0 +1,42 @@
+Checks: >
+  -*,
+  cppcoreguidelines-*,
+  bugprone-*,
+  google-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -google-build-using-namespace,
+  -google-readability-namespace-comments,
+  -google-runtime-int,
+  -google-runtime-references,
+  -misc-non-private-member-variables-in-classes,
+  -readability-named-parameter,
+  -readability-braces-around-statements,
+  -readability-magic-numbers,
+  -readability-redundant-access-specifiers,
+  -modernize-use-trailing-return-type,
+  -bugprone-easily-swappable-parameters,
+  -performance-move-const-arg,
+# There core guidelines are not feaseble, IMHO not well thought out
+  -cppcoreguidelines-avoid-capturing-lambda-coroutines,
+  -cppcoreguidelines-avoid-reference-coroutine-parameters
+
+# Turn all the warnings from the checks above into errors.
+WarningsAsErrors: "*"
+
+CheckOptions:
+  - { key: readability-identifier-naming.NamespaceCase,          value: lower_case }
+  - { key: readability-identifier-naming.ClassCase,              value: CamelCase  }
+  - { key: readability-identifier-naming.StructCase,             value: CamelCase  }
+  - { key: readability-identifier-naming.TemplateParameterCase,  value: CamelCase  }
+  - { key: readability-identifier-naming.FunctionCase,           value: camelBack  }
+  - { key: readability-identifier-naming.VariableCase,           value: camelBack }
+  - { key: readability-identifier-naming.MacroDefinitionCase,    value: UPPER_CASE }
+  - { key: readability-identifier-naming.EnumConstantCase,         value: camelBack }
+  - { key: readability-identifier-naming.ConstexprVariableCase,    value: UPPER_CASE }
+  - { key: readability-identifier-naming.GlobalConstantCase,       value: CamelCase }
+  - { key: readability-identifier-naming.MemberConstantCase,       value: CamelCase }
+  - { key: readability-identifier-naming.StaticConstantCase,       value: CamelCase }
