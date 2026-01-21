@@ -53,14 +53,14 @@ ControlACPI::ControlACPI(const ControlType controlType)
 ControlType getType(const byte lastByte) {
   switch (lastByte & 0b11) {
   case 0b00:
-    return ControlType::Connect;
+    return ControlType::connect;
   case 0b01:
-    return ControlType::Disconnect;
+    return ControlType::disconnect;
   case 0b10:
-    return ControlType::Ack;
+    return ControlType::ack;
   case 0b11:
   default:
-    return ControlType::Nack;
+    return ControlType::nack;
   }
 }
 

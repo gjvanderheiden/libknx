@@ -13,11 +13,11 @@ public:
   static constexpr std::uint16_t SERVICE_ID = 0x020A;
 
 public:
-  DisconnectResponse()  = default;
+  DisconnectResponse() = delete;
   DisconnectResponse(const DisconnectResponse &) = default;
-  DisconnectResponse(DisconnectResponse &&) = default;
+  DisconnectResponse(DisconnectResponse &&) noexcept = default;
   DisconnectResponse &operator=(const DisconnectResponse &) = default;
-  DisconnectResponse &operator=(DisconnectResponse &&) = default;
+  DisconnectResponse &operator=(DisconnectResponse &&) noexcept = default;
   ~DisconnectResponse() override = default;
 
 public:
@@ -25,7 +25,7 @@ public:
 
   void write(ByteBufferWriter &writer) const override;
   static DisconnectResponse parse(ByteBufferReader& reader);
-  constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
+  [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
   [[nodiscard]] std::vector<std::uint8_t> toBytes() const;
 
 private:

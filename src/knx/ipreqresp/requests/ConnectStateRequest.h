@@ -11,20 +11,21 @@ public:
   static constexpr std::uint16_t SIZE = 16;
 
 public:
+  ConnectStateRequest() = delete;
   ConnectStateRequest(const ConnectStateRequest &) = default;
-  ConnectStateRequest(ConnectStateRequest &&) = default;
+  ConnectStateRequest(ConnectStateRequest &&) noexcept = default;
   ConnectStateRequest &operator=(const ConnectStateRequest &) = delete;
-  ConnectStateRequest &operator=(ConnectStateRequest &&) = delete;
+  ConnectStateRequest &operator=(ConnectStateRequest &&) noexcept = delete;
+  ~ConnectStateRequest() override = default;
 
 public:
   ConnectStateRequest(HPAI &&controlEndPoint, std::uint8_t channelId);
-  ~ConnectStateRequest() override = default;
  
   static ConnectStateRequest parse(ByteBufferReader reader);
   void write(ByteBufferWriter &writer) const override;
 
-  constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
-  bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;
+  [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
+  [[nodiscard]] bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;
 private:
   HPAI controlEndPoint;
   std::uint8_t channelId;

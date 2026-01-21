@@ -19,7 +19,15 @@ public:
    static constexpr std::uint8_t LENGTH_MAC_ADDRESS = 6;
 
 public:
-  DeviceDib() = default;
+  DeviceDib() = delete;
+
+  DeviceDib(const DeviceDib &) = default;
+  DeviceDib(DeviceDib &&) = default;
+  DeviceDib &operator=(const DeviceDib &) = default;
+  DeviceDib &operator=(DeviceDib &&) = default;
+  ~DeviceDib() override = default;
+
+public:
   [[nodiscard]] std::string_view getDeviceName() const;
   [[nodiscard]] std::span<const std::uint8_t> getSerialNumber() const;
 
@@ -27,7 +35,7 @@ public:
   void write(ByteBufferWriter& writer) const override;
 
 private:
-  explicit DeviceDib(IpAddress&& ipAddress);
+  explicit DeviceDib(IpAddress&& ipAddress, IndividualAddress&& individualAddress);
   IndividualAddress individualAddress;
   std::string deviceName;
   std::array<std::uint8_t, LENGTH_SERIAL_NUMBER> serialNumber{0};

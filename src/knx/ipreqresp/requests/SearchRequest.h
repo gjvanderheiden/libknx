@@ -10,10 +10,10 @@ public:
   static constexpr std::uint16_t SIZE = 14;
 
 public:
-  SearchRequest(const SearchRequest &) = default;
-  SearchRequest(SearchRequest &&) = default;
-  SearchRequest &operator=(const SearchRequest &) = delete;
-  SearchRequest &operator=(SearchRequest &&) = delete;
+  SearchRequest(const SearchRequest &) = delete;
+  SearchRequest(SearchRequest &&) noexcept = default;
+  SearchRequest &operator=(const SearchRequest &) = default;
+  SearchRequest &operator=(SearchRequest &&) noexcept = default;
   ~SearchRequest() override = default; 
 public:
   explicit SearchRequest(HPAI &&hpaiLocal);
@@ -22,8 +22,8 @@ public:
   void write(ByteBufferWriter& writer) const override;
   static SearchRequest parse(ByteBufferReader& reader);
 
-  constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
-  bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;
+  [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
+  [[nodiscard]] bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;
 
 private:
   HPAI hpaiLocal;

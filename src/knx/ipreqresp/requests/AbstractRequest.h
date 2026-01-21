@@ -8,10 +8,10 @@ protected:
   AbstractRequest() = default;
   AbstractRequest(const AbstractRequest &) = default;
   AbstractRequest &operator=(const AbstractRequest &) = default;
-  AbstractRequest(AbstractRequest &&) = default;
-  AbstractRequest &operator=(AbstractRequest &&) = default;
+  AbstractRequest(AbstractRequest &&) noexcept = default;
+  AbstractRequest &operator=(AbstractRequest &&) noexcept = default;
 
 public:
   ~AbstractRequest() override = default;
-  virtual bool matchesResponse(knx::requestresponse::ResponseVariant response) const = 0;
+  [[nodiscard]] virtual bool matchesResponse(knx::requestresponse::ResponseVariant response) const = 0;
 };

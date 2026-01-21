@@ -9,6 +9,7 @@ static constexpr std::array<byte, 12> TEST_FRAME1 = {0x29, 0x00, 0xBC, 0xE0, 0x1
 static constexpr std::array<byte, 15> TEST_FRAME2 = {0x29, 0x4,  0x1,  0x2,  0x0,
                                            0x6c, 0xbc, 0xd0, 0x11, 0x4,
                                            0x8,  0x3,  0x1,  0x0,  0x0};
+
 TEST(Cemi, parse1) {
   ByteBufferReader byteBuffer{TEST_FRAME1};
   Cemi cemi = Cemi::parse(byteBuffer);

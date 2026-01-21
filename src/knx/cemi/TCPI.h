@@ -5,16 +5,14 @@
 
 class TCPI {
 public:
-  TCPI() = default;
-  TCPI(bool isControl, bool hasSequence, std::uint8_t sequence);
+  TCPI(bool isControlType, bool hasSequence, std::uint8_t sequence);
 
   static TCPI parse(byte byte);
   [[nodiscard]] byte toByte() const;
-
-  [[nodiscard]] bool isControl() const;
+  [[nodiscard]] bool isControlType() const;
 
 private:
-  bool _isControl;
+  bool isControl;
   bool hasSequence;
   std::uint8_t sequence;
 };

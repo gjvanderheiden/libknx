@@ -4,8 +4,8 @@
 #include "KnxStructure.h"
 #include <cstdint>
 
-DeviceDib::DeviceDib(IpAddress &&ipAddress)
-    : KnxStructure(DeviceDib::TYPE), multicastAddress{std::move(ipAddress)} {}
+DeviceDib::DeviceDib(IpAddress &&ipAddress, IndividualAddress&& individualAddress)
+    : KnxStructure(DeviceDib::TYPE), multicastAddress{std::move(ipAddress)}, individualAddress{std::move(individualAddress)} {}
 
 DeviceDib DeviceDib::parse(ByteBufferReader &reader) {
   auto [length, type] = KnxStructure::parse(reader);
@@ -17,7 +17,7 @@ DeviceDib DeviceDib::parse(ByteBufferReader &reader) {
   std::array<std::uint8_t, LENGTH_SERIAL_NUMBER> serialNumber{0};
   reader.copyToSpan(serialNumber);
   auto multicastAddress = IpAddress::parse(reader);
-  DeviceDib result{std::move(multicastAddress)};
+  DeviceDib result{std::move(multicastAddress), std::move(individualAddress)};
   reader.copyToSpan(result.macAddress);
   result.knxMedium = knxMedium;
   result.deviceStatus = deviceStatus;

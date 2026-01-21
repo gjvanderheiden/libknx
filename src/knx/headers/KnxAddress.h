@@ -27,7 +27,7 @@ private:
 
 class IndividualAddress final : public  KnxAddress {
 public:
-  IndividualAddress() = default;
+  IndividualAddress() = delete;
   IndividualAddress(std::uint8_t high, std::uint8_t middle, std::uint8_t low);
   ~IndividualAddress() override = default;
   IndividualAddress(const IndividualAddress& addres) = default;

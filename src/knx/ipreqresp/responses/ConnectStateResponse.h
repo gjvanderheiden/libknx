@@ -11,11 +11,11 @@ public:
   static constexpr std::uint16_t SERVICE_ID = 0x0208;
 
 public:
-  ConnectStateResponse() = default;
+  ConnectStateResponse() = delete;
   ConnectStateResponse(const ConnectStateResponse &) = default;
-  ConnectStateResponse(ConnectStateResponse &&) = default;
+  ConnectStateResponse(ConnectStateResponse &&) noexcept = default;
   ConnectStateResponse &operator=(const ConnectStateResponse &) = default;
-  ConnectStateResponse &operator=(ConnectStateResponse &&) = default;
+  ConnectStateResponse &operator=(ConnectStateResponse &&) noexcept = default;
   ~ConnectStateResponse() override = default;
 
 public:
@@ -24,7 +24,7 @@ public:
   static ConnectStateResponse parse(ByteBufferReader &buffer);
   void write(ByteBufferWriter &writer) const override;
 
-  constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
+  [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
 
   [[nodiscard]] std::uint8_t getChannelId() const;
   [[nodiscard]] std::uint8_t getStatus() const;

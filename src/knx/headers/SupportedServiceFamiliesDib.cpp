@@ -14,22 +14,22 @@ SupportedServiceFamiliesDib::SupportedServiceFamiliesDib(
 std::string ServiceFamily::toString() const {
   std::string result{};
   switch (type) {
-  case ServiceFamilyType::KnxIpCore:
+  case ServiceFamilyType::knxIpCore:
     result = "Knx Net ip Core";
     break;
-  case ServiceFamilyType::KnxNetDeviceMgmt:
+  case ServiceFamilyType::knxNetDeviceMgmt:
     result = "Knx Net ip device mgt";
     break;
-  case ServiceFamilyType::KnxIpTunneling:
+  case ServiceFamilyType::knxIpTunneling:
     result = "Knx Net ip tunneling";
     break;
-  case ServiceFamilyType::KnxIpRouting:
+  case ServiceFamilyType::knxIpRouting:
     result = "Knx Net ip routing";
     break;
-  case ServiceFamilyType::KnxIpRemoteDiagAndConfig:
+  case ServiceFamilyType::knxIpRemoteDiagAndConfig:
     result = "Knx Net ip remote diag and config";
     break;
-  case ServiceFamilyType::Unknown:
+  case ServiceFamilyType::unknown:
     result = "Unknown Type";
     break;
   }
@@ -39,18 +39,18 @@ std::string ServiceFamily::toString() const {
 namespace {
 ServiceFamilyType toEnum(std::uint8_t value) {
   switch (value) {
-  case static_cast<std::uint8_t>(ServiceFamilyType::KnxIpCore):
-    return ServiceFamilyType::KnxIpCore;
-  case static_cast<std::uint8_t>(ServiceFamilyType::KnxIpRouting):
-    return ServiceFamilyType::KnxIpRouting;
-  case static_cast<std::uint8_t>(ServiceFamilyType::KnxIpTunneling):
-    return ServiceFamilyType::KnxIpTunneling;
-  case static_cast<std::uint8_t>(ServiceFamilyType::KnxNetDeviceMgmt):
-    return ServiceFamilyType::KnxNetDeviceMgmt;
-  case static_cast<std::uint8_t>(ServiceFamilyType::KnxIpRemoteDiagAndConfig):
-    return ServiceFamilyType::KnxIpRemoteDiagAndConfig;
+  case static_cast<std::uint8_t>(ServiceFamilyType::knxIpCore):
+    return ServiceFamilyType::knxIpCore;
+  case static_cast<std::uint8_t>(ServiceFamilyType::knxIpRouting):
+    return ServiceFamilyType::knxIpRouting;
+  case static_cast<std::uint8_t>(ServiceFamilyType::knxIpTunneling):
+    return ServiceFamilyType::knxIpTunneling;
+  case static_cast<std::uint8_t>(ServiceFamilyType::knxNetDeviceMgmt):
+    return ServiceFamilyType::knxNetDeviceMgmt;
+  case static_cast<std::uint8_t>(ServiceFamilyType::knxIpRemoteDiagAndConfig):
+    return ServiceFamilyType::knxIpRemoteDiagAndConfig;
   default:
-    return ServiceFamilyType::Unknown;
+    return ServiceFamilyType::unknown;
   }
 }
 } // namespace

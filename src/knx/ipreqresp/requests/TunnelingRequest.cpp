@@ -29,14 +29,14 @@ const ConnectionHeader &TunnelRequest::getConnectionHeader() const {
 bool TunnelRequest::matchesResponse(
     knx::requestresponse::ResponseVariant response) const {
   return std::visit(
-      overloaded{[&cH = connectionHeader](
+      Overloaded{[&cHeader = connectionHeader](
                      const knx::requestresponse::TunnelAckResponse &response) {
                    return response.getConnectionHeader().getChannel() ==
-                              cH.getChannel() &&
+                              cHeader.getChannel() &&
                           response.getConnectionHeader().getSequence() ==
-                              cH.getSequence();
+                              cHeader.getSequence();
                  },
-                 [](const auto &other) { return false; }},
+                 [](const auto &/*other*/) { return false; }},
       response);
 }
 

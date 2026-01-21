@@ -1,7 +1,7 @@
 #pragma once
 
-#include "knx/bytes/ByteBufferWriter.h"
 #include "knx/bytes/ByteBufferReader.h"
+#include "knx/bytes/ByteBufferWriter.h"
 #include <cstdint>
 
 enum class KnxPrio : std::uint8_t {
@@ -11,11 +11,13 @@ enum class KnxPrio : std::uint8_t {
   low = 3,
 };
 
-
 class Control {
 public:
-  Control() = default;
-  explicit Control(KnxPrio prio, bool destinationAddressIsGroup, std::uint8_t hopCount = 5);
+  static constexpr uint8_t DEFAULT_HOP_COUNT = 5;
+
+public:
+  explicit Control(KnxPrio prio, bool destinationAddressIsGroup,
+                   std::uint8_t hopCount = DEFAULT_HOP_COUNT);
 
   static Control parse(ByteBufferReader &reader);
   void write(ByteBufferWriter &writer) const;
@@ -31,7 +33,7 @@ public:
 
 private:
   bool standardFrameType{true};
-  bool repeatOnError {true};
+  bool repeatOnError{true};
   bool systemBroadcast{false};
   KnxPrio priority;
   bool acknowledgeWanted{true};

@@ -9,10 +9,10 @@ public:
   static constexpr std::uint16_t SIZE = 14;
 
 public:
-  DescriptionRequest(const DescriptionRequest &) = default;
+  DescriptionRequest(const DescriptionRequest &) = delete;
   DescriptionRequest(DescriptionRequest &&) = default;
-  DescriptionRequest &operator=(const DescriptionRequest &) = delete;
-  DescriptionRequest &operator=(DescriptionRequest &&) = delete;
+  DescriptionRequest &operator=(const DescriptionRequest &) = default;
+  DescriptionRequest &operator=(DescriptionRequest &&) = default;
   ~DescriptionRequest() override = default;
 
 public:
@@ -21,8 +21,8 @@ public:
   void write(ByteBufferWriter &writer) const override;
   static DescriptionRequest parse(ByteBufferReader& reader);
 
-  constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
-  bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;
+  [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
+  [[nodiscard]] bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;
 private:
   HPAI controlEndPoint;
 };

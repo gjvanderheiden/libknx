@@ -15,9 +15,8 @@ public:
   static constexpr std::uint8_t L_DATA_REQ = 0x11;
   static constexpr std::uint8_t L_DATA_CON = 0x2E;
 
-  Cemi() = default;
-
-  Cemi(std::uint8_t messageCode, Control&& control, IndividualAddress &&source,
+public:
+  Cemi(std::uint8_t messageCode, Control &&control, IndividualAddress &&source,
        std::variant<IndividualAddress, GroupAddress> &&destination,
        NPDUFrame &&frame);
 
@@ -35,7 +34,7 @@ public:
 
 private:
   std::uint8_t messageCode;
-  AdditionalInformation additionalInformation{};
+  AdditionalInformation additionalInformation;
   Control control;
   IndividualAddress source;
   std::variant<IndividualAddress, GroupAddress> destination;

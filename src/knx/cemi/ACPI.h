@@ -8,7 +8,6 @@
 
 class DataACPI {
 public:
-  DataACPI() = default;
   DataACPI(std::uint8_t type, std::vector<byte>&& data, bool fits6Bits = false);
   DataACPI(std::uint8_t type, byte byteData, bool fits6Bits);
   explicit DataACPI(std::uint8_t type);
@@ -32,8 +31,8 @@ private:
   bool fits6Bits;
 };
 
-enum class ControlType {
-  Connect, Disconnect, Nack, Ack
+enum class ControlType : std::uint8_t {
+  connect, disconnect, nack, ack
 };
 
 

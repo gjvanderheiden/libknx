@@ -6,9 +6,14 @@
 
 class ConnectionHeader final : public KnxStructure {
 public:
-  ConnectionHeader() = default;
+  ConnectionHeader() = delete;
+  ConnectionHeader(const ConnectionHeader &) = default;
+  ConnectionHeader(ConnectionHeader &&) = default;
+  ConnectionHeader &operator=(const ConnectionHeader &) = default;
+  ConnectionHeader &operator=(ConnectionHeader &&) = default;
   ConnectionHeader(std::uint8_t channel, std::uint8_t sequence,
                    std::uint8_t status = 0);
+  ~ConnectionHeader() override = default;
 
   void write(ByteBufferWriter &writer) const override;
   static ConnectionHeader parse(ByteBufferReader &reader);

@@ -70,7 +70,7 @@ private:
   ResponseType response;
 };
 
-using CemiSendState = SendMessageState<Cemi, Cemi>;
+using CemiSendState = SendMessageState<Cemi, std::optional<Cemi>>;
 using TunnelingSendState = SendMessageState<AbstractRequest, requestresponse::ResponseVariant>;
 
 template class  SendMessageState<Cemi, Cemi>;

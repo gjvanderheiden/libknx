@@ -13,8 +13,8 @@ public:
   DisconnectRequest() = delete;
   DisconnectRequest(const DisconnectRequest &) = default;
   DisconnectRequest(DisconnectRequest &&) = default;
-  DisconnectRequest &operator=(const DisconnectRequest &) = delete;
-  DisconnectRequest &operator=(DisconnectRequest &&) = delete;
+  DisconnectRequest &operator=(const DisconnectRequest &) = default;
+  DisconnectRequest &operator=(DisconnectRequest &&) = default;
   ~DisconnectRequest() override = default;
 
 public:
@@ -23,8 +23,8 @@ public:
   static DisconnectRequest parse(ByteBufferReader &reader);
   void write(ByteBufferWriter &writer) const override;
 
-  constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
-  bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;
+  [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
+  [[nodiscard]] bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;
 
   [[nodiscard]] std::uint8_t getChannel() const;
   [[nodiscard]] const HPAI &getControlEndpoint() const;

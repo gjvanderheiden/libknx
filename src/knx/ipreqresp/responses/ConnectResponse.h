@@ -16,13 +16,15 @@ public:
   static constexpr std::uint8_t CONNECTION_TYPE_ERROR = 0x22;
   static constexpr std::uint8_t CONNECTION_OPTION_ERROR = 0x23;
   static constexpr std::uint8_t NO_MORE_CONNECTIONS_ERROR = 0x24;
+
 public:
-  ConnectResponse() = default;
+  ConnectResponse() = delete;
   ConnectResponse(const ConnectResponse &) = default;
-  ConnectResponse(ConnectResponse &&) = default;
+  ConnectResponse(ConnectResponse &&) noexcept = default;
   ConnectResponse &operator=(const ConnectResponse &) = default;
-  ConnectResponse &operator=(ConnectResponse &&) = default;
+  ConnectResponse &operator=(ConnectResponse &&) noexcept = default;
   ~ConnectResponse() override = default;
+
 public:
   ConnectResponse(std::uint8_t channelId, std::uint8_t status,
                   HPAI &&dataEndPoint, ConnectionRequestData &&crd);
@@ -31,7 +33,7 @@ public:
   void write(ByteBufferWriter &writer) const override;
 
 
-  constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
+  [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
 
   [[nodiscard]] std::uint8_t getChannelId() const;
   [[nodiscard]] std::uint8_t getStatus() const;

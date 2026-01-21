@@ -8,7 +8,6 @@
 
 class NPDUFrame {
 public:
-  NPDUFrame() = default;
   NPDUFrame(TCPI&& tcpi, DataACPI&& acpi);
 
   static NPDUFrame parse(ByteBufferReader& bytebuffer);

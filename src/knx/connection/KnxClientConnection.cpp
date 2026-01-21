@@ -128,7 +128,7 @@ asio::awaitable<void> KnxClientConnection::sendCemi(Cemi& cemi) {
       [this, &cemi]() -> asio::awaitable<void> {
         co_await tunnelingConnection->send(cemi);
       },
-      [](Cemi & cemi){return true;});
+      [](std::optional<Cemi> &  /*cemi*/){return true;});
   co_await this->requests[key]->send();
   this->requests.erase(key);
 }

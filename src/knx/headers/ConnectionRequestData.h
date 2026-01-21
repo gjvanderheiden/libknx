@@ -10,12 +10,15 @@ public:
   static constexpr std::uint8_t TUNNELING_TYPE = 4;
 
 public:
-  ConnectionRequestData() = default;
+  ConnectionRequestData() = delete;
 
   ConnectionRequestData(const ConnectionRequestData &) = default;
   ConnectionRequestData(ConnectionRequestData &&) = default;
   ConnectionRequestData &operator=(const ConnectionRequestData &) = default;
   ConnectionRequestData &operator=(ConnectionRequestData &&) = default;
+  ~ConnectionRequestData() override = default;
+
+public:
   ConnectionRequestData(std::uint8_t type, IndividualAddress &&address);
   static ConnectionRequestData newTunneling();
 

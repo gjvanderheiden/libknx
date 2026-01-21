@@ -1,11 +1,11 @@
 #include "knx/cemi/TCPI.h"
 
-TCPI::TCPI(const bool isControl, const bool hasSequence, const std::uint8_t sequence)
-    : _isControl{isControl}, hasSequence{hasSequence}, sequence(sequence) {
+TCPI::TCPI(const bool isControlType, const bool hasSequence, const std::uint8_t sequence)
+    : isControl{isControlType}, hasSequence{hasSequence}, sequence(sequence) {
 }
 
-bool TCPI::isControl() const {
-  return this->_isControl;
+bool TCPI::isControlType() const {
+  return this->isControl;
 }
 
 TCPI TCPI::parse(const byte byte) {
@@ -17,7 +17,7 @@ TCPI TCPI::parse(const byte byte) {
 
 byte TCPI::toByte() const {
   byte asByte{0};
-  if(_isControl) {
+  if(isControl) {
     asByte |= 1 << 8;
   }
   if(hasSequence) {

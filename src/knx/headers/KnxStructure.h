@@ -14,12 +14,14 @@ enum class KnxMedium : std::uint8_t {
 
 class KnxStructure {
 public:
-  KnxStructure() = default;
+  KnxStructure() = delete;
   virtual ~KnxStructure() = default;
   KnxStructure(const KnxStructure &) = default;
   KnxStructure(KnxStructure &&) = default;
   KnxStructure &operator=(const KnxStructure &) = default;
   KnxStructure &operator=(KnxStructure &&) = default;
+
+public:
   explicit KnxStructure(std::uint8_t type);
 
   [[nodiscard]] std::uint8_t getType() const;

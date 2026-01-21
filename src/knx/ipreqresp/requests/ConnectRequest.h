@@ -13,21 +13,20 @@ public:
 public:
   ConnectRequest() = delete;
   ConnectRequest(const ConnectRequest &) = default;
-  ConnectRequest(ConnectRequest &&) = default;
-
-  ConnectRequest &operator=(const ConnectRequest &) = delete;
-  ConnectRequest &operator=(ConnectRequest &&) = delete;
-
+  ConnectRequest(ConnectRequest &&) noexcept = default;
+  ConnectRequest &operator=(const ConnectRequest &) = default;
+  ConnectRequest &operator=(ConnectRequest &&) noexcept = default;
   ~ConnectRequest() override = default;
+
 public:
   explicit ConnectRequest(HPAI &&controlEndPoint, HPAI &&dataEndPoint,
                           ConnectionRequestInformation &&cri);
 
   static ConnectRequest parse(ByteBufferReader reader);
   void write(ByteBufferWriter &writer) const override;
-  constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
+  [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
 
-  bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;
+  [[nodiscard]] bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;
 private:
   HPAI controlEndPoint;
   HPAI dataEndPoint;

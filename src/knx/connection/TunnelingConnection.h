@@ -133,7 +133,7 @@ private:
   bool closingDown{false};
   std::uint8_t sequence{0};
   std::vector<std::unique_ptr<TunnelingSendState>> sendItems;
-  IndividualAddress knxAddress;
+  IndividualAddress knxAddress{0,0,0};
 };
 
 } // namespace knx::connection

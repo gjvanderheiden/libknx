@@ -12,11 +12,11 @@ public:
   static constexpr std::uint16_t LENGTH = 10;
 
 public:
-  TunnelAckResponse() = default;
+  TunnelAckResponse() = delete;
   TunnelAckResponse(const TunnelAckResponse &) = default;
-  TunnelAckResponse(TunnelAckResponse &&) = default;
+  TunnelAckResponse(TunnelAckResponse &&) noexcept = default;
   TunnelAckResponse &operator=(const TunnelAckResponse &) = default;
-  TunnelAckResponse &operator=(TunnelAckResponse &&) = default;
+  TunnelAckResponse &operator=(TunnelAckResponse &&) noexcept = default;
   ~TunnelAckResponse() override = default;
 
 public:
@@ -25,7 +25,7 @@ public:
   void write(ByteBufferWriter &writer) const override;
   static TunnelAckResponse parse(ByteBufferReader& reader);
   [[nodiscard]] std::vector<byte> toBytes() const;
-  constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
+  [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
 
   [[nodiscard]] const ConnectionHeader& getConnectionHeader() const;
 

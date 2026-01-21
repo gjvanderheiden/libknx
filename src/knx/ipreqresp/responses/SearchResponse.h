@@ -13,11 +13,11 @@ public:
   static constexpr std::uint16_t SERVICE_ID = 0x0202;
 
 public:
-  SearchResponse() = default;
+  SearchResponse() = delete;
   SearchResponse(const SearchResponse &) = default;
-  SearchResponse(SearchResponse &&) = default;
+  SearchResponse(SearchResponse &&) noexcept = default;
   SearchResponse &operator=(const SearchResponse &) = default;
-  SearchResponse &operator=(SearchResponse &&) = default;
+  SearchResponse &operator=(SearchResponse &&) noexcept = default;
   ~SearchResponse() override = default;
 
 public:
@@ -26,7 +26,7 @@ public:
 
   void write(ByteBufferWriter &writer) const override;
   static SearchResponse parse(ByteBufferReader& reader);
-  constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
+  [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
 
   [[nodiscard]] const HPAI& getControlEndPoint() const;
   [[nodiscard]] const DeviceDib& getDeviceDib() const;

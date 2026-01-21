@@ -6,12 +6,14 @@
 
 class IpAddress {
 public:
-  IpAddress() = default;
+  IpAddress() = delete;
   IpAddress(const IpAddress &) = default;
   IpAddress(IpAddress &&) = default;
   IpAddress &operator=(const IpAddress &) = default;
   IpAddress &operator=(IpAddress &&) = default;
+  ~IpAddress() = default;
 
+public:
   IpAddress(std::uint8_t byte1, std::uint8_t byte2, std::uint8_t byte3,
             std::uint8_t byte4);
   explicit IpAddress(std::array<std::uint8_t,4>&& asArray);

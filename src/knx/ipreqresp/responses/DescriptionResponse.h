@@ -11,11 +11,11 @@ class DescriptionResponse final : public AbstractResponse {
 public:
   static constexpr std::uint16_t SERVICE_ID = 0x0204;
 public:
-  DescriptionResponse() = default;
+  DescriptionResponse() = delete;
   DescriptionResponse(const DescriptionResponse &) = default;
-  DescriptionResponse(DescriptionResponse &&) = default;
+  DescriptionResponse(DescriptionResponse &&) noexcept = default;
   DescriptionResponse &operator=(const DescriptionResponse &) = default;
-  DescriptionResponse &operator=(DescriptionResponse &&) = default;
+  DescriptionResponse &operator=(DescriptionResponse &&) noexcept = default;
   ~DescriptionResponse() override = default;
 
 public:
@@ -25,7 +25,7 @@ public:
 
   static DescriptionResponse parse(ByteBufferReader& reader);
   void write(ByteBufferWriter &writer) const override;
-  constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
+  [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
 
   [[nodiscard]] const DeviceDib& getDeviceDib() const;
   [[nodiscard]] const SupportedServiceFamiliesDib& getSupportedServiceFamiliesDib() const;

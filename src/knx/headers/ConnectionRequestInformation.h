@@ -11,10 +11,19 @@ public:
   static constexpr std::uint8_t OBJECT_SERVER_CONNECTION_TYPE = 0x08;
 
   static constexpr std::uint8_t TUNNELING_LINK_LAYER = 0x02;
-protected: 
-  ConnectionRequestInformation() = default;
+public:
+  ConnectionRequestInformation() = delete;
+  ConnectionRequestInformation(const ConnectionRequestInformation &) = default;
+  ConnectionRequestInformation(ConnectionRequestInformation &&) = default;
+  ConnectionRequestInformation &
+  operator=(const ConnectionRequestInformation &) = default;
+  ConnectionRequestInformation &
+  operator=(ConnectionRequestInformation &&) = default;
+  ~ConnectionRequestInformation() override = default;
+
 public:
   ConnectionRequestInformation(std::uint8_t connectionType, std::uint8_t layer);
+
   static ConnectionRequestInformation newTunneling();
 
   static ConnectionRequestInformation parse(ByteBufferReader& reader);
