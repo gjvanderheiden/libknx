@@ -25,6 +25,7 @@ Modern C++ can be mem safe in the sense that you don't reference to unallocated 
 - CMake
 - Ninja
 - GoogleTest
+- nohlmann-json
 ### Runtime
 - Asio 1.34.2
 
@@ -34,7 +35,7 @@ I'm developing against asio 1.34.2. On FreeBSD, you need to install the port ins
 
 
 # How to build
-Just a basic cmake build:
+Make sure google-test, nohlmann-json and asio are installed. Just a basic cmake build:
 ```
 mkdir build
 cd build
