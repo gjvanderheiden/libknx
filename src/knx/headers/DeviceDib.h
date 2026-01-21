@@ -19,6 +19,7 @@ public:
    static constexpr std::uint8_t LENGTH_MAC_ADDRESS = 6;
 
 public:
+  DeviceDib() = default;
   [[nodiscard]] std::string_view getDeviceName() const;
   [[nodiscard]] std::span<const std::uint8_t> getSerialNumber() const;
 

@@ -14,6 +14,7 @@ enum class KnxPrio : std::uint8_t {
 
 class Control {
 public:
+  Control() = default;
   explicit Control(KnxPrio prio, bool destinationAddressIsGroup, std::uint8_t hopCount = 5);
 
   static Control parse(ByteBufferReader &reader);

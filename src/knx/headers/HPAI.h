@@ -13,14 +13,14 @@ public:
   static constexpr uint8_t SIZE = 8;
 
 public:
-  HPAI() = delete;
+  HPAI() = default;
   HPAI(IpAddress address, int port, std::uint8_t protocolCode);
   ~HPAI() override = default;
 
   HPAI(const HPAI &) = default;
   HPAI(HPAI &&) = default;
-  HPAI &operator=(const HPAI &) = delete;
-  HPAI &operator=(HPAI &&) = delete;
+  HPAI &operator=(const HPAI &) = default;
+  HPAI &operator=(HPAI &&) = default;
 
   void write(ByteBufferWriter& writer) const override;
   static HPAI parse(ByteBufferReader& reader);

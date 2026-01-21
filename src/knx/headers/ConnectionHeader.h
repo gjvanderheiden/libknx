@@ -6,6 +6,7 @@
 
 class ConnectionHeader final : public KnxStructure {
 public:
+  ConnectionHeader() = default;
   ConnectionHeader(std::uint8_t channel, std::uint8_t sequence,
                    std::uint8_t status = 0);
 

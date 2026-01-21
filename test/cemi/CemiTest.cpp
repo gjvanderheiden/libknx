@@ -2,16 +2,15 @@
 #include "knx/bytes/ByteBufferReader.h"
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <ranges>
 
-static std::array<byte, 12> test_frame1 = {0x29, 0x00, 0xBC, 0xE0, 0x11, 0x09,
+static constexpr std::array<byte, 12> TEST_FRAME1 = {0x29, 0x00, 0xBC, 0xE0, 0x11, 0x09,
                                            0x2B, 0x08, 0x02, 0x00, 0x80, 0x00};
 
-static std::array<byte, 15> test_frame2 = {0x29, 0x4,  0x1,  0x2,  0x0,
+static constexpr std::array<byte, 15> TEST_FRAME2 = {0x29, 0x4,  0x1,  0x2,  0x0,
                                            0x6c, 0xbc, 0xd0, 0x11, 0x4,
                                            0x8,  0x3,  0x1,  0x0,  0x0};
 TEST(Cemi, parse1) {
-  ByteBufferReader byteBuffer{test_frame1};
+  ByteBufferReader byteBuffer{TEST_FRAME1};
   Cemi cemi = Cemi::parse(byteBuffer);
   ASSERT_EQ(1, cemi.getSource().getArea());
   ASSERT_EQ(1, cemi.getSource().getLine());
@@ -19,7 +18,7 @@ TEST(Cemi, parse1) {
 }
 
 TEST(Cemi, parse2) {
-  ByteBufferReader byteBuffer{test_frame2};
+  ByteBufferReader byteBuffer{TEST_FRAME2};
   Cemi cemi = Cemi::parse(byteBuffer);
   ASSERT_EQ(0x29, cemi.getMessageCode());
   ASSERT_EQ(1, cemi.getSource().getArea());
@@ -38,21 +37,21 @@ TEST(Cemi, parse2) {
 }
 
 TEST(Cemi, parse1AndWriteCompare) {
-  ByteBufferReader byteBuffer{test_frame1};
-  Cemi cemi = Cemi::parse(byteBuffer);
+  ByteBufferReader byteBuffer{TEST_FRAME1};
+  const Cemi cemi = Cemi::parse(byteBuffer);
   std::vector<byte> testResult;
   ByteBufferWriter writer(testResult);
   cemi.write(writer);
-  ASSERT_THAT(testResult, testing::ElementsAreArray(test_frame1));
+  ASSERT_THAT(testResult, testing::ElementsAreArray(TEST_FRAME1));
 }
 
 TEST(Cemi, parse2AndWriteCompare) {
-  ByteBufferReader byteBuffer{test_frame2};
-  Cemi cemi = Cemi::parse(byteBuffer);
+  ByteBufferReader byteBuffer{TEST_FRAME2};
+  const Cemi cemi = Cemi::parse(byteBuffer);
   std::vector<byte> testResult;
   ByteBufferWriter writer(testResult);
   cemi.write(writer);
-  ASSERT_THAT(testResult, testing::ElementsAreArray(test_frame2));
+  ASSERT_THAT(testResult, testing::ElementsAreArray(TEST_FRAME2));
 }
 
 TEST(Cemi, write) {
@@ -72,10 +71,7 @@ TEST(Cemi, write) {
 }
 
 TEST(Cemi, write2) {
-  std::vector<std::uint8_t> value{};
-  value.reserve(2);
-  value.push_back(0x02);
-  value.push_back(0x01);
+  std::vector<std::uint8_t> value{0x02,0x0};
   GroupAddress ga{3, 2, 55};
   IndividualAddress source(0, 0, 0);
   Control control{KnxPrio::low, true};

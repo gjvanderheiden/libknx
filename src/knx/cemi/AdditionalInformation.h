@@ -29,6 +29,7 @@ public:
 
 class AdditionalInformation {
 public:
+  AdditionalInformation() = default;
   static AdditionalInformation parse(ByteBufferReader &reader);
   void write(ByteBufferWriter &writer) const;
 

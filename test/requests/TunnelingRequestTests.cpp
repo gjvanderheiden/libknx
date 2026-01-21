@@ -1,7 +1,7 @@
 #include "knx/bytes/ByteBufferReader.h"
 #include "knx/cemi/ACPI.h"
-#include "knx/headers/KnxIpHeader.h"
-#include "knx/requests/TunnelingRequest.h"
+#include "knx/ipreqresp/KnxIpHeader.h"
+#include "knx/ipreqresp/requests/TunnelingRequest.h"
 #include "gmock/gmock.h"
 #include <gtest/gtest.h>
 

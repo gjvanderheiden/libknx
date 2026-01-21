@@ -1,6 +1,6 @@
 #include "knx/bytes/ByteBufferReader.h"
-#include "knx/requests/DisconnectRequest.h"
-#include "knx/headers/KnxIpHeader.h"
+#include "knx/ipreqresp/requests/DisconnectRequest.h"
+#include "knx/ipreqresp/KnxIpHeader.h"
 #include <gtest/gtest.h>
 
 static std::array<byte, 0x10> test_frame1 = {0x6, 0x10, 0x2, 0x9, 0x0,  0x10,

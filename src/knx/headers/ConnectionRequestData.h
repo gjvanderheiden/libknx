@@ -10,7 +10,13 @@ public:
   static constexpr std::uint8_t TUNNELING_TYPE = 4;
 
 public:
-  ConnectionRequestData(std::uint8_t type, IndividualAddress&& address);
+  ConnectionRequestData() = default;
+
+  ConnectionRequestData(const ConnectionRequestData &) = default;
+  ConnectionRequestData(ConnectionRequestData &&) = default;
+  ConnectionRequestData &operator=(const ConnectionRequestData &) = default;
+  ConnectionRequestData &operator=(ConnectionRequestData &&) = default;
+  ConnectionRequestData(std::uint8_t type, IndividualAddress &&address);
   static ConnectionRequestData newTunneling();
 
   static ConnectionRequestData parse(ByteBufferReader &reader);

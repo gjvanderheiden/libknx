@@ -13,8 +13,6 @@ enum class KnxMedium : std::uint8_t {
 };
 
 class KnxStructure {
-protected:
-
 public:
   KnxStructure() = default;
   virtual ~KnxStructure() = default;

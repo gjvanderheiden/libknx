@@ -1,23 +1,25 @@
 #include "knx/datapointtypes/Format.h"
 #include <gtest/gtest.h>
 
-static std::array<byte, 0x02> test_data_float = {0x0C, 0x8B};
+static constexpr std::array<byte, 0x02> TEST_DATA_FLOAT = {0x0C, 0x8B};
 using namespace knx::datapoint;
 
 TEST(FormatTest, float16) {
-  constexpr double value = 23.84;
-  const auto data = KnxFloat16Format::toData(value);
+  const constexpr double TEST_VALUE = 23.84;
+  const auto data = KnxFloat16Format::toData(TEST_VALUE);
   const double answer = KnxFloat16Format::toValue(data);
-  EXPECT_EQ(value, answer);
+  EXPECT_EQ(TEST_VALUE, answer);
 }
+
 TEST(FormatTest, negativeFloat16) {
-  constexpr double value = -23.84;
-  const auto data = KnxFloat16Format::toData(value);
+  constexpr double TEST_VALUE = -23.84;
+  const auto data = KnxFloat16Format::toData(TEST_VALUE);
   const double answer = KnxFloat16Format::toValue(data);
-  EXPECT_EQ(value, answer);
+  EXPECT_EQ(TEST_VALUE, answer);
 }
-TEST(FormatTest, float16_testdata) {
-  const double answer = KnxFloat16Format::toValue(test_data_float);
+
+TEST(FormatTest, float16Testdata) {
+  const double answer = KnxFloat16Format::toValue(TEST_DATA_FLOAT);
   EXPECT_EQ(23.26, answer);
 }
 

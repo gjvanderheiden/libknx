@@ -3,7 +3,7 @@
 
 IpAddress::IpAddress(const std::uint8_t byte1, const std::uint8_t byte2, const std::uint8_t byte3, const std::uint8_t byte4) : address  {byte1, byte2, byte3, byte4}{
 }
-IpAddress::IpAddress(std::array<const uint8_t, 4> &&asArray)
+IpAddress::IpAddress(std::array<uint8_t, 4> &&asArray)
     : address{std::move(asArray)} {}
 
 IpAddress IpAddress::parse(ByteBufferReader &reader) {

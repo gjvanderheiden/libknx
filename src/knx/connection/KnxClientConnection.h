@@ -8,6 +8,7 @@
 #include <asio/io_context.hpp>
 #include <asio/steady_timer.hpp>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -24,9 +25,13 @@ namespace knx::connection {
  */
 class KnxClientConnection final : ConnectionListener {
 public:
-  KnxClientConnection(asio::io_context& ctx, std::unique_ptr<TunnelingConnection> &&tunnelingConnection);
+  KnxClientConnection(
+      asio::io_context &ctx,
+      std::unique_ptr<TunnelingConnection> &&tunnelingConnection);
   ~KnxClientConnection() override = default;
 
+  KnxClientConnection(const KnxClientConnection &) = delete;
+  KnxClientConnection &operator=(const KnxClientConnection &) = delete;
   KnxClientConnection(KnxClientConnection&& other) noexcept = delete;
   KnxClientConnection& operator=(KnxClientConnection&& other) noexcept =  delete;
 
@@ -65,7 +70,7 @@ public:
    * it'll trigger a onGroupReadResponse on the listeners (KnxConnectionListener).
    * see addListener().
    */
-  asio::awaitable<void> sendReadGroup(const GroupAddress groupAddress);
+  asio::awaitable<void> sendReadGroup(GroupAddress groupAddress);
 
 private:
   void
@@ -77,14 +82,14 @@ private:
   void checkForUpdateListener(Cemi &cemi);
   void checkForConfirm(Cemi& cemi);
 
-  asio::awaitable<void> writeToGroup(GroupAddress groupAddress, DataACPI&& dataACPI);
+  asio::awaitable<void> writeToGroup(GroupAddress groupAddress, DataACPI dataACPI);
   asio::awaitable<void> sendCemi(Cemi& cemi);
 
 private:
   asio::io_context& ctx;
   std::unique_ptr<TunnelingConnection> tunnelingConnection;
   std::vector<std::weak_ptr<KnxConnectionListener>> connectionListeners;
-  std::map<std::uint32_t, std::unique_ptr<SendTunnelingState>> requests;
+  std::map<std::uint32_t, std::unique_ptr<CemiSendState>> requests;
 };
 
 } // namespace connection

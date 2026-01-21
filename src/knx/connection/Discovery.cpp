@@ -2,9 +2,9 @@
 #include "knx/bytes/ByteBufferReader.h"
 #include "knx/headers/HPAI.h"
 #include "knx/headers/IpAddress.h"
-#include "knx/headers/KnxIpHeader.h"
-#include "knx/requests/SearchRequest.h"
-#include "knx/responses/SearchResponse.h"
+#include "knx/ipreqresp/KnxIpHeader.h"
+#include "knx/ipreqresp/requests/SearchRequest.h"
+#include "knx/ipreqresp/responses/SearchResponse.h"
 #include <asio.hpp>
 #include <asio/detached.hpp>
 #include <asio/io_context.hpp>
@@ -57,7 +57,7 @@ asio::awaitable<void> Discovery::startScanning(DiscoveryCallback &&callback) {
   DiscoveryCallback cb = std::move(callback);
   timer.expires_after(timeOut);
   socket.setHandler(
-      [&cb](std::vector<byte> &&data) { doReceive(std::move(data), cb); });
+      [&cb](ByteSpan data) { doReceive(data, cb); });
   socket.startMulticast(multicastAddress);
 
   asio::ip::udp::endpoint endpoint{multicastAddress, MULTICAST_PORT};
@@ -67,7 +67,7 @@ asio::awaitable<void> Discovery::startScanning(DiscoveryCallback &&callback) {
   socket.stop();
 }
 
-void Discovery::doReceive(std::vector<std::uint8_t> &&data,
+void Discovery::doReceive(ByteSpan data,
                           DiscoveryCallback &callback) {
   ByteBufferReader reader{std::move(data)};
   if (const KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader);

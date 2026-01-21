@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "knx/headers/KnxIpHeader.h"
-#include "knx/responses/SearchResponse.h"
+#include "knx/ipreqresp/KnxIpHeader.h"
+#include "knx/ipreqresp/responses/SearchResponse.h"
 #include <array>
 
 static std::array<byte, 102> test_frame = {

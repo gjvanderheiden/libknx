@@ -43,7 +43,7 @@ public:
    */
   std::span<const byte> readByteSpan(int numberOfBytes);
 
-  std::array<const byte, 4> get4BytesCopy();
+  std::array<byte, 4> get4BytesCopy();
   /**
    * The data wrapped by the span will be overwritten with the data I wrap.
    * Length is dictated by the given span.

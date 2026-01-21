@@ -5,6 +5,7 @@
 
 class TCPI {
 public:
+  TCPI() = default;
   TCPI(bool isControl, bool hasSequence, std::uint8_t sequence);
 
   static TCPI parse(byte byte);
@@ -13,7 +14,7 @@ public:
   [[nodiscard]] bool isControl() const;
 
 private:
-  const bool _isControl;
-  const bool hasSequence;
-  const std::uint8_t sequence;
+  bool _isControl;
+  bool hasSequence;
+  std::uint8_t sequence;
 };

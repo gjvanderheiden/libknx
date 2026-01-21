@@ -1,5 +1,17 @@
+# performance-move-const-arg:
+#   false positive on std::move of trivial copyable, want to keep de std::move
+# cppcoreguidelines-avoid-capturing-lambda-coroutines:
+# cppcoreguidelines-avoid-reference-coroutine-parameters:
+#   These 2 make working with co_routines nearly impossible and
+#   there not so well thought out
+# modernize-use-trailing-return-type,
+#   Style issue. Nothing againt it, but needs to be all the same, for now: out
+# bugprone-easily-swappable-parameters:
+#   Doesn't seem to have a good alternative. Named parameter call would be nice.
+#   You can make a struct. Not my biggest concern right now.
+# readability-redundant-access-specifiers:
+#   I use these to group constants, constructors & methods etc
 Checks: >
-  -*,
   cppcoreguidelines-*,
   bugprone-*,
   google-*,
@@ -20,7 +32,6 @@ Checks: >
   -modernize-use-trailing-return-type,
   -bugprone-easily-swappable-parameters,
   -performance-move-const-arg,
-# There core guidelines are not feaseble, IMHO not well thought out
   -cppcoreguidelines-avoid-capturing-lambda-coroutines,
   -cppcoreguidelines-avoid-reference-coroutine-parameters
 
@@ -35,8 +46,8 @@ CheckOptions:
   - { key: readability-identifier-naming.FunctionCase,           value: camelBack  }
   - { key: readability-identifier-naming.VariableCase,           value: camelBack }
   - { key: readability-identifier-naming.MacroDefinitionCase,    value: UPPER_CASE }
-  - { key: readability-identifier-naming.EnumConstantCase,         value: camelBack }
-  - { key: readability-identifier-naming.ConstexprVariableCase,    value: UPPER_CASE }
-  - { key: readability-identifier-naming.GlobalConstantCase,       value: CamelCase }
-  - { key: readability-identifier-naming.MemberConstantCase,       value: CamelCase }
-  - { key: readability-identifier-naming.StaticConstantCase,       value: CamelCase }
+  - { key: readability-identifier-naming.EnumConstantCase,       value: camelBack }
+  - { key: readability-identifier-naming.ConstexprVariableCase,  value: UPPER_CASE }
+  - { key: readability-identifier-naming.GlobalConstantCase,     value: CamelCase }
+  - { key: readability-identifier-naming.MemberConstantCase,     value: CamelCase }
+  - { key: readability-identifier-naming.StaticConstantCase,     value: CamelCase }

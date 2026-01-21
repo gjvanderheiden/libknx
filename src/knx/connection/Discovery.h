@@ -28,7 +28,7 @@ public:
 
 
 private:
-  static void doReceive(std::vector<std::uint8_t>&& data, DiscoveryCallback& callback);
+  static void doReceive(ByteSpan data, DiscoveryCallback& callback);
   asio::awaitable<void> startScanning(DiscoveryCallback&& callback);
 
 private:

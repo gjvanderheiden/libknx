@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "knx/headers/KnxIpHeader.h"
-#include "knx/responses/ConnectStateResponse.h"
+#include "knx/ipreqresp/KnxIpHeader.h"
+#include "knx/ipreqresp/responses/ConnectStateResponse.h"
 #include <array>
 
 static std::array<byte,8> test_frame = {0x6, 0x10, 0x2, 0x8, 0x0, 0x8, 0x1, 0x0};

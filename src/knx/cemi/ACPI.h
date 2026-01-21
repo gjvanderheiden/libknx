@@ -8,6 +8,7 @@
 
 class DataACPI {
 public:
+  DataACPI() = default;
   DataACPI(std::uint8_t type, std::vector<byte>&& data, bool fits6Bits = false);
   DataACPI(std::uint8_t type, byte byteData, bool fits6Bits);
   explicit DataACPI(std::uint8_t type);
@@ -26,9 +27,9 @@ public:
   [[nodiscard]] std::vector<byte> getData() const;
 
 private:
-  const std::uint8_t type;
-  const std::vector<byte> data;
-  const bool fits6Bits;
+  std::uint8_t type;
+  std::vector<byte> data;
+  bool fits6Bits;
 };
 
 enum class ControlType {
@@ -38,9 +39,10 @@ enum class ControlType {
 
 class ControlACPI {
 public:
+  ControlACPI() = default;
   explicit ControlACPI(ControlType controlType);
   static ControlACPI parse(byte firstByte, byte length, ByteBufferReader &reader);
   [[nodiscard]] ControlType getControlType() const;
 private:
-  const ControlType controlType;
+  ControlType controlType;
 };

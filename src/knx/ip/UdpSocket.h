@@ -5,14 +5,13 @@
 #include <cstdint>
 #include <functional>
 #include <string>
-#include <vector>
 
 namespace udp {
 
 using asio::awaitable;
 using asio::ip::tcp;
 using DataReceivedFunction =
-    std::function<auto(std::vector<std::uint8_t>&& data)->void>;
+    std::function<auto(ByteSpan data)->void>;
 using SocketClosedFunction =
     std::function<auto()->void>;
 using std::chrono::steady_clock;

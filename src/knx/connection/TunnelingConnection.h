@@ -4,17 +4,17 @@
 #include "knx/connection/ConnectionListener.h"
 #include "knx/connection/SendTunnelingState.h"
 #include "knx/headers/HPAI.h"
-#include "knx/headers/KnxIpHeader.h"
 #include "knx/ip/UdpSocket.h"
-#include "knx/requests/AbstractRequest.h"
+#include "knx/ipreqresp/KnxIpHeader.h"
+#include "knx/ipreqresp/requests/AbstractRequest.h"
+#include "knx/ipreqresp/responses/responses.h"
 #include <asio/awaitable.hpp>
 #include <asio/io_context.hpp>
-#include <map>
 #include <string_view>
 #include <vector>
 
 namespace knx::connection {
-
+using namespace std::chrono_literals;
 /**
  * I'm responsible for keeping a connection to a KNX IP Router.
  *
@@ -33,6 +33,7 @@ namespace knx::connection {
 class TunnelingConnection {
 public:
   static constexpr int TIME_BETWEEN_CHECK_CONNECTION = 45;
+  static constexpr auto DELAY_RESEND_REQUEST = 400ms;
 
 public:
   TunnelingConnection(const TunnelingConnection &) = delete;
@@ -54,11 +55,12 @@ public:
   asio::awaitable<void> start();
 
   void addListener(ConnectionListener &listener);
-  asio::awaitable<void> send(Cemi &&cemi);
+
+  asio::awaitable<void> send(Cemi cemi);
 
   /**
-   * Does not comply to RAII, but need to figure this one out a bit. Get the
-   * project going.
+   * Does not comply to RAII, but I can't co_await in a descructor.
+   * On close, a request to disconnect is send the the other peer.
    */
   asio::awaitable<void> close();
 
@@ -67,23 +69,19 @@ public:
   const IndividualAddress &getKnxAddress();
 
 private:
-  asio::awaitable<void> close(bool needsDisconnectRequest);
+  void closeWithoutDisconnect();
 
   void onControlSocketClosed();
   void onDataSocketClosed();
   void reset();
 
+  asio::awaitable<knx::requestresponse::ResponseVariant>
+  sendRequest(const AbstractRequest &request);
+
 private:
   using CallBackFunction = std::function<
       auto(KnxIpHeader &knxIpHeader, ByteBufferReader &reader)->bool>;
 
-  /**
-   * send request to KNX server (router).
-   * This should also do a timeout, which is currently doesn't do.
-   */
-  asio::awaitable<void> sendRequest(AbstractRequest &request,
-                                    std::uint16_t responseServiceId,
-                                    CallBackFunction &&callBackFunction);
   /**
    * periodically, the connection needs to be checked according to KNX IP
    * protocol. The server closes the connection if it get this sort of ping.
@@ -93,7 +91,7 @@ private:
   /**
    * Raw data from the UdpSocket. I will parse it and handle it
    */
-  auto onReceiveData(std::vector<std::uint8_t> &&data) -> void;
+  auto onReceiveData(ByteSpan data) -> void;
 
   /**
    * Tunneling connection releated handler: a tunnel request
@@ -111,17 +109,8 @@ private:
   auto onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
                                   ByteBufferReader &reader) -> bool;
 
-  /**
-   * Tunneling connection releated handler: a ack tunnel response
-   * This is called from onReceiveData (first registered as a listener)
-   * Server has received our tunneling packet.
-   * Check if it was send by me and inform send item handler
-   */
-  auto onReceiveAckTunnelResponse(KnxIpHeader &knxIpHeader,
-                                  ByteBufferReader &reader) -> bool;
-
-  HPAI createDataHPAI() const;
-  HPAI createControlHPAI() const;
+  [[nodiscard]] HPAI createDataHPAI() const;
+  [[nodiscard]] HPAI createControlHPAI() const;
 
   /**
    * inform every ConnectionListener with whatever is in the lambda
@@ -139,12 +128,11 @@ private:
   const std::uint16_t controlPort;
   std::unique_ptr<udp::UdpSocket> dataSocket;
   std::unique_ptr<udp::UdpSocket> controlSocket;
-  std::unordered_map<std::uint16_t, CallBackFunction> listeners{};
   std::uint8_t channelId{0};
-  std::vector<ConnectionListener *> connectionListeners{};
+  std::vector<ConnectionListener *> connectionListeners;
   bool closingDown{false};
   std::uint8_t sequence{0};
-  std::map<std::uint8_t, std::unique_ptr<SendTunnelingState>> sendItems{};
+  std::vector<std::unique_ptr<TunnelingSendState>> sendItems;
   IndividualAddress knxAddress;
 };
 

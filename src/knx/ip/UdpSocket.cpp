@@ -70,10 +70,7 @@ void UdpSocket::receiveSome() {
         }
         if (!error) {
           if (size > 0 && this->handlerFunction) {
-            std::vector<std::uint8_t> data;
-            data.reserve(size);
-            std::copy_n(buffer.begin(), size, std::back_inserter(data));
-            handlerFunction(std::move(data));
+            handlerFunction({buffer.data(), size});
           }
           receiveSome();
         } else {
@@ -111,7 +108,7 @@ awaitable<void> UdpSocket::readIncoming() {
       std::vector<std::uint8_t> data;
       data.reserve(size);
       std::copy_n(buffer.begin(), size, std::back_inserter(data));
-      handlerFunction(std::move(data));
+      handlerFunction(data);
     } else if (size == 0) {
       std::cerr << "Received 0 bytes packet on socket " << port << '\n';
     }

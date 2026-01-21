@@ -43,7 +43,7 @@ std::string ByteBufferReader::readTerminatedString(const int maxLength) {
   return knxString;
 }
 
-std::array<const byte, 4> ByteBufferReader::get4BytesCopy() {
+std::array<byte, 4> ByteBufferReader::get4BytesCopy() {
   return {data[index++], data[index++], data[index++], data[index++]};
 }
 
