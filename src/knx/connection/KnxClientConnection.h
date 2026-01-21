@@ -14,6 +14,7 @@
 
 namespace knx::connection {
 
+using CemiSendState =  AsyncMessageState<Cemi, std::optional<Cemi>>;
 
 /**
  * I represent a client connection to a knx system. For now I'm capable of using a

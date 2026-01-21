@@ -1,6 +1,5 @@
 #include "knx/connection/TunnelingConnection.h"
 #include "knx/bytes/ByteBufferReader.h"
-#include "knx/connection/SendTunnelingState.h"
 #include "knx/headers/ConnectionRequestInformation.h"
 #include "knx/headers/KnxAddress.h"
 #include "knx/ip/UdpSocket.h"

@@ -2,7 +2,7 @@
 
 #include "knx/bytes/ByteBufferReader.h"
 #include "knx/connection/ConnectionListener.h"
-#include "knx/connection/SendTunnelingState.h"
+#include "knx/connection/AsyncMessageState.h"
 #include "knx/headers/HPAI.h"
 #include "knx/ip/UdpSocket.h"
 #include "knx/ipreqresp/KnxIpHeader.h"
@@ -15,6 +15,8 @@
 
 namespace knx::connection {
 using namespace std::chrono_literals;
+
+using TunnelingSendState = AsyncMessageState<AbstractRequest, requestresponse::ResponseVariant>;
 /**
  * I'm responsible for keeping a connection to a KNX IP Router.
  *

@@ -1,8 +1,5 @@
 #pragma once
 
-#include "knx/cemi/Cemi.h"
-#include "knx/ipreqresp/requests/AbstractRequest.h"
-#include "knx/ipreqresp/responses/responses.h"
 #include <asio/awaitable.hpp>
 #include <asio/io_context.hpp>
 #include <asio/steady_timer.hpp>
@@ -24,7 +21,7 @@ namespace knx::connection {
  * I take care of the mechanism of resending in short.
  */
 template <typename DataType, typename ResponseType>
-class SendMessageState {
+class AsyncMessageState {
 public:
   enum class State : std::uint8_t {
     initial,
@@ -40,7 +37,7 @@ public:
 
 public:
 
-  SendMessageState(asio::io_context &ctx, SendMethod &&sendMethod, MatchMethod&& matchMethod);
+  AsyncMessageState(asio::io_context &ctx, SendMethod &&sendMethod, MatchMethod&& matchMethod);
 
   [[nodiscard]] State getState() const;
 
@@ -70,11 +67,6 @@ private:
   ResponseType response;
 };
 
-using CemiSendState = SendMessageState<Cemi, std::optional<Cemi>>;
-using TunnelingSendState = SendMessageState<AbstractRequest, requestresponse::ResponseVariant>;
 
-template class  SendMessageState<Cemi, Cemi>;
-template class  SendMessageState<AbstractRequest&, requestresponse::ResponseVariant>;
 } // namespace knx::connection
   
-#include "SendTunnelingState.hpp"

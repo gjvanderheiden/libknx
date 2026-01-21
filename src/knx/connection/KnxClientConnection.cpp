@@ -2,7 +2,7 @@
 #include "knx/bytes/ByteDef.h"
 #include "knx/cemi/ACPI.h"
 #include "knx/cemi/Control.h"
-#include "knx/connection/SendTunnelingState.h"
+#include "knx/connection/AsyncMessageState.h"
 #include "knx/headers/KnxAddress.h"
 #include <asio/awaitable.hpp>
 #include <asio/steady_timer.hpp>
