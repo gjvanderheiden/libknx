@@ -10,20 +10,20 @@
 
 namespace knx::connection {
 
-
 using namespace std::chrono_literals;
 
 template <typename DataType, typename ResponseType>
-AsyncMessageState<DataType, ResponseType>::AsyncMessageState(asio::io_context &ctx,
-                                       SendMethod &&sendMethod, MatchMethod&& matchMethod)
+AsyncMessageState<DataType, ResponseType>::AsyncMessageState(
+    asio::io_context &ctx, SendMethod &&sendMethod, MatchMethod &&matchMethod)
 
-    : sendTimer{ctx}, sendMethod{std::move(sendMethod)}, matchMethod{std::move(matchMethod)} {}
+    : sendTimer{ctx}, sendMethod{std::move(sendMethod)},
+      matchMethod{std::move(matchMethod)} {}
 
-
-template <typename DataType,typename ResponseType >
-bool AsyncMessageState<DataType, ResponseType>::matchResponse(ResponseType&& response) {
+template <typename DataType, typename ResponseType>
+bool AsyncMessageState<DataType, ResponseType>::matchResponse(
+    ResponseType &&response) {
   bool match = matchMethod(response);
-  if(match) {
+  if (match) {
     state = State::ok;
     sendTimer.cancel();
     this->response = std::move(response);
@@ -37,7 +37,10 @@ ResponseType AsyncMessageState<DataType, ResponseType>::getResponse() {
 }
 
 template <typename DataType, typename ResponseType>
-AsyncMessageState<DataType, ResponseType>::State AsyncMessageState<DataType, ResponseType>::getState() const { return state; }
+AsyncMessageState<DataType, ResponseType>::State
+AsyncMessageState<DataType, ResponseType>::getState() const {
+  return state;
+}
 
 template <typename DataType, typename ResponseType>
 void AsyncMessageState<DataType, ResponseType>::cancel() {
@@ -45,12 +48,15 @@ void AsyncMessageState<DataType, ResponseType>::cancel() {
   sendTimer.cancel();
 }
 
-
 template <typename DataType, typename ResponseType>
-asio::awaitable<void> AsyncMessageState<DataType, ResponseType>::send(const unsigned int attempts) {
+asio::awaitable<void>
+AsyncMessageState<DataType, ResponseType>::send(const unsigned int attempts) {
   state = State::sending;
+  sendTimer.expires_after(80ms);
   co_await sendMethod();
-  sendTimer.expires_after(50ms);
+  if(state == State::ok || state == State::canceled) {
+    co_return;
+  }
   auto [error] = co_await sendTimer.async_wait(asio::as_tuple);
   if (!error) {
     if (attempts > 1) {
@@ -63,6 +69,7 @@ asio::awaitable<void> AsyncMessageState<DataType, ResponseType>::send(const unsi
   }
 }
 
-template class  AsyncMessageState<Cemi, std::optional<Cemi>>;
-template class  AsyncMessageState<AbstractRequest, requestresponse::ResponseVariant>;
+template class AsyncMessageState<Cemi, std::optional<Cemi>>;
+template class AsyncMessageState<AbstractRequest,
+                                 requestresponse::ResponseVariant>;
 } // namespace knx::connection
