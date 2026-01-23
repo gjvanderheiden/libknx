@@ -36,4 +36,7 @@ SearchResponse SearchResponse::parse(ByteBufferReader &reader) {
           SupportedServiceFamiliesDib::parse(reader)};
 }
 
+std::string SearchResponse::getShortDescription() const {
+  return "SearchResponse";
+}
 } // namespace knx::requestresponse

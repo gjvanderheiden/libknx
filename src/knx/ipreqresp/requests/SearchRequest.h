@@ -21,6 +21,7 @@ public:
 
   void write(ByteBufferWriter& writer) const override;
   static SearchRequest parse(ByteBufferReader& reader);
+  [[nodiscard]] std::string getShortDescription() const override;
 
   [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
   [[nodiscard]] bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;

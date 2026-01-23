@@ -27,6 +27,7 @@ public:
   void write(ByteBufferWriter &writer) const override;
   static SearchResponse parse(ByteBufferReader& reader);
   [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
+  [[nodiscard]] std::string getShortDescription() const override;
 
   [[nodiscard]] const HPAI& getControlEndPoint() const;
   [[nodiscard]] const DeviceDib& getDeviceDib() const;

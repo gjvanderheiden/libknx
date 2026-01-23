@@ -23,6 +23,7 @@ public:
 
   static ConnectStateResponse parse(ByteBufferReader &buffer);
   void write(ByteBufferWriter &writer) const override;
+  [[nodiscard]] std::string getShortDescription() const override;
 
   [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
 

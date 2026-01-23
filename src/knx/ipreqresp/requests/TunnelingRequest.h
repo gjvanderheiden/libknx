@@ -23,6 +23,7 @@ public:
   static TunnelRequest parse(ByteBufferReader& reader);
   [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
   [[nodiscard]] bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;
+  [[nodiscard]] std::string getShortDescription() const override;
 
   [[nodiscard]] const ConnectionHeader& getConnectionHeader() const;
   [[nodiscard]] const Cemi& getCemi() const;

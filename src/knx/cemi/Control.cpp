@@ -5,25 +5,34 @@ Control::Control(KnxPrio prio, const bool destinationAddressIsGroup,
     : priority{prio}, destinationAddressIsGroup{destinationAddressIsGroup},
       hopCount{hopCount} {}
 
-Control Control::parse(ByteBufferReader &writer) {
-  const auto byte1 = writer.readUint8();
-  const auto byte2 = writer.readUint8();
-  const bool isGroup = (byte2 & 0b10000000) != 0x00;
-  const std::uint8_t hopCount = (byte2 >> 4) & 0x07;
-  const KnxPrio prio = static_cast<KnxPrio>((byte1 >> 2) & 0x03);
-  Control control = Control{prio, isGroup, hopCount};
-  control.standardFrameType = (byte1 & 0b10000000) != 0x00;
-  control.repeatOnError = (byte1 & 0b00100000) != 0x00;
-  control.systemBroadcast = (byte1 & 0b00010000) != 0x00;
-  control.acknowledgeWanted = (byte1 & 0b00000010) == 0x00;
-  control.confirmationOnError = (byte1 & 0b00000001) == 0x00;
-  return control;
+namespace{
+bool isBitSet(const byte byte, const int pos) {
+  return (byte & (0x01 << (pos - 1))) != 0x00;
 }
 
-void setBit(byte& byte, int pos, bool value) {
+bool isBitNotSet(const byte byte, const int pos) {
+  return (byte & (0x01 << (pos - 1))) == 0x00;
+}
+void setBit(byte& byte, const int pos, const bool value) {
   if(value) {
     byte |= 0x01 << (pos - 1);
   }
+}
+}
+
+Control Control::parse(ByteBufferReader &reader) {
+  const auto byte1 = reader.readUint8();
+  const auto byte2 = reader.readUint8();
+  const bool isGroup = isBitSet(byte2, IS_GROUP_ADDRESS_POS);
+  const std::uint8_t hopCount = (byte2 >> 4) & 0x07;
+  const auto prio = static_cast<KnxPrio>((byte1 >> 2) & 0x03);
+  Control control = Control{prio, isGroup, hopCount};
+  control.standardFrameType = isBitSet(byte1, STANDARD_FRAME_TYPE_BIT_POS);
+  control.repeatOnError = isBitSet(byte1, REPEAT_ON_ERROR_POS);
+  control.systemBroadcast = isBitSet(byte1, SYSTEM_BROADCAST_POS);
+  control.acknowledgeWanted = isBitNotSet(byte1, ACKNOWLEDGE_WANTED_POS);
+  control.confirmationOnError = isBitNotSet(byte1, CONFIRMATION_ON_ERROR_POS);
+  return control;
 }
 
 void Control::write(ByteBufferWriter &writer) const {
@@ -33,13 +42,13 @@ void Control::write(ByteBufferWriter &writer) const {
   byte prioAsNumber = static_cast<byte>(getPrio());
   byte1 |= prioAsNumber << 2;
 
-  setBit(byte1, 1, !confirmationOnErrorSet());
-  setBit(byte1, 2, !isAcknowledgeWanted());
-  setBit(byte1, 5, systemBroadcastSet());
-  setBit(byte1, 6, repeatOnErrorSet());
-  setBit(byte1, 8, isStandardFrameType());
+  setBit(byte1, CONFIRMATION_ON_ERROR_POS, !confirmationOnErrorSet());
+  setBit(byte1, ACKNOWLEDGE_WANTED_POS,  !isAcknowledgeWanted());
+  setBit(byte1, SYSTEM_BROADCAST_POS, systemBroadcastSet());
+  setBit(byte1, REPEAT_ON_ERROR_POS, repeatOnErrorSet());
+  setBit(byte1, STANDARD_FRAME_TYPE_BIT_POS, isStandardFrameType());
 
-  setBit(byte2, 8, isDestinationGroupAddress());
+  setBit(byte2, IS_GROUP_ADDRESS_POS, isDestinationGroupAddress());
   byte2 |= getHopCount() << 4;
 
   writer.writeUint8(byte1);

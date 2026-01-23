@@ -26,4 +26,7 @@ std::vector<std::uint8_t> DisconnectResponse::toBytes() const {
   return bytes;
 }
 
+std::string DisconnectResponse::getShortDescription() const {
+  return "DisconnectResponse";
+}
 } // namespace knx::requestresponse

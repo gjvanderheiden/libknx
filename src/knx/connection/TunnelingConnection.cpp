@@ -60,9 +60,7 @@ TunnelingConnection::TunnelingConnection(asio::io_context &ctx,
       std::bind_front(&TunnelingConnection::onControlSocketClosed, this));
 }
 
-TunnelingConnection::~TunnelingConnection() {
-  closeWithoutDisconnect();
-}
+TunnelingConnection::~TunnelingConnection() { closeWithoutDisconnect(); }
 
 void TunnelingConnection::addListener(ConnectionListener &listener) {
   connectionListeners.push_back(&listener);
@@ -137,17 +135,14 @@ asio::awaitable<void> TunnelingConnection::checkConnection() {
         keepGoing = false;
       }
     } else {
-      co_spawn(ctx, this->close(), asio::detached);
+      std::cout << "Got no response to Connect state request\n";
+      // co_spawn(ctx, this->close(), asio::detached);
       keepGoing = false;
     }
   }
 }
 
-auto TunnelingConnection::onReceiveTunnelRequest(KnxIpHeader & /*knxIpHeader*/,
-                                                 ByteBufferReader &reader)
-    -> bool {
-  const TunnelRequest request = TunnelRequest::parse(reader);
-
+void TunnelingConnection::onReceiveTunnelRequest(const TunnelRequest & request) {
   // send an acknowlegde
   {
     TunnelAckResponse response{ConnectionHeader{request.getConnectionHeader()}};
@@ -160,13 +155,11 @@ auto TunnelingConnection::onReceiveTunnelRequest(KnxIpHeader & /*knxIpHeader*/,
     listener->onIncommingCemi(cemi);
   });
 
-  return true;
 }
 
-auto TunnelingConnection::onReceiveDisconnectRequest(
-    KnxIpHeader & /*knxIpHeader*/, ByteBufferReader &reader) -> bool {
+void TunnelingConnection::onReceiveDisconnectRequest(
+    const DisconnectRequest &request) {
   std::cout << "Received disconnect request\n";
-  const DisconnectRequest request = DisconnectRequest::parse(reader);
   if (request.getChannel() == channelId) {
     DisconnectResponse response{channelId};
     auto responseBytes = response.toBytes();
@@ -176,7 +169,6 @@ auto TunnelingConnection::onReceiveDisconnectRequest(
     forEveryListener(
         [](ConnectionListener *listener) { listener->onDisconnect(); });
   }
-  return true;
 }
 
 void TunnelingConnection::onReceiveData(ByteSpan data) {
@@ -184,32 +176,63 @@ void TunnelingConnection::onReceiveData(ByteSpan data) {
                "&&data)\n";
   ByteBufferReader reader(data);
   KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader);
-  auto type = RequestResponseFactory::getType(knxIpHeader);
   std::cout << "TunnelingConnection::onReceiveData() : service type =  "
-            << knxIpHeader.getServiceType() << "\n";
+    << std::hex << knxIpHeader.getServiceType() << "\n";
 
+
+  auto type = RequestResponseFactory::getType(knxIpHeader);
   if (type == MessageType::unknown) {
     return;
   }
-
   if (type == MessageType::response) {
     ResponseVariant response =
         RequestResponseFactory::parseResponse(knxIpHeader, reader);
+    std::string description = std::visit(
+        Overloaded{[](const std::monostate & /*monostate*/) -> std::string {
+                     return "nothing";
+                   },
+                   [](const auto &response) {
+                     return response.getShortDescription();
+                   }},
+        response);
+
+    std::cout << "Received: " << description << "\n";
+    bool foundMatch = false;
     for (auto const &sendRequest : this->sendItems) {
       if (sendRequest->matchResponse(std::move(response))) {
+        foundMatch = true;
+        std::cout << "found match for " << std::hex
+                  << knxIpHeader.getServiceType() << "\n";
         break;
       }
     }
-  } else {
-    if (knxIpHeader.getServiceType() == TunnelRequest::SERVICE_ID) {
-      onReceiveTunnelRequest(knxIpHeader, reader);
-    } else if (knxIpHeader.getServiceType() == DisconnectRequest::SERVICE_ID) {
-      onReceiveDisconnectRequest(knxIpHeader, reader);
+    if (!foundMatch) {
+      std::cout << "NO MATCH found for " << std::hex
+                << knxIpHeader.getServiceType() << "\n";
     }
+  } else {
+    RequestVariant request =
+        RequestResponseFactory::parseRequest(knxIpHeader, reader);
+
+    std::string description = std::visit(
+        Overloaded{
+            [](const std::monostate & /*monostate*/) -> std::string {
+              return "nothing";
+            },
+            [](const auto &request) { return request.getShortDescription(); }},
+        request);
+    std::cout << "Received: " << description << "\n";
+
+    std::visit(Overloaded{[this](const TunnelRequest &tunnelRequest) {onReceiveTunnelRequest(tunnelRequest);},
+                          [this](const DisconnectRequest &request) {onReceiveDisconnectRequest(request);},
+                          [](const std::monostate & /*monostate*/) {},
+                          [](const auto &request) {std::cout << "No action for " << request.getShortDescription() <<"\n";}},
+               request);
   }
 }
 
 asio::awaitable<void> TunnelingConnection::send(Cemi cemi) {
+  std::cout << "TunnelingConnection::send(Cemi)\n";
   std::uint8_t sequenceSend = sequence++;
   const TunnelRequest tunnelRequest{ConnectionHeader{channelId, sequenceSend},
                                     std::move(cemi)};
@@ -217,8 +240,12 @@ asio::awaitable<void> TunnelingConnection::send(Cemi cemi) {
   if (std::holds_alternative<TunnelAckResponse>(response)) {
     auto ackResponse = std::get<TunnelAckResponse>(response);
     if (ackResponse.getConnectionHeader().getStatus() != 0x00) {
+      std::cout << "Got unexpected ack status " << std::hex
+                << ackResponse.getConnectionHeader().getStatus() << "\n";
       co_await this->close();
     }
+  } else {
+    std::cout << "Received unexpected response\n";
   }
 }
 
@@ -231,6 +258,8 @@ TunnelingConnection::sendRequest(const AbstractRequest &request) {
   auto sendItemUP = std::make_unique<TunnelingSendState>(
       ctx,
       [this, &request]() -> asio::awaitable<void> {
+        std::cout << "Sending request: " << request.getShortDescription()
+                  << "\n";
         std::vector<byte> data = request.toBytes();
         if (request.getServiceType() == TunnelRequest::SERVICE_ID) {
           co_await dataSocket->writeTo(this->remoteDataEndPoint, data);
@@ -239,17 +268,21 @@ TunnelingConnection::sendRequest(const AbstractRequest &request) {
         }
       },
       matcher);
-  auto item = sendItemUP.get();
+  auto *item = sendItemUP.get();
   sendItems.push_back(std::move(sendItemUP));
 
+  std::cout << "Awaiting sending request: " << request.getShortDescription()
+                  << "\n";
   co_await item->send();
   bool timedOut = item->getState() == TunnelingSendState::State::timeout;
   if (timedOut) {
+    std::cerr << "Timeout for " << std::hex << request.getServiceType()
+              << std::dec << ", " << request.getShortDescription() << "\n";
     co_await close();
   }
   auto answer = item->getResponse();
   std::erase_if(sendItems,
-                [item](const auto &element) { return element.get() == item; });
+                [&item](const auto &element) { return element.get() == item; });
   co_return answer;
 }
 
@@ -325,10 +358,10 @@ asio::awaitable<void> TunnelingConnection::close() {
 
 void TunnelingConnection::closeWithoutDisconnect() {
   this->reset();
-  if(controlSocket) {
+  if (controlSocket) {
     controlSocket->stop();
   }
-  if(dataSocket) {
+  if (dataSocket) {
     dataSocket->stop();
   }
   forEveryListener(

@@ -24,4 +24,5 @@ public:
     this->write(writer);
     return data;
   }
+  [[nodiscard]] virtual std::string getShortDescription() const = 0;
 };

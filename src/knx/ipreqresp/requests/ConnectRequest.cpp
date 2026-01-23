@@ -22,6 +22,10 @@ bool ConnectRequest::matchesResponse(
   return std::holds_alternative<knx::requestresponse::ConnectResponse>(response);
 }
 
+std::string ConnectRequest::getShortDescription() const {
+  return "ConnectRequest";
+}
+
 void ConnectRequest::write(ByteBufferWriter& writer) const {
   KnxIpHeader{SERVICE_ID, SIZE}.write(writer);
   controlEndPoint.write(writer);

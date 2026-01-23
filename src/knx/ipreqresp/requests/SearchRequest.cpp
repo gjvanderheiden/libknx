@@ -25,3 +25,7 @@ bool SearchRequest::matchesResponse(
 SearchRequest SearchRequest::parse(ByteBufferReader &reader) {
   return SearchRequest{HPAI::parse(reader)};
 }
+
+std::string SearchRequest::getShortDescription() const {
+  return "SearchRequest";
+}

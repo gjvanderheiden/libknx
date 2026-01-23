@@ -26,6 +26,7 @@ public:
   void write(ByteBufferWriter &writer) const override;
   static DisconnectResponse parse(ByteBufferReader& reader);
   [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
+  [[nodiscard]] std::string getShortDescription() const override;
   [[nodiscard]] std::vector<std::uint8_t> toBytes() const;
 
 private:

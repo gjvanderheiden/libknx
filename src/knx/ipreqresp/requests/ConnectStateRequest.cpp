@@ -19,6 +19,10 @@ ConnectStateRequest ConnectStateRequest::parse(ByteBufferReader reader) {
   return ConnectStateRequest{std::move(controlEndPoint), channelId};
 }
 
+std::string ConnectStateRequest::getShortDescription() const {
+  return "ConnectStateRequest";
+}
+
 bool ConnectStateRequest::matchesResponse(
     knx::requestresponse::ResponseVariant response) const {
   return std::holds_alternative<knx::requestresponse::ConnectStateResponse>(response);

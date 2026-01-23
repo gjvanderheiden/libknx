@@ -27,4 +27,8 @@ std::uint8_t ConnectResponse::getStatus() const { return status; }
 const ConnectionRequestData& ConnectResponse::getCRD() const {return crd;}
 
 const HPAI& ConnectResponse::getDataEndPoint() const {return dataEndPoint;}
+
+std::string ConnectResponse::getShortDescription() const {
+  return "ConnectResponse";
+}
 } // namespace knx::requestresponse

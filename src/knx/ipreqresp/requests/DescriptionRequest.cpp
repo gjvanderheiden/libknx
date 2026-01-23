@@ -15,6 +15,11 @@ DescriptionRequest DescriptionRequest::parse(ByteBufferReader& reader) {
   return DescriptionRequest{HPAI::parse(reader)};
 }
 
+
+std::string DescriptionRequest::getShortDescription() const {
+  return "DescriptionRequest";
+}
+
 bool DescriptionRequest::matchesResponse(
     knx::requestresponse::ResponseVariant response) const {
   return std::holds_alternative<knx::requestresponse::DescriptionResponse>(response);

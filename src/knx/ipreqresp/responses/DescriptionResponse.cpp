@@ -29,4 +29,7 @@ void DescriptionResponse::write(ByteBufferWriter &writer) const {
   supportedServiceFamiliesDib.write(writer);
 }
 
+std::string DescriptionResponse::getShortDescription() const {
+  return "DescriptionResponse";
+}
 } // namespace knx::requestresponse

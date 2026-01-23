@@ -28,3 +28,7 @@ bool DisconnectRequest::matchesResponse(
     knx::requestresponse::ResponseVariant response) const {
   return std::holds_alternative<knx::requestresponse::DisconnectResponse>(response);
 }
+std::string DisconnectRequest::getShortDescription() const {
+  return "DisconnectRequest";
+}
+

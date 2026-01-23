@@ -1,6 +1,7 @@
 #include "knx/ipreqresp/requests/TunnelingRequest.h"
 #include "knx/ipreqresp/KnxIpHeader.h"
 #include "knx/ipreqresp/responses/TunnelAckResponse.h"
+#include <sstream>
 #include <variant>
 TunnelRequest::TunnelRequest(ConnectionHeader &&connectionHeader, Cemi &&cemi)
     : connectionHeader{std::move(connectionHeader)}, cemi{std::move(cemi)} {}
@@ -41,3 +42,12 @@ bool TunnelRequest::matchesResponse(
 }
 
 const Cemi &TunnelRequest::getCemi() const { return cemi; }
+
+std::string TunnelRequest::getShortDescription() const {
+  std::stringstream stringstream;
+  stringstream << "TunnelRequest [channel: "
+               << static_cast<int>(getConnectionHeader().getChannel())
+               << ", sequence : "
+               << static_cast<int>(getConnectionHeader().getSequence()) << "]";
+  return stringstream.str();
+}

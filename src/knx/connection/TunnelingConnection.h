@@ -7,6 +7,8 @@
 #include "knx/ip/UdpSocket.h"
 #include "knx/ipreqresp/KnxIpHeader.h"
 #include "knx/ipreqresp/requests/AbstractRequest.h"
+#include "knx/ipreqresp/requests/DisconnectRequest.h"
+#include "knx/ipreqresp/requests/TunnelingRequest.h"
 #include "knx/ipreqresp/responses/responses.h"
 #include <asio/awaitable.hpp>
 #include <asio/io_context.hpp>
@@ -35,7 +37,6 @@ using TunnelingSendState = AsyncMessageState<AbstractRequest, requestresponse::R
 class TunnelingConnection {
 public:
   static constexpr int TIME_BETWEEN_CHECK_CONNECTION = 45;
-  static constexpr auto DELAY_RESEND_REQUEST = 400ms;
 
 public:
   TunnelingConnection(const TunnelingConnection &) = delete;
@@ -100,16 +101,14 @@ private:
    * This is called from onReceiveData (first registered as a listener)
    * send an ACK back and check the cemi, inform listeners
    */
-  auto onReceiveTunnelRequest(KnxIpHeader &knxIpHeader,
-                              ByteBufferReader &reader) -> bool;
+  void onReceiveTunnelRequest(const TunnelRequest & tunnelRequest);
 
   /**
    * Tunneling connection releated handler: disconnect request
    * This is called from onReceiveData (first registered as a listener)
    * Server want to kick us out: reset() and inform listeners
    */
-  auto onReceiveDisconnectRequest(KnxIpHeader &knxIpHeader,
-                                  ByteBufferReader &reader) -> bool;
+  void onReceiveDisconnectRequest(const DisconnectRequest& disconnectRequest);
 
   [[nodiscard]] HPAI createDataHPAI() const;
   [[nodiscard]] HPAI createControlHPAI() const;

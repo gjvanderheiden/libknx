@@ -44,6 +44,7 @@ AsyncMessageState<DataType, ResponseType>::getState() const {
 
 template <typename DataType, typename ResponseType>
 void AsyncMessageState<DataType, ResponseType>::cancel() {
+  std::cout << "Cancelled\n";
   state = State::canceled;
   sendTimer.cancel();
 }
@@ -52,16 +53,18 @@ template <typename DataType, typename ResponseType>
 asio::awaitable<void>
 AsyncMessageState<DataType, ResponseType>::send(const unsigned int attempts) {
   state = State::sending;
-  sendTimer.expires_after(80ms);
   co_await sendMethod();
+  sendTimer.expires_after(400ms);
   if(state == State::ok || state == State::canceled) {
     co_return;
   }
   auto [error] = co_await sendTimer.async_wait(asio::as_tuple);
   if (!error) {
     if (attempts > 1) {
+      std::cout << "Timeout : new attempt\n";
       co_await send(attempts - 1);
     } else {
+      std::cout << "Timeout\n";
       state = State::timeout;
     }
   } else if (error != asio::error::operation_aborted) {

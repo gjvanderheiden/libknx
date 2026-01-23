@@ -186,6 +186,7 @@ void KnxClientConnection::forEveryListener(
 }
 
 asio::awaitable<void> KnxClientConnection::close() {
+  std::cout << "KnxClientConnection::close()\n";
   if (tunnelingConnection) {
     co_await this->tunnelingConnection->close();
     tunnelingConnection.reset();

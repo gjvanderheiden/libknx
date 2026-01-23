@@ -26,6 +26,7 @@ public:
   static DescriptionResponse parse(ByteBufferReader& reader);
   void write(ByteBufferWriter &writer) const override;
   [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
+  [[nodiscard]] std::string getShortDescription() const override;
 
   [[nodiscard]] const DeviceDib& getDeviceDib() const;
   [[nodiscard]] const SupportedServiceFamiliesDib& getSupportedServiceFamiliesDib() const;

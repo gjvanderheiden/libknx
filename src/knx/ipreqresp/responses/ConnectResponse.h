@@ -39,7 +39,7 @@ public:
   [[nodiscard]] std::uint8_t getStatus() const;
   [[nodiscard]] const ConnectionRequestData& getCRD() const;
   [[nodiscard]] const HPAI& getDataEndPoint() const;
-
+  [[nodiscard]] std::string getShortDescription() const override;
 private:
   std::uint8_t channelId{0};
   std::uint8_t status{0};

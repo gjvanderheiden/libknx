@@ -27,6 +27,7 @@ public:
   [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;};
 
   [[nodiscard]] bool matchesResponse(knx::requestresponse::ResponseVariant response) const override;
+  [[nodiscard]] std::string getShortDescription() const override;
 private:
   HPAI controlEndPoint;
   HPAI dataEndPoint;

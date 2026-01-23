@@ -26,6 +26,7 @@ public:
   static TunnelAckResponse parse(ByteBufferReader& reader);
   [[nodiscard]] std::vector<byte> toBytes() const;
   [[nodiscard]] constexpr std::uint16_t getServiceType() const override {return SERVICE_ID;}
+  [[nodiscard]] std::string getShortDescription() const override;
 
   [[nodiscard]] const ConnectionHeader& getConnectionHeader() const;
 

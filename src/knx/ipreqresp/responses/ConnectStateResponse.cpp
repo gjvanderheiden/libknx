@@ -22,4 +22,7 @@ std::uint8_t ConnectStateResponse::getStatus() const {
   return status;
 }
 
+std::string ConnectStateResponse::getShortDescription() const {
+  return "ConnectStateResponse";
+}
 } // namespace knx::requestresponse
