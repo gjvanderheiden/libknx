@@ -21,14 +21,16 @@ AsyncMessageState<DataType, ResponseType>::AsyncMessageState(
 
 template <typename DataType, typename ResponseType>
 bool AsyncMessageState<DataType, ResponseType>::matchResponse(
+    const ResponseType &response) const {
+  return matchMethod(response);
+}
+
+template <typename DataType, typename ResponseType>
+void AsyncMessageState<DataType, ResponseType>::setResponse(
     ResponseType &&response) {
-  bool match = matchMethod(response);
-  if (match) {
-    state = State::ok;
-    sendTimer.cancel();
-    this->response = std::move(response);
-  }
-  return match;
+  state = State::ok;
+  sendTimer.cancel();
+  this->response = std::move(response);
 }
 
 template <typename DataType, typename ResponseType>
@@ -51,24 +53,22 @@ void AsyncMessageState<DataType, ResponseType>::cancel() {
 
 template <typename DataType, typename ResponseType>
 asio::awaitable<void>
-AsyncMessageState<DataType, ResponseType>::send(const unsigned int attempts) {
+AsyncMessageState<DataType, ResponseType>::send(unsigned int attempts) {
   state = State::sending;
-  co_await sendMethod();
-  sendTimer.expires_after(400ms);
-  if(state == State::ok || state == State::canceled) {
-    co_return;
-  }
-  auto [error] = co_await sendTimer.async_wait(asio::as_tuple);
-  if (!error) {
-    if (attempts > 1) {
-      std::cout << "Timeout : new attempt\n";
-      co_await send(attempts - 1);
-    } else {
+  while (state == State::sending) {
+    attempts--;
+    co_await sendMethod();
+    if (state == State::ok || state == State::canceled) {
+      break;
+    }
+    sendTimer.expires_after(200ms);
+    auto [error] = co_await sendTimer.async_wait(asio::as_tuple);
+    if (!error && attempts == 0) {
       std::cout << "Timeout\n";
       state = State::timeout;
+    } else if (error && error != asio::error::operation_aborted) {
+      state = State::error;
     }
-  } else if (error != asio::error::operation_aborted) {
-    state = State::error;
   }
 }
 

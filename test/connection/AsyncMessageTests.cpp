@@ -16,7 +16,7 @@ TEST(AsyncMessageTest, receiveFirstAttempt) {
     timer.expires_after(7ms);
     co_await timer.async_wait();
 
-    ref->matchResponse({});
+    ref->setResponse({});
     co_return;
   };
   auto sender = [&]() -> asio::awaitable<void> {
@@ -49,7 +49,7 @@ TEST(AsyncMessageTest, receiveSecondAttempt) {
     timer.expires_after(7ms);
     co_await timer.async_wait();
 
-    ref->matchResponse({});
+    ref->setResponse({});
     co_return;
   };
   auto sender = [&]() -> asio::awaitable<void> {
@@ -85,7 +85,7 @@ TEST(AsyncMessageTest, receiveSecondAttemptNoDelay) {
     if (numberOfSendsCalled > 1) {
       match = true;
       // simulate co_routine imiedatly receives reponse
-      ref->matchResponse({});
+      ref->setResponse({});
     }
     co_return;
   };

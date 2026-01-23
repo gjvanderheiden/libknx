@@ -62,7 +62,7 @@ void KnxClientConnection::checkForConfirm(Cemi &cemi) {
     GroupAddress gaDst = std::get<GroupAddress>(cemi.getDestination());
     const auto key = toMapKey(cemi, gaDst);
     if (this->requests.contains(key)) {
-      this->requests[key]->matchResponse(std::move(cemi));
+      this->requests[key]->setResponse(std::move(cemi));
     }
   }
 }
@@ -128,7 +128,7 @@ asio::awaitable<void> KnxClientConnection::sendCemi(Cemi& cemi) {
       [this, &cemi]() -> asio::awaitable<void> {
         co_await tunnelingConnection->send(cemi);
       },
-      [](std::optional<Cemi> &  /*cemi*/){return true;});
+      [](const std::optional<Cemi> &  /*cemi*/){return true;});
   co_await this->requests[key]->send();
   this->requests.erase(key);
 }

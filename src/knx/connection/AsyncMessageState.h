@@ -33,7 +33,7 @@ public:
   };
 
   using SendMethod = std::function<asio::awaitable<void>()>;
-  using MatchMethod = std::function<bool (ResponseType& response)>;
+  using MatchMethod = std::function<bool (const ResponseType& response)>;
 
 public:
 
@@ -54,7 +54,9 @@ public:
    * If the repsonse matches I will return true and the State will be ok.
    * If the response doesn't match, no change and I will return false
    */
-  bool matchResponse(ResponseType&& response);
+  bool matchResponse(const ResponseType& response) const;
+
+  void setResponse(ResponseType&& response);
 
   ResponseType getResponse();
   

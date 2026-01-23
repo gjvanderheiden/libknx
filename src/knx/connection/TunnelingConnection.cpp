@@ -124,7 +124,7 @@ asio::awaitable<void> TunnelingConnection::checkConnection() {
     std::cout << "Sending connect state request\n";
     ConnectStateRequest request{createControlHPAI(), channelId};
     auto response = co_await sendRequest(request);
-    if (std::holds_alternative<TunnelAckResponse>(response)) {
+    if (std::holds_alternative<ConnectStateResponse>(response)) {
       ConnectStateResponse connectStateResponse =
           std::get<ConnectStateResponse>(response);
       if (connectStateResponse.getStatus() != 0x00) {
@@ -177,7 +177,7 @@ void TunnelingConnection::onReceiveData(ByteSpan data) {
   ByteBufferReader reader(data);
   KnxIpHeader knxIpHeader = KnxIpHeader::parse(reader);
   std::cout << "TunnelingConnection::onReceiveData() : service type =  "
-    << std::hex << knxIpHeader.getServiceType() << "\n";
+    << std::hex << knxIpHeader.getServiceType() << "\n" << std::dec;
 
 
   auto type = RequestResponseFactory::getType(knxIpHeader);
@@ -199,7 +199,8 @@ void TunnelingConnection::onReceiveData(ByteSpan data) {
     std::cout << "Received: " << description << "\n";
     bool foundMatch = false;
     for (auto const &sendRequest : this->sendItems) {
-      if (sendRequest->matchResponse(std::move(response))) {
+      if (sendRequest->matchResponse(response)) {
+        sendRequest->setResponse(std::move(response));
         foundMatch = true;
         std::cout << "found match for " << std::hex
                   << knxIpHeader.getServiceType() << "\n";
@@ -208,7 +209,7 @@ void TunnelingConnection::onReceiveData(ByteSpan data) {
     }
     if (!foundMatch) {
       std::cout << "NO MATCH found for " << std::hex
-                << knxIpHeader.getServiceType() << "\n";
+                << knxIpHeader.getServiceType() << "\n" << std::dec;
     }
   } else {
     RequestVariant request =
@@ -241,7 +242,7 @@ asio::awaitable<void> TunnelingConnection::send(Cemi cemi) {
     auto ackResponse = std::get<TunnelAckResponse>(response);
     if (ackResponse.getConnectionHeader().getStatus() != 0x00) {
       std::cout << "Got unexpected ack status " << std::hex
-                << ackResponse.getConnectionHeader().getStatus() << "\n";
+                << ackResponse.getConnectionHeader().getStatus() << "\n" << std::dec;
       co_await this->close();
     }
   } else {
@@ -251,7 +252,7 @@ asio::awaitable<void> TunnelingConnection::send(Cemi cemi) {
 
 asio::awaitable<ResponseVariant>
 TunnelingConnection::sendRequest(const AbstractRequest &request) {
-  const auto matcher = [&request](ResponseVariant &response) -> bool {
+  const auto matcher = [&request](const ResponseVariant &response) -> bool {
     return request.matchesResponse(response);
   };
 
